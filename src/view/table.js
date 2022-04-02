@@ -1,6 +1,6 @@
 import { Error } from "../error.js";
 
-export function initTable(container, headers, data) {
+export function initTable(container, headers, columns, data) {
   if (!data.every((row) => row.length == headers.length)) {
     Error('Number of headers does not correspond with rows length')
     return false
@@ -25,10 +25,10 @@ export function initTable(container, headers, data) {
     const row = document.createElement('tr')
 
     for (let j = 0; j < headers.length; j++) {
-      //const headerData = headers[j]
       const cellData = datarow[j]
+      const cellColumn = columns[j]
       const cell = document.createElement('td')
-      cell.innerHTML = cellData
+      cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData
 
       row.appendChild(cell)
     }

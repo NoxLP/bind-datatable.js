@@ -8,6 +8,7 @@ import { initTable } from "../view/table.js";
  * {
  *   containerSelector,
  *   columns,
+ *   headers
  * }
  * @returns 
  */
@@ -21,7 +22,7 @@ export function DataTable(data, config) {
     Error('Found 0 or multiple table containers. Table need at least and only one container.')
   const container = containers[0]
 
-  const table = initTable(container, config.columns, original)
+  const table = initTable(container, config.headers, config.columns, original)
   if (!table) return undefined
 
   return {

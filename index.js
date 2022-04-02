@@ -4,8 +4,18 @@ const table = new DataTable([
   [1, 2, 3, 4],
   [5, 6, 7, 8]
 ], {
-  columns: [
+  containerSelector: '#table_container',
+  headers: [
     'H1', 'H2', 'H3', 'H4'
   ],
-  containerSelector: '#table_container'
+  columns: [
+    {
+      template: (reg) => {
+        return reg + ' T1'
+      }
+    },
+    {},
+    {},
+    {},
+  ]
 })
