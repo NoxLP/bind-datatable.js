@@ -29,6 +29,7 @@ export function initTable(container, headers, columns, data) {
       const cellColumn = columns[j]
       const cell = document.createElement('td')
       cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData
+      cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
 
       row.appendChild(cell)
     }

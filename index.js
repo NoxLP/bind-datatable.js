@@ -11,10 +11,12 @@ const table = new DataTable([
   columns: [
     {
       template: (reg) => {
-        return reg + ' T1'
+        return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
       }
     },
-    {},
+    {
+      style: (reg) => `color: red;`
+    },
     {},
     {},
   ]
