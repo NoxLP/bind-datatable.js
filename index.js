@@ -17,7 +17,19 @@ const table = new DataTable([
     {
       style: (reg) => `color: red;`
     },
-    {},
+    {
+      cellEvents: [
+        {
+          name: (reg) => 'click',
+          callback: (reg, e) => {
+            console.log('CLICK');
+            console.log(e)
+            alert(`${reg}
+${JSON.stringify(e.target, null, 4)}`)
+          }
+        }
+      ]
+    },
     {},
   ]
 })

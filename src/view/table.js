@@ -30,6 +30,12 @@ export function initTable(container, headers, columns, data) {
       const cell = document.createElement('td')
       cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData
       cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
+      if (cellColumn.cellEvents) {
+        cellColumn.cellEvents.forEach((event) => {
+          console.log(event);
+          cell.addEventListener(event.name(cellData), (e) => event.callback(cellData, e), true)
+        })
+      }
 
       row.appendChild(cell)
     }
