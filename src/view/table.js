@@ -7,12 +7,42 @@ function createCell(cellColumn, cellData) {
 
   if (cellColumn.cellEvents) {
     cellColumn.cellEvents.forEach((event) => {
-      console.log(event);
       cell.addEventListener(event.name(cellData), (e) => event.callback(cellData, e), true)
     })
   }
 
   return cell
+}
+
+function createRow(index, datarow, columns, headers) {
+  const row = document.createElement('tr')
+  let key, cellData, setData, bindedRow
+  if (Array.isArray(datarow)) {
+    bindedRow = []
+    setData = (cellIndex) => {
+      key = cellIndex
+      cellData = datarow[cellIndex]
+    }
+  }
+  else {
+    bindedRow = {}
+    setData = (cellIndex) => {
+      key = headers[cellIndex].key ?? headers[cellIndex].toLowerCase()
+      cellData = datarow[key]
+    }
+  }
+
+  for (let j = 0; j < headers.length; j++) {
+    setData(j)
+
+    const cellColumn = columns[j]
+    const cell = createCell(cellColumn, cellData)
+
+    row.appendChild(cell)
+    bindedRow[key] = cell
+  }
+
+  return { row, bindedRow }
 }
 
 export function initTable(container, headers, columns, data) {
@@ -40,52 +70,30 @@ export function initTable(container, headers, columns, data) {
   bindedTable.rows = []
   for (let i = 0; i < data.length; i++) {
     const datarow = data[i]
-    const row = document.createElement('tr')
-    let key, cellData, setData
-    if (Array.isArray(datarow)) {
-      bindedTable.rows.push([])
-      setData = (j) => {
-        key = j
-        cellData = datarow[j]
-      }
-    }
-    else {
-      bindedTable.rows.push({})
-      setData = (j) => {
-        key = headers[j].key ?? headers[j].toLowerCase()
-        cellData = datarow[key]
-      }
-    }
+    const rowTuplet = createRow(i, datarow, columns, headers)
 
-    for (let j = 0; j < headers.length; j++) {
-      setData(j)
-
-      const cellColumn = columns[j]
-      const cell = createCell(cellColumn, cellData)
-
-      row.appendChild(cell)
-      bindedTable.rows[i][key] = cell
-    }
-
-    table.appendChild(row)
+    table.appendChild(rowTuplet.row)
+    bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.bindedRow })
   }
 
   container.appendChild(table)
   return bindedTable
 }
 
-export function updateCell(table, change, config) {
-  // change.path have an ordered full path to the updated property
-  let updated = table.rows[change.path[0]]
-  for (let i = 1; i < change.path.length; i++) {
-    updated = updated[change.path[i]]
-  }
-
+export function updateCell(updatedCell, change, config) {
   let col = change.path[1]
   if (!(/^\d+$/.test(col))) {
     col = config.headers.findIndex((h) => h.key == col)
   }
 
-  updated.innerHTML = ''
-  updated.appendChild(createCell(config.columns[col], change.value))
+  updatedCell.innerHTML = ''
+  updatedCell.appendChild(createCell(config.columns[col], change.value))
+  return updateCell
+}
+
+export function updateRow(updatedRow, index, change, config) {
+  const rowTuplet = createRow(index, change.value, config.columns, config.headers)
+
+  updatedRow.row.replaceWith(rowTuplet.row)
+  return rowTuplet
 }

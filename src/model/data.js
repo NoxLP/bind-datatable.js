@@ -1,5 +1,5 @@
 import { Error } from "../error.js";
-import { initTable, updateCell } from "../view/table.js";
+import { initTable, updateCell, updateRow } from "../view/table.js";
 import { clone } from "../helpers/clone.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
 
@@ -34,7 +34,22 @@ export function DataTable(data, config) {
       switch (change.type) {
         case 'update':
           console.log('UPDATE');
-          updateCell(table, change, config)
+          // change.path have an ordered full path to the updated property
+          let updated = table.rows[change.path[0]]
+
+          if (change.path.length > 1) {
+            // cell updated
+            updated = updated.cells
+            for (let i = 1; i < change.path.length; i++) {
+              updated = updated[change.path[i]]
+            }
+
+            updateCell(updated, change, config)
+          } else {
+            // complete row updated
+            const rowTuplet = updateRow(updated, change.path[0], change, config)
+            table.rows[change.path[0]] = { row: rowTuplet.row, cells: rowTuplet.bindedRow }
+          }
           break;
         case 'insert':
 

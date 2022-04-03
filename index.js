@@ -52,3 +52,5 @@ ${JSON.stringify(e.target, null, 4)}`)
 
 table.current[0].h1 = 'bla'
 console.log(table.current[0])
+table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
+console.log(table.current[0])
