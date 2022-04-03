@@ -67,6 +67,12 @@ export function DataTable(data, config) {
           table.table.appendChild(rowTuplet.row)
           table.rows.push(rowTuplet)
           break;
+        case 'delete':
+          break;
+        case 'reverse':
+          break;
+        case 'shuffle':
+          break;
       }
 
     })
