@@ -1,6 +1,6 @@
 import { Error } from "../error.js";
 
-function createCell(cellColumn, cellData) {
+export function createCell(cellColumn, cellData) {
   const cell = document.createElement('td')
   cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData ?? ''
   cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
@@ -14,18 +14,18 @@ function createCell(cellColumn, cellData) {
   return cell
 }
 
-function createRow(index, datarow, columns, headers) {
+export function createRow(datarow, columns, headers) {
   const row = document.createElement('tr')
-  let key, cellData, setData, bindedRow
+  let key, cellData, setData, cells
   if (Array.isArray(datarow)) {
-    bindedRow = []
+    cells = []
     setData = (cellIndex) => {
       key = cellIndex
       cellData = datarow[cellIndex]
     }
   }
   else {
-    bindedRow = {}
+    cells = {}
     setData = (cellIndex) => {
       key = headers[cellIndex].key ?? headers[cellIndex].toLowerCase()
       cellData = datarow[key]
@@ -39,10 +39,10 @@ function createRow(index, datarow, columns, headers) {
     const cell = createCell(cellColumn, cellData)
 
     row.appendChild(cell)
-    bindedRow[key] = cell
+    cells[key] = cell
   }
 
-  return { row, bindedRow }
+  return { row, cells }
 }
 
 export function initTable(container, headers, columns, data) {
@@ -70,29 +70,12 @@ export function initTable(container, headers, columns, data) {
   bindedTable.rows = []
   for (let i = 0; i < data.length; i++) {
     const datarow = data[i]
-    const rowTuplet = createRow(i, datarow, columns, headers)
+    const rowTuplet = createRow(datarow, columns, headers)
 
     table.appendChild(rowTuplet.row)
-    bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.bindedRow })
+    bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.cells })
   }
 
   container.appendChild(table)
   return bindedTable
-}
-
-export function updateCell(updatedCell, change, config) {
-  let col = change.path[1]
-  if (!(/^\d+$/.test(col))) {
-    col = config.headers.findIndex((h) => h.key == col)
-  }
-
-  updatedCell.replaceWith(createCell(config.columns[col], change.value))
-  return updateCell
-}
-
-export function updateRow(updatedRow, index, change, config) {
-  const rowTuplet = createRow(index, change.value, config.columns, config.headers)
-
-  updatedRow.row.replaceWith(rowTuplet.row)
-  return rowTuplet
 }

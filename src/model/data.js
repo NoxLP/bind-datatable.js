@@ -1,5 +1,5 @@
 import { Error } from "../error.js";
-import { initTable, updateCell, updateRow } from "../view/table.js";
+import { initTable, createRow, createCell } from "../view/table.js";
 import { clone } from "../helpers/clone.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
 
@@ -31,28 +31,28 @@ export function DataTable(data, config) {
   Observable.observe(current, (changes) => {
     changes.forEach((change) => {
       console.log('CHANGE ', change)
+      let updated
       switch (change.type) {
         case 'update':
           console.log('UPDATE');
           // change.path have an ordered full path to the updated property
-          let updated = table.rows[change.path[0]]
+          updated = table.rows[change.path[0]]
 
           if (change.path.length > 1) {
             // cell updated
-            updated = updated.cells
-            for (let i = 1; i < change.path.length; i++) {
-              updated = updated[change.path[i]]
-            }
+            updated = updated.cells[change.path[1]]
+            let col = !(/^\d+$/.test(change.path[1]))
+              ? config.headers.findIndex((h) => h.key == change.path[1])
+              : change.path[1]
 
-            updateCell(updated, change, config)
+            updated.replaceWith(createCell(config.columns[col], change.value))
           } else {
             // complete row updated
-            const rowTuplet = updateRow(updated, change.path[0], change, config)
-            table.rows[change.path[0]] = { row: rowTuplet.row, cells: rowTuplet.bindedRow }
-          }
-          break;
-        case 'insert':
+            const rowTuplet = createRow(change.value, config.columns, config.headers)
 
+            updated.row.replaceWith(rowTuplet.row)
+            table.rows[change.path[0]] = rowTuplet
+          }
           break;
       }
 
