@@ -61,3 +61,5 @@ table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
 console.log(table.current[0])
 table.current[0].h2 = { more: [10, 'b'] }
 table.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
+delete table.current[0].h3
+console.log(table.current[0])

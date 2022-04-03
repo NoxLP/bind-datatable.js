@@ -1,8 +1,13 @@
 import { Error } from "../error.js";
-import { initTable, createRow, createCell } from "../view/table.js";
+import { initTable, createRow, buildCell } from "../view/table.js";
 import { clone } from "../helpers/clone.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
 
+const getColIndexKey = (change, config) => (
+  !(/^\d+$/.test(change.path[1]))
+    ? config.headers.findIndex((h) => h.key == change.path[1])
+    : change.path[1]
+)
 /**
  * 
  * @param {object} data Data registers array
@@ -31,21 +36,19 @@ export function DataTable(data, config) {
   Observable.observe(current, (changes) => {
     changes.forEach((change) => {
       console.log('CHANGE ', change)
-      let updated
+      // change.path have an ordered full path to the updated property
+      let updated = table.rows[change.path[0]]
+      const isCellChanged = change.path.length > 1
+
       switch (change.type) {
         case 'update':
           console.log('UPDATE');
-          // change.path have an ordered full path to the updated property
-          updated = table.rows[change.path[0]]
-
-          if (change.path.length > 1) {
+          if (isCellChanged) {
             // cell updated
             updated = updated.cells[change.path[1]]
-            let col = !(/^\d+$/.test(change.path[1]))
-              ? config.headers.findIndex((h) => h.key == change.path[1])
-              : change.path[1]
+            const col = getColIndexKey(change, config)
 
-            updated.replaceWith(createCell(config.columns[col], change.value))
+            updated.replaceWith(buildCell(updated, config.columns[col], change.value))
           } else {
             // complete row updated
             const rowTuplet = createRow(change.value, config.columns, config.headers)
@@ -56,9 +59,7 @@ export function DataTable(data, config) {
           break;
         case 'insert':
           console.log('INSERT')
-          updated = table.rows[change.path[0]]
-
-          if (change.path.length > 1) {
+          if (isCellChanged) {
             Error('Can not add a new cell')
             break;
           }
@@ -68,6 +69,14 @@ export function DataTable(data, config) {
           table.rows.push(rowTuplet)
           break;
         case 'delete':
+          console.log('DELETE')
+          if (isCellChanged) {
+            updated = updated.cells[change.path[1]]
+            const col = getColIndexKey(change, config)
+            updated.replaceWith(buildCell(updated, config.columns[col], ''))
+          } else {
+
+          }
           break;
         case 'reverse':
           break;

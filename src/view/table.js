@@ -1,7 +1,7 @@
 import { Error } from "../error.js";
 
-export function createCell(cellColumn, cellData) {
-  const cell = document.createElement('td')
+export function buildCell(cell, cellColumn, cellData) {
+  console.log(cellColumn)
   cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData ?? ''
   cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
 
@@ -32,11 +32,11 @@ export function createRow(datarow, columns, headers) {
     }
   }
 
-  for (let j = 0; j < headers.length; j++) {
-    setData(j)
+  for (let i = 0; i < headers.length; i++) {
+    setData(i)
 
-    const cellColumn = columns[j]
-    const cell = createCell(cellColumn, cellData)
+    const cellColumn = columns[i]
+    const cell = buildCell(document.createElement('td'), cellColumn, cellData)
 
     row.appendChild(cell)
     cells[key] = cell
