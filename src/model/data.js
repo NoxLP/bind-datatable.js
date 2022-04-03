@@ -54,6 +54,19 @@ export function DataTable(data, config) {
             table.rows[change.path[0]] = rowTuplet
           }
           break;
+        case 'insert':
+          console.log('INSERT')
+          updated = table.rows[change.path[0]]
+
+          if (change.path.length > 1) {
+            Error('Can not add a new cell')
+            break;
+          }
+
+          const rowTuplet = createRow(change.value, config.columns, config.headers)
+          table.table.appendChild(rowTuplet.row)
+          table.rows.push(rowTuplet)
+          break;
       }
 
     })
