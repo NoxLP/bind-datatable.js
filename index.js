@@ -30,6 +30,11 @@ const table = new DataTable(
         }
       },
       {
+        template: (reg) => {
+          if (!reg.more) return reg
+
+          return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
+        },
         style: (reg) => `color: red;`
       },
       {
@@ -54,3 +59,4 @@ table.current[0].h1 = 'bla'
 console.log(table.current[0])
 table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
 console.log(table.current[0])
+table.current[0].h2 = { more: [10, 'b'] }

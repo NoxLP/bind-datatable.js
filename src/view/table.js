@@ -86,8 +86,7 @@ export function updateCell(updatedCell, change, config) {
     col = config.headers.findIndex((h) => h.key == col)
   }
 
-  updatedCell.innerHTML = ''
-  updatedCell.appendChild(createCell(config.columns[col], change.value))
+  updatedCell.replaceWith(createCell(config.columns[col], change.value))
   return updateCell
 }
 
