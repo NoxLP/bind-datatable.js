@@ -1,1 +1,0 @@
-export const container = document.getElementById('table_container')

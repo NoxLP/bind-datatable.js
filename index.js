@@ -50,4 +50,5 @@ ${JSON.stringify(e.target, null, 4)}`)
     ]
   })
 
-table.originalData.forEach((v) => console.log('-> ', v))
+table.current[0].h1 = 'bla'
+console.log(table.current[0])
