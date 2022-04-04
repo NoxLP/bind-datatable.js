@@ -1,20 +1,24 @@
 import { DataTable } from "./src/model/data.js";
+import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from "./src/view/virtual.js";
+
+const dataObject = () => {
+  const result = []
+  let j = 0
+  for (let i = 0; i < 20; i++) {
+    result.push(
+      {
+        h1: ++j,
+        h2: ++j,
+        h3: ++j,
+        h4: ++j,
+      },
+    )
+  }
+  return result
+}
 
 const table = new DataTable(
-  [
-    {
-      h1: 1,
-      h2: 2,
-      h3: 3,
-      h4: 4,
-    },
-    {
-      h1: 5,
-      h2: 6,
-      h3: 7,
-      h4: 8,
-    }
-  ],
+  dataObject(),
   {
     containerSelector: '#table_container',
     headers: [
@@ -55,11 +59,19 @@ ${JSON.stringify(e.target, null, 4)}`)
     ]
   })
 
-table.current[0].h1 = 'bla'
+document.getElementById("viewport_button").addEventListener('click', () => {
+  console.log(viewportDataWithConstantHeight(
+    document.getElementById('table_container'),
+    table.table.rows,
+  ))
+})
+
+/* table.current[0].h1 = 'bla'
 console.log(table.current[0])
 table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
 console.log(table.current[0])
 table.current[0].h2 = { more: [10, 'b'] }
 table.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
 delete table.current[0].h3
-console.log(table.current[0])
+console.log(table.current[0]) */
+

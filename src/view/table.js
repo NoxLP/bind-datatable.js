@@ -1,7 +1,6 @@
 import { Error } from "../error.js";
 
 export function buildCell(cell, cellColumn, cellData) {
-  console.log(cellColumn)
   cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData ?? ''
   cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
 

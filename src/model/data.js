@@ -8,6 +8,7 @@ const getColIndexKey = (change, config) => (
     ? config.headers.findIndex((h) => h.key == change.path[1])
     : change.path[1]
 )
+
 /**
  * 
  * @param {object} data Data registers array
@@ -88,6 +89,7 @@ export function DataTable(data, config) {
   })
 
   return {
+    table,
     current,
     shown
   }
