@@ -3,7 +3,11 @@ import { onScrollHandler, viewportDataWithConstantHeight, viewportDataWithDiffer
 import { createRow, buildCell } from "./creation.js";
 
 export function initTable(container, config, data) {
+  const scroller = document.createElement('div')
+  container.appendChild(scroller)
   const table = document.createElement('table')
+  scroller.appendChild(table)
+
   // This will hold references to DOM elements to perform binding later on
   const bindedTable = {
     table
@@ -63,9 +67,6 @@ export function initTable(container, config, data) {
     }
   }
 
-  const scroller = document.createElement('div')
-  scroller.appendChild(table)
-  container.appendChild(scroller)
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
   return bindedTable

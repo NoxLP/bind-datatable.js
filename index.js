@@ -66,6 +66,11 @@ document.getElementById("viewport_button").addEventListener('click', () => {
   ))
 })
 
+let currentIndex = 0
+document.getElementById("table_button").addEventListener('click', () => {
+  table.current.forEach((c) => console.log(c.h1))
+})
+
 /* table.current[0].h1 = 'bla'
 console.log(table.current[0])
 table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }

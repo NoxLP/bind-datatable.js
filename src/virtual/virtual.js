@@ -1,5 +1,8 @@
 import { createRow, buildCell } from "../view/creation.js";
 
+let isScrolling = false
+let lastScrollingInterval
+
 export function viewportDataWithDifferentHeights(container, rows, safeRows = 10, rowGutter = 0) {
   let totalHeight = 0
 
@@ -80,8 +83,27 @@ export function viewportDataWithConstantHeight(container, rowHeight, rows, safeR
   }
 }
 
-export function onScrollHandler(e, container, table, current, shown, config) {
-  //console.log(e.target.scrollTop)
+export function onScrollHandler(
+  e,
+  container,
+  table,
+  current,
+  shown,
+  config
+) {
+  if (isScrolling) {
+    if (lastScrollingInterval) clearInterval(lastScrollingInterval)
+
+    lastScrollingInterval = setInterval(
+      onScrollHandler(e, container, table, current, shown, config),
+      250
+    )
+
+    return
+  }
+
+  isScrolling = true
+  console.log(table.table)
   // calculate new virtual data
   table.virtualConfig = config.constantRowHeight
     ? viewportDataWithConstantHeight(
@@ -107,19 +129,24 @@ export function onScrollHandler(e, container, table, current, shown, config) {
     console.log('MENOR');
     // remove currently not shown rows BEFORE current shown rows
     const oldRows = [...table.rows]
-    console.log(oldRows);
 
     for (let i = 0; i < oldRows.length; i++) {
       const oldRow = oldRows[i];
-      console.log('TO REMOVE ', oldRow);
       if (oldRow.dataIndex < table.virtualConfig.firstShownRowIndex) {
         oldRow.row.remove()
         table.rows.splice(i, 1)
-        console.log(table.rows);
       } else break
     }
-  }
-  if (lastOldIndex > table.virtualConfig.lastShownRowIndex) {
+
+    if (table.virtualConfig.lastShownRowIndex > lastOldIndex) {
+      // add new rows
+      for (let i = lastOldIndex + 1; i < table.virtualConfig.lastShownRowIndex; i++) {
+        const rowObject = createRow(i, current[i], config.columns, config.headers)
+        table.rows.push(rowObject)
+        table.table.appendChild(rowObject.row)
+      }
+    }
+  } else if (lastOldIndex > table.virtualConfig.lastShownRowIndex) {
     // remove currently not shown rows AFTER current shown rows
     const oldRows = { ...table.rows }
     console.log(oldRows);
@@ -133,22 +160,16 @@ export function onScrollHandler(e, container, table, current, shown, config) {
         console.log(table.rows);
       } else break
     }
+
+    if (table.virtualConfig.firstShownRowIndex < firstOldIndex) {
+      // add new rows
+      for (let i = table.virtualConfig.firstShownRowIndex; i < firstOldIndex; i++) {
+        const rowObject = createRow(i, current[i], config.columns, config.headers)
+        table.rows.push(rowObject)
+        table.table.appendChild(rowObject.row)
+      }
+    }
   }
 
-  /* const minIndex = Math.min(table.virtualConfig.firstShownRowIndex, minOld)
-  const maxIndex =
-    Math.max(table.virtualConfig.lastShownRowIndex, maxOld) + 1
-
-  for (let i = minIndex; i < maxIndex; i++) {
-    if (i < table.virtualConfig.firstShownRowIndex) {
-      // before current shown rows => remove old row here
-      table.rows.row.remove()
-      table.rows.splice(oldIndex, 1)
-    } else if (i < minOld) {
-      // before old rows => create row
-      const rowObject = createRow(i, data, columns, headers)
-      table.rows.push(rowObject)
-      table.table.appenChild(rowObject.row)
-    }
-  } */
+  isScrolling = false
 }

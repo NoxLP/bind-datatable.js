@@ -27,8 +27,6 @@ const getColIndexKey = (change, config) => (
  * @returns 
  */
 export function DataTable(data, config) {
-  const original = data
-
   if (!('containerSelector' in config) ||
     !('columns' in config) ||
     !('headers' in config)) {
@@ -45,7 +43,7 @@ export function DataTable(data, config) {
   const current = Observable.from(data)
 
   const table = initTable(container, config, current)
-  let shown = current.splice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.totalShownRows)
+  const shown = current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
   container.addEventListener('scroll',
     (e) => onScrollHandler(e, container, table, current, shown, config))
   console.log(table)
