@@ -1,5 +1,6 @@
-export const viewportDataWithDifferentHeights = (container, rows, safeRows = 10, rowGutter = 0) => {
+export function viewportDataWithDifferentHeights(container, rows, safeRows = 10, rowGutter = 0) {
   let totalHeight = 0
+
   let firstShownRowIndex = undefined
   let firstShownRowOffset = undefined
   let shownHeight = undefined
@@ -24,12 +25,12 @@ export const viewportDataWithDifferentHeights = (container, rows, safeRows = 10,
     }
   }
 
-  const realShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
+  const totalShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
   firstShownRowIndex = firstShownRowIndex - safeRows
   firstShownRowIndex = firstShownRowIndex < 0 ? 0 : firstShownRowIndex
   if (safeRows) {
     // just use a mean to calculate the offset of the safe rows
-    firstShownRowOffset -= (firstShownRowOffset / realShownRows) * safeRows
+    firstShownRowOffset -= (firstShownRowOffset / totalShownRows) * safeRows
     firstShownRowOffset = firstShownRowOffset < 0 ? 0 : firstShownRowOffset
   }
   lastShownRowIndex += safeRows
@@ -42,19 +43,19 @@ export const viewportDataWithDifferentHeights = (container, rows, safeRows = 10,
 
   return {
     totalHeight,
-    realShownRows,
+    totalShownRows,
     firstShownRowIndex,
     firstShownRowOffset,
     lastShownRowIndex
   }
 }
 
-export const viewportDataWithConstantHeight = (container, rows, safeRows = 10, rowGutter = 0) => {
-  const rowHeight = rows[0].row.clientHeight
+export function viewportDataWithConstantHeight(container, rowHeight, rows, safeRows = 10, rowGutter = 0) {
+  //const rowHeight = rows[0].row.clientHeight
   const totalHeight = rows.length * (rowHeight + rowGutter)
   let firstShownRowIndex = container.scrollTop / (rowHeight - rowGutter)
   let lastShownRowIndex = firstShownRowIndex + (container.clientHeight / (rowHeight + 2 * rowGutter))
-  const realShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
+  const totalShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
 
   firstShownRowIndex = firstShownRowIndex - safeRows
   firstShownRowIndex = firstShownRowIndex < 0 ? 0 : firstShownRowIndex
@@ -70,7 +71,7 @@ export const viewportDataWithConstantHeight = (container, rows, safeRows = 10, r
 
   return {
     totalHeight,
-    realShownRows,
+    totalShownRows,
     firstShownRowIndex,
     firstShownRowOffset,
     lastShownRowIndex

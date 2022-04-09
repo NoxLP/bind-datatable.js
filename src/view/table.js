@@ -1,4 +1,5 @@
 import { Error } from "../error.js";
+import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights } from "../view/virtual.js";
 
 export function buildCell(cell, cellColumn, cellData) {
   cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData ?? ''
@@ -44,7 +45,7 @@ export function createRow(datarow, columns, headers) {
   return { row, cells }
 }
 
-export function initTable(container, headers, columns, data) {
+export function initTable(container, config, data) {
   const table = document.createElement('table')
   // This will hold references to DOM elements to perform binding later on
   const bindedTable = {
@@ -55,8 +56,8 @@ export function initTable(container, headers, columns, data) {
 
   // Create headers
   bindedTable.headers = []
-  for (let j = 0; j < headers.length; j++) {
-    const headerContent = headers[j].content ?? headers[j]
+  for (let j = 0; j < config.headers.length; j++) {
+    const headerContent = config.headers[j].content ?? config.headers[j]
     const header = document.createElement('th')
     header.innerHTML = headerContent
 
@@ -67,13 +68,46 @@ export function initTable(container, headers, columns, data) {
 
   // Create rows
   bindedTable.rows = []
-  for (let i = 0; i < data.length; i++) {
-    const datarow = data[i]
-    const rowTuplet = createRow(datarow, columns, headers)
+  console.log(config.constantRowHeight)
+  if (config.constantRowHeight) {
+    console.log('CONSTANT')
+    // Calculate rows height by drawing first row keeping it hidden
+    const firstRow = createRow(data[0], config.columns, config.headers)
+    firstRow.row.style.visibility = 'hidden'
+    container.appendChild(firstRow.row)
+    const rowHeight = firstRow.row.clientHeight
+    firstRow.row.remove()
+    console.log(container.children)
+    console.log(rowHeight)
 
-    table.appendChild(rowTuplet.row)
-    bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.cells })
+    const virtualConfig = viewportDataWithConstantHeight(
+      container,
+      rowHeight,
+      data,
+      config.virtualSafeRows || 10, config.rowsGutter || 0
+    )
+    console.log(virtualConfig)
+    table.style.height = virtualConfig.totalHeight
+
+    for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
+      const datarow = data[i]
+      const rowTuplet = createRow(datarow, config.columns, config.headers)
+
+      table.appendChild(rowTuplet.row)
+      bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.cells })
+    }
+
+    bindedTable.virtualConfig = virtualConfig
+  } else {
+    for (let i = 0; i < data.length; i++) {
+      const datarow = data[i]
+      const rowTuplet = createRow(datarow, config.columns, config.headers)
+
+      table.appendChild(rowTuplet.row)
+      bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.cells })
+    }
   }
+
 
   container.appendChild(table)
   return bindedTable
