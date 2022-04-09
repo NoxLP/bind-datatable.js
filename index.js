@@ -1,13 +1,13 @@
 import { DataTable } from "./src/model/data.js";
-import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from "./src/view/virtual.js";
+import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from "./src/virtual/virtual.js";
 
 const dataObject = () => {
   const result = []
   let j = 0
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     result.push(
       {
-        h1: ++j,
+        h1: i,
         h2: ++j,
         h3: ++j,
         h4: ++j,

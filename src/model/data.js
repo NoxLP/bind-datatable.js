@@ -1,7 +1,9 @@
 import { Error } from "../error.js";
-import { initTable, createRow, buildCell } from "../view/table.js";
+import { initTable } from "../view/init.js";
+import { createRow, buildCell } from "../view/creation.js";
 import { clone } from "../helpers/clone.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
+import { onScrollHandler } from "../virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -44,7 +46,9 @@ export function DataTable(data, config) {
 
   const table = initTable(container, config, current)
   let shown = current.splice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.totalShownRows)
-  console.log(shown)
+  container.addEventListener('scroll',
+    (e) => onScrollHandler(e, container, table, current, shown, config))
+  console.log(table)
   if (!table) return undefined
 
   Observable.observe(current, (changes) => {
@@ -65,7 +69,7 @@ export function DataTable(data, config) {
             updated.replaceWith(buildCell(updated, config.columns[col], change.value))
           } else {
             // complete row updated
-            const rowTuplet = createRow(change.value, config.columns, config.headers)
+            const rowTuplet = createRow(updated.dataIndex, change.value, config.columns, config.headers)
 
             updated.row.replaceWith(rowTuplet.row)
             table.rows[change.path[0]] = rowTuplet
