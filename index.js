@@ -97,6 +97,7 @@ document.getElementById("table_button").addEventListener('click', () => {
   console.log(table)
 })
 
+table.current.splice(1, 1)
 /* table.current[0].h1 = 'bla'
 console.log(table.current[0])
 table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }

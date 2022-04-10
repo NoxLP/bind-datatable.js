@@ -2,7 +2,7 @@ import { Error } from "../error.js";
 import { initTable } from "../view/init.js";
 import { createRow, buildCell } from "../view/creation.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
-import { onScrollHandler } from "../virtual/virtual.js";
+import { onScrollHandler, checkScroll } from "../virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -44,7 +44,7 @@ export function DataTable(data, config) {
 
   const table = initTable(container, config, current)
   container.addEventListener('scroll',
-    (e) => onScrollHandler(e, container, table, current, config))
+    () => onScrollHandler(container, table, current, config))
   console.log(table)
   if (!table) return undefined
 
@@ -82,6 +82,7 @@ export function DataTable(data, config) {
           const rowTuplet = createRow(change.value, config.columns, config.headers)
           table.table.appendChild(rowTuplet.row)
           table.rows.push(rowTuplet)
+          checkScroll(container, table, current, config)
           break;
         case 'delete':
           console.log('DELETE')
@@ -90,7 +91,9 @@ export function DataTable(data, config) {
             const col = getColIndexKey(change, config)
             updated.replaceWith(buildCell(updated, config.columns[col], ''))
           } else {
-
+            updated.row.remove()
+            table.rows.splice(change.path[0], 1)
+            checkScroll(container, table, current, config)
           }
           break;
         case 'reverse':

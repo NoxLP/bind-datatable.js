@@ -85,7 +85,6 @@ export function viewportDataWithConstantHeight(container, rowHeight, lastRowBott
 }
 
 export function onScrollHandler(
-  e,
   container,
   table,
   current,
@@ -149,8 +148,7 @@ export function onScrollHandler(
     isScrolling = false
   }, 100)
   setTimeout(() => {
-    checkLastScroll(
-      e,
+    checkScroll(
       container,
       table,
       current,
@@ -159,8 +157,7 @@ export function onScrollHandler(
   }, 250);
 }
 
-function checkLastScroll(
-  e,
+export function checkScroll(
   container,
   table,
   current,
@@ -186,7 +183,7 @@ function checkLastScroll(
 
   if (currentVirtual.firstShownRowIndex != table.virtualConfig.firstShownRowIndex
     || currentVirtual.lastShownRowIndex != table.virtualConfig.lastShownRowIndex) {
-    onScrollHandler(e,
+    onScrollHandler(
       container,
       table,
       current,
