@@ -8,6 +8,8 @@ export function logScroll(table) {
     && lastTdText == table.virtualConfig.lastShownRowIndex
   ) {
     console.log('CORRECT')
+    console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstShownRowIndex}`)
+    console.log(`> last row: ${lastTdText} / ${table.virtualConfig.lastShownRowIndex}`);
   } else {
     console.log('INCORRECT')
     console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstShownRowIndex}`)

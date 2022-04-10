@@ -1,8 +1,7 @@
-import { createRow, buildCell } from "../view/creation.js";
+import { createRow } from "../view/creation.js";
 import { logScroll } from "../../log.js";
 
 let isScrolling = false
-let lastScrollingInterval
 
 export function viewportDataWithDifferentHeights(container, rows, safeRows = 10, rowGutter = 0) {
   let totalHeight = 0
@@ -57,7 +56,6 @@ export function viewportDataWithDifferentHeights(container, rows, safeRows = 10,
 }
 
 export function viewportDataWithConstantHeight(container, rowHeight, rows, safeRows = 10, rowGutter = 0) {
-  //const rowHeight = rows[0].row.clientHeight
   const totalHeight = rows.length * (rowHeight + rowGutter)
   let firstShownRowIndex = container.scrollTop / (rowHeight - rowGutter)
   let lastShownRowIndex = firstShownRowIndex + (container.clientHeight / (rowHeight + 2 * rowGutter))
@@ -69,7 +67,9 @@ export function viewportDataWithConstantHeight(container, rowHeight, rows, safeR
   lastShownRowIndex = lastShownRowIndex > rows.length - 1
     ? rows.length - 1
     : lastShownRowIndex
-  let rowOffset = firstShownRowIndex * rowHeight
+  let rowOffset = Math.ceil((lastShownRowIndex == rows.length - 1
+    ? firstShownRowIndex + 3
+    : firstShownRowIndex) * rowHeight)
   rowOffset = rowOffset < 0 ? 0 : rowOffset
 
   firstShownRowIndex = Math.floor(firstShownRowIndex)
@@ -95,8 +95,6 @@ export function onScrollHandler(
   if (isScrolling) return
 
   isScrolling = true
-  container.removeEventListener('scroll',
-    (e) => onScrollHandler(e, container, table, current, shown, config))
   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
   console.log(table.table)
   // calculate new virtual data
@@ -135,8 +133,7 @@ export function onScrollHandler(
 
   const rest = table.rows.splice(firstToRemove, lastToRemove - firstToRemove)
   for (let i = 0; i < rest.length; i++) {
-    rest[i].row.dataset.removed = 1
-    rest[i].row.remove()
+    table.table.removeChild(rest[i].row)
   }
 
   const firstOld = table.rows[0]?.dataIndex
@@ -159,16 +156,59 @@ export function onScrollHandler(
       rowObject.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
       table.rows.push(rowObject)
       table.table.appendChild(rowObject.row)
-    } else {
-      table.rows[i - table.virtualConfig.firstShownRowIndex].row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
     }
   }
+  table.rows.forEach((r) => r.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`)
   logScroll(table)
 
   setTimeout(() => {
     isScrolling = false
-    container.addEventListener('scroll',
-      (e) => onScrollHandler(e, container, table, current, shown, config))
-  },
-    50)
+  }, 100)
+  setTimeout(() => {
+    checkLastScroll(
+      e,
+      container,
+      table,
+      current,
+      shown,
+      config
+    )
+  }, 250);
+}
+
+function checkLastScroll(
+  e,
+  container,
+  table,
+  current,
+  shown,
+  config
+) {
+  if (isScrolling) return
+
+  const currentVirtual = config.constantRowHeight
+    ? viewportDataWithConstantHeight(
+      container,
+      table.rowHeight,
+      current,
+      config.virtualSafeRows || 10,
+      config.rowsGutter || 0
+    )
+    : viewportDataWithDifferentHeights(
+      container,
+      table.rowHeight,
+      current,
+      config.virtualSafeRows || 10,
+      config.rowsGutter || 0
+    );
+
+  if (currentVirtual.firstShownRowIndex != table.virtualConfig.firstShownRowIndex
+    || currentVirtual.lastShownRowIndex != table.virtualConfig.lastShownRowIndex) {
+    onScrollHandler(e,
+      container,
+      table,
+      current,
+      shown,
+      config)
+  }
 }

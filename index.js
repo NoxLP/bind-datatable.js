@@ -11,6 +11,14 @@ const dataObject = () => {
         h2: ++j,
         h3: ++j,
         h4: ++j,
+        h5: i,
+        h6: ++j,
+        h7: ++j,
+        h8: ++j,
+        h9: i,
+        h10: ++j,
+        h11: ++j,
+        h12: ++j,
       },
     )
   }
@@ -22,16 +30,27 @@ const table = new DataTable(
   {
     containerSelector: '#table_container',
     headers: [
-      { content: 'H1', key: 'h1' }, { content: 'H2', key: 'h2' }, { content: 'H3', key: 'h3' }, { content: 'H4', key: 'h4' }, 'H5'
+      { content: 'H1', key: 'h1' },
+      { content: 'H2', key: 'h2' },
+      { content: 'H3', key: 'h3' },
+      { content: 'H4', key: 'h4' },
+      'H5',
+      'H6',
+      'H7',
+      'H8',
+      'H9',
+      'H10',
+      'H11',
+      'H12',
     ],
     rows: {
       template: (row) => { }
     },
     columns: [
       {
-        template: (reg) => {
+        /* template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
-        }
+        } */
       },
       {
         template: (reg) => {
@@ -55,7 +74,14 @@ ${JSON.stringify(e.target, null, 4)}`)
         ]
       },
       {},
-      {}
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
     ]
   })
 
