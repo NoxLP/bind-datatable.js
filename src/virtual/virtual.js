@@ -93,10 +93,8 @@ export function onScrollHandler(
   config
 ) {
   if (isScrolling) return
-
   isScrolling = true
-  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  console.log(table.table)
+
   // calculate new virtual data
   table.virtualConfig = config.constantRowHeight
     ? viewportDataWithConstantHeight(
@@ -113,29 +111,18 @@ export function onScrollHandler(
       config.virtualSafeRows || 10,
       config.rowsGutter || 0
     );
-  console.log(`FROM ${table.virtualConfig.firstShownRowIndex} TO ${table.virtualConfig.lastShownRowIndex}`)
 
-  const isScrollingDown = table.rows[0].dataIndex <= table.virtualConfig.firstShownRowIndex
-  console.log('DOWN ', isScrollingDown)
-  let firstToRemove, firstToAdd, lastToRemove, lastToAdd
-  if (isScrollingDown) {
-    firstToAdd = table.rows[table.rows.length - 1].dataIndex + 1
-    lastToAdd = table.virtualConfig.lastShownRowIndex
-    firstToRemove = 0
-    lastToRemove = table.virtualConfig.firstShownRowIndex - table.rows[0].dataIndex
-  } else {
-    firstToAdd = table.virtualConfig.firstShownRowIndex
-    lastToAdd = table.rows[0].dataIndex
-    firstToRemove = table.rows[table.rows.length - 1].dataIndex - table.virtualConfig.lastShownRowIndex + 1
-    firstToRemove = firstToRemove < 0 ? 0 : firstToRemove
-    lastToRemove = table.rows.length
+  // remove rows
+  let i = 0
+  while (i < table.rows.length - 1) {
+    if (table.rows[i].dataIndex < table.virtualConfig.firstShownRowIndex ||
+      table.rows[i].dataIndex > table.virtualConfig.lastShownRowIndex) {
+      table.rows[i].row.remove()
+      table.rows.splice(i, 1)
+    } else i++
   }
 
-  const rest = table.rows.splice(firstToRemove, lastToRemove - firstToRemove)
-  for (let i = 0; i < rest.length; i++) {
-    table.table.removeChild(rest[i].row)
-  }
-
+  // add rows
   const firstOld = table.rows[0]?.dataIndex
   const lastOld = table.rows[table.rows.length - 1]?.dataIndex
   let insertIndex = 0
@@ -157,7 +144,6 @@ export function onScrollHandler(
     }
   }
   table.rows.forEach((r) => r.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`)
-  logScroll(table)
 
   setTimeout(() => {
     isScrolling = false
