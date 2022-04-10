@@ -1,4 +1,5 @@
 import { createRow, buildCell } from "../view/creation.js";
+import { logScroll } from "../../log.js";
 
 let isScrolling = false
 let lastScrollingInterval
@@ -91,18 +92,12 @@ export function onScrollHandler(
   shown,
   config
 ) {
-  if (isScrolling) {
-    if (lastScrollingInterval) clearInterval(lastScrollingInterval)
-
-    lastScrollingInterval = setInterval(
-      onScrollHandler(e, container, table, current, shown, config),
-      250
-    )
-
-    return
-  }
+  if (isScrolling) return
 
   isScrolling = true
+  container.removeEventListener('scroll',
+    (e) => onScrollHandler(e, container, table, current, shown, config))
+  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
   console.log(table.table)
   // calculate new virtual data
   table.virtualConfig = config.constantRowHeight
@@ -119,57 +114,61 @@ export function onScrollHandler(
       current,
       config.virtualSafeRows || 10,
       config.rowsGutter || 0
-    )
+    );
+  console.log(`FROM ${table.virtualConfig.firstShownRowIndex} TO ${table.virtualConfig.lastShownRowIndex}`)
 
-  console.log('>>>>>>>>>>>>>');
-  console.log(table.virtualConfig);
-  const firstOldIndex = table.rows[0].dataIndex
-  const lastOldIndex = table.rows[table.rows.length - 1].dataIndex
-  if (firstOldIndex < table.virtualConfig.firstShownRowIndex) {
-    console.log('MENOR');
-    // remove currently not shown rows BEFORE current shown rows
-    const oldRows = [...table.rows]
-
-    for (let i = 0; i < oldRows.length; i++) {
-      const oldRow = oldRows[i];
-      if (oldRow.dataIndex < table.virtualConfig.firstShownRowIndex) {
-        oldRow.row.remove()
-        table.rows.splice(i, 1)
-      } else break
-    }
-
-    if (table.virtualConfig.lastShownRowIndex > lastOldIndex) {
-      // add new rows
-      for (let i = lastOldIndex + 1; i < table.virtualConfig.lastShownRowIndex; i++) {
-        const rowObject = createRow(i, current[i], config.columns, config.headers)
-        table.rows.push(rowObject)
-        table.table.appendChild(rowObject.row)
-      }
-    }
-  } else if (lastOldIndex > table.virtualConfig.lastShownRowIndex) {
-    // remove currently not shown rows AFTER current shown rows
-    const oldRows = { ...table.rows }
-    console.log(oldRows);
-
-    for (let i = oldRows.length - 1; i > 0; i--) {
-      const oldRow = oldRows[i];
-      console.log('TO REMOVE ', oldRow);
-      if (oldRow.dataIndex > table.virtualConfig.lastShownRowIndex) {
-        oldRow.row.remove()
-        table.rows.splice(i, 1)
-        console.log(table.rows);
-      } else break
-    }
-
-    if (table.virtualConfig.firstShownRowIndex < firstOldIndex) {
-      // add new rows
-      for (let i = table.virtualConfig.firstShownRowIndex; i < firstOldIndex; i++) {
-        const rowObject = createRow(i, current[i], config.columns, config.headers)
-        table.rows.push(rowObject)
-        table.table.appendChild(rowObject.row)
-      }
-    }
+  const isScrollingDown = table.rows[0].dataIndex <= table.virtualConfig.firstShownRowIndex
+  console.log('DOWN ', isScrollingDown)
+  let firstToRemove, firstToAdd, lastToRemove, lastToAdd
+  if (isScrollingDown) {
+    firstToAdd = table.rows[table.rows.length - 1].dataIndex + 1
+    lastToAdd = table.virtualConfig.lastShownRowIndex
+    firstToRemove = 0
+    lastToRemove = table.virtualConfig.firstShownRowIndex - table.rows[0].dataIndex
+  } else {
+    firstToAdd = table.virtualConfig.firstShownRowIndex
+    lastToAdd = table.rows[0].dataIndex
+    firstToRemove = table.rows[table.rows.length - 1].dataIndex - table.virtualConfig.lastShownRowIndex + 1
+    firstToRemove = firstToRemove < 0 ? 0 : firstToRemove
+    lastToRemove = table.rows.length
   }
 
-  isScrolling = false
+  const rest = table.rows.splice(firstToRemove, lastToRemove - firstToRemove)
+  for (let i = 0; i < rest.length; i++) {
+    rest[i].row.dataset.removed = 1
+    rest[i].row.remove()
+  }
+
+  const firstOld = table.rows[0].dataIndex
+  const lastOld = table.rows[table.rows.length - 1].dataIndex
+  let insertIndex = 0
+
+  for (let i = table.virtualConfig.firstShownRowIndex;
+    i <= table.virtualConfig.lastShownRowIndex;
+    i++
+  ) {
+    if (i < firstOld) {
+      const rowObject = createRow(i, current[i], config.columns, config.headers)
+      rowObject.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
+      table.rows.splice(insertIndex, 0, rowObject)
+      insertIndex++
+      console.log(table.rows[0].row)
+      table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
+    } else if (i > lastOld) {
+      const rowObject = createRow(i, current[i], config.columns, config.headers)
+      rowObject.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
+      table.rows.push(rowObject)
+      table.table.appendChild(rowObject.row)
+    } else {
+      table.rows[i - table.virtualConfig.firstShownRowIndex].row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
+    }
+  }
+  logScroll(table)
+
+  setTimeout(() => {
+    isScrolling = false
+    container.addEventListener('scroll',
+      (e) => onScrollHandler(e, container, table, current, shown, config))
+  },
+    50)
 }

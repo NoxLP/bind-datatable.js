@@ -4,7 +4,7 @@ import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from
 const dataObject = () => {
   const result = []
   let j = 0
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10000; i++) {
     result.push(
       {
         h1: i,
@@ -29,9 +29,9 @@ const table = new DataTable(
     },
     columns: [
       {
-        template: (reg) => {
+        /*template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
-        }
+        }*/
       },
       {
         template: (reg) => {
@@ -68,7 +68,7 @@ document.getElementById("viewport_button").addEventListener('click', () => {
 
 let currentIndex = 0
 document.getElementById("table_button").addEventListener('click', () => {
-  table.current.forEach((c) => console.log(c.h1))
+  console.log(table)
 })
 
 /* table.current[0].h1 = 'bla'
