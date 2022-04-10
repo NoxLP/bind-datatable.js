@@ -146,14 +146,12 @@ export function onScrollHandler(
   ) {
     if (firstOld && i < firstOld) {
       const rowObject = createRow(i, current[i], config.columns, config.headers)
-      rowObject.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
       table.rows.splice(insertIndex, 0, rowObject)
       insertIndex++
       console.log(table.rows[0].row)
       table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
     } else if (!firstOld || i > lastOld) {
       const rowObject = createRow(i, current[i], config.columns, config.headers)
-      rowObject.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`
       table.rows.push(rowObject)
       table.table.appendChild(rowObject.row)
     }
