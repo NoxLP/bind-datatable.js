@@ -1,7 +1,6 @@
 import { Error } from "../error.js";
 import { initTable } from "../view/init.js";
 import { createRow, buildCell } from "../view/creation.js";
-import { clone } from "../helpers/clone.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
 import { onScrollHandler } from "../virtual/virtual.js";
 
@@ -19,6 +18,7 @@ const getColIndexKey = (change, config) => (
  *   constantRowHeight, // DEFAULT TRUE
  *   virtualSafeRows, // DEFAULT 10
  *   rowsGutter, // DEFAULT 0
+ *   lastRowBottomOffset, //DEFAULT row height * 5
  *   containerSelector, //MANDATORY
  *   columns, //MANDATORY
  *   headers, //MANDATORY
@@ -43,9 +43,8 @@ export function DataTable(data, config) {
   const current = Observable.from(data)
 
   const table = initTable(container, config, current)
-  const shown = current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
   container.addEventListener('scroll',
-    (e) => onScrollHandler(e, container, table, current, shown, config))
+    (e) => onScrollHandler(e, container, table, current, config))
   console.log(table)
   if (!table) return undefined
 
@@ -106,6 +105,6 @@ export function DataTable(data, config) {
   return {
     table,
     current,
-    shown
+    shown: current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
   }
 }

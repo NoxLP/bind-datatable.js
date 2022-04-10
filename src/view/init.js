@@ -1,5 +1,5 @@
 import { Error } from "../error.js";
-import { onScrollHandler, viewportDataWithConstantHeight, viewportDataWithDifferentHeights } from "../virtual/virtual.js";
+import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights } from "../virtual/virtual.js";
 import { createRow, buildCell } from "./creation.js";
 
 export function initTable(container, config, data) {
@@ -42,6 +42,7 @@ export function initTable(container, config, data) {
     virtualConfig = viewportDataWithConstantHeight(
       container,
       rowHeight,
+      config.lastRowBottomOffset,
       data,
       config.virtualSafeRows || 10,
       config.rowsGutter || 0

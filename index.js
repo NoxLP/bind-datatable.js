@@ -48,9 +48,9 @@ const table = new DataTable(
     },
     columns: [
       {
-        /* template: (reg) => {
+        template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
-        } */
+        }
       },
       {
         template: (reg) => {
