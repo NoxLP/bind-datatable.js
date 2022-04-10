@@ -4,7 +4,7 @@ import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from
 const dataObject = () => {
   const result = []
   let j = 0
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 100000; i++) {
     result.push(
       {
         h1: i,
@@ -29,9 +29,9 @@ const table = new DataTable(
     },
     columns: [
       {
-        /*template: (reg) => {
+        template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
-        }*/
+        }
       },
       {
         template: (reg) => {
