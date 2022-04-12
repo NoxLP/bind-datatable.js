@@ -7,7 +7,7 @@ export function viewportDataWithDifferentHeights(container, rows, lastRowBottomO
   let totalHeight = 0
 
   let firstShownRowIndex = undefined
-  let rowOffset = undefined
+  let rowOffset = 0
   let shownHeight = undefined
   let lastShownRowIndex = undefined
 
@@ -34,6 +34,10 @@ export function viewportDataWithDifferentHeights(container, rows, lastRowBottomO
   firstShownRowIndex = firstShownRowIndex - safeRows
   firstShownRowIndex = firstShownRowIndex < 0 ? 0 : firstShownRowIndex
   if (safeRows) {
+    // TODO: something is wrong here:
+    // "use a mean"... where is the mean?
+    // rowheight in line 44 doesn't exist here, it was copied from the constant height function
+
     // just use a mean to calculate the offset of the safe rows
     rowOffset -= (rowOffset / totalShownRows) * safeRows
     rowOffset = rowOffset < 0 ? 0 : rowOffset < 0 ? 0 : rowOffset + (lastShownRowIndex == rows.length - 1
@@ -107,7 +111,7 @@ export function onScrollHandler(
     : viewportDataWithDifferentHeights(
       container,
       current,
-      lastRowBottomOffset,
+      config.lastRowBottomOffset,
       config.virtualSafeRows || 10,
       config.rowsGutter || 0
     );
