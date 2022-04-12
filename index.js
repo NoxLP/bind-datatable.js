@@ -1,5 +1,5 @@
 import { DataTable } from "./src/model/data.js";
-import { viewportDataWithDifferentHeights, viewportDataWithConstantHeight } from "./src/virtual/virtual.js";
+import { viewportDataWithConstantHeight } from "./src/virtual/virtual.js";
 
 const dataObject = () => {
   const result = []
@@ -25,7 +25,7 @@ const dataObject = () => {
   return result
 }
 
-const table = new DataTable(
+const testTable = new DataTable(
   dataObject(),
   {
     containerSelector: '#table_container',
@@ -44,6 +44,7 @@ const table = new DataTable(
       'H12',
     ],
     rows: {
+      // eslint-disable-next-line no-unused-vars
       template: (row) => { }
     },
     columns: [
@@ -58,12 +59,12 @@ const table = new DataTable(
 
           return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
         },
-        style: (reg) => `color: red;`
+        style: () => `color: red;`
       },
       {
         cellEvents: [
           {
-            name: (reg) => 'click',
+            name: () => 'click',
             callback: (reg, e) => {
               console.log('CLICK');
               console.log(e)
@@ -85,25 +86,31 @@ ${JSON.stringify(e.target, null, 4)}`)
     ]
   })
 
+window.testTable = testTable
+
 document.getElementById("viewport_button").addEventListener('click', () => {
   console.log(viewportDataWithConstantHeight(
     document.getElementById('table_container'),
-    table.table.rows,
+    testTable.table.rows,
   ))
 })
 
-let currentIndex = 0
 document.getElementById("table_button").addEventListener('click', () => {
-  console.log(table)
+  console.log(testTable)
 })
 
-table.current.splice(1, 1)
-/* table.current[0].h1 = 'bla'
-console.log(table.current[0])
-table.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
-console.log(table.current[0])
-table.current[0].h2 = { more: [10, 'b'] }
-table.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
-delete table.current[0].h3
-console.log(table.current[0]) */
-
+document.getElementById('test_button').addEventListener('click', () => {
+  testTable.current[0].h1 = 'bla'
+  // console.log(testTable.current[0])
+  testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
+  testTable.current[1] = {
+    h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
+  }
+  // console.log(testTable.current[0])
+  // testTable.current[0].h2 = { more: [10, 'b'] }
+  // testTable.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
+  // delete testTable.current[0].h3
+  // console.log(testTable.current[0])
+  //testTable.current.splice(1, 1)
+  //testTable.current.sort((a, b) => a.h2 + b.h2)
+})

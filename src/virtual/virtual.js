@@ -1,4 +1,4 @@
-import { createRow } from "../view/creation.js";
+import { createRow } from "../view/domTableOperations.js";
 
 let isScrolling = false
 let scrollChecked = false

@@ -1,6 +1,6 @@
 import { Error } from "../error.js";
 import { initTable } from "../view/init.js";
-import { createRow, buildCell } from "../view/creation.js";
+import { createRow, checkRowKeys, updateRow, updateCell } from "../view/domTableOperations.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
 import { onScrollHandler, checkScroll } from "../virtual/virtual.js";
 
@@ -19,6 +19,7 @@ const getColIndexKey = (change, config) => (
  *   virtualSafeRows, // DEFAULT 10
  *   rowsGutter, // DEFAULT 0
  *   lastRowBottomOffset, //DEFAULT row height * 5
+ *   checkUpdatedRows, //DEFAULT true
  *   containerSelector, //MANDATORY
  *   columns, //MANDATORY
  *   headers, //MANDATORY
@@ -55,6 +56,8 @@ export function DataTable(data, config) {
       let updated = table.rows[change.path[0]]
       const isCellChanged = change.path.length > 1
 
+      // TODO: all these can be optimized by updating innerHTML instead of creating
+      // cells and rows everywhere, probably mostly at the update case
       switch (change.type) {
         case 'update':
           console.log('UPDATE');
@@ -62,34 +65,42 @@ export function DataTable(data, config) {
             // cell updated
             updated = updated.cells[change.path[1]]
             const col = getColIndexKey(change, config)
-
-            updated.replaceWith(buildCell(updated, config.columns[col], change.value))
+            updateCell(updated, config.columns[col], change.value)
           } else {
             // complete row updated
-            const rowTuplet = createRow(updated.dataIndex, change.value, config.columns, config.headers)
-
-            updated.row.replaceWith(rowTuplet.row)
-            table.rows[change.path[0]] = rowTuplet
+            if ((!('checkUpdatedRows' in config) || config.checkUpdatedRows)
+              && !checkRowKeys(change.value, config.headers)) {
+              Error(`New value while trying to update row wasn't correct.
+Some headers may be incorrect: 
+${JSON.stringify(change.value, null, 4)}`)
+            }
+            else {
+              console.log('CHECK OK')
+              console.log(updated)
+              updateRow(updated, updated.dataIndex, change.value, config.columns, config.headers)
+            }
           }
           break;
         case 'insert':
-          console.log('INSERT')
-          if (isCellChanged) {
-            Error('Can not add a new cell')
+          {
+            console.log('INSERT')
+            if (isCellChanged) {
+              Error('Can not add a new cell')
+              break;
+            }
+
+            const rowTuplet = createRow(change.value, config.columns, config.headers)
+            table.table.appendChild(rowTuplet.row)
+            table.rows.push(rowTuplet)
+            checkScroll(container, table, current, config)
             break;
           }
-
-          const rowTuplet = createRow(change.value, config.columns, config.headers)
-          table.table.appendChild(rowTuplet.row)
-          table.rows.push(rowTuplet)
-          checkScroll(container, table, current, config)
-          break;
         case 'delete':
           console.log('DELETE')
           if (isCellChanged) {
             updated = updated.cells[change.path[1]]
             const col = getColIndexKey(change, config)
-            updated.replaceWith(buildCell(updated, config.columns[col], ''))
+            updated.replaceWith(updateCell(updated, config.columns[col], ''))
           } else {
             updated.row.remove()
             table.rows.splice(change.path[0], 1)
@@ -99,6 +110,10 @@ export function DataTable(data, config) {
         case 'reverse':
           break;
         case 'shuffle':
+          console.log('SHUFFLE')
+          console.log(change)
+          //table.table.children.sort((a, b) => current.indexOf(a) - current.indexOf(b))
+          table.rows.sort((a, b) => current.indexOf(a) - current.indexOf(b))
           break;
       }
 

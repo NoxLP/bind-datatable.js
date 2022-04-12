@@ -1,6 +1,5 @@
-import { Error } from "../error.js";
-import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights } from "../virtual/virtual.js";
-import { createRow, buildCell } from "./creation.js";
+import { viewportDataWithConstantHeight } from "../virtual/virtual.js";
+import { createRow } from "./domTableOperations.js";
 
 export function initTable(container, config, data) {
   const scroller = document.createElement('div')
