@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "object-observer": "^5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0"
   }
 }
