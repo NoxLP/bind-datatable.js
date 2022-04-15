@@ -144,8 +144,12 @@ ${JSON.stringify(change.value, null, 4)}`)
 
 
   return {
-    table,
     current,
-    shown: current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
+    get table() {
+      return table
+    },
+    get shown() {
+      return current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
+    }
   }
 }
