@@ -165,25 +165,28 @@ export function checkScroll(
   container,
   table,
   current,
-  config
+  config,
+  currentVirtual
 ) {
   if (isScrolling || scrollChecked) return
 
-  const currentVirtual = config.constantRowHeight
-    ? viewportDataWithConstantHeight(
-      container,
-      table.rowHeight,
-      current,
-      config.virtualSafeRows || 10,
-      config.rowsGutter || 0
-    )
-    : viewportDataWithDifferentHeights(
-      container,
-      table.rowHeight,
-      current,
-      config.virtualSafeRows || 10,
-      config.rowsGutter || 0
-    );
+  if (!currentVirtual) {
+    currentVirtual = config.constantRowHeight
+      ? viewportDataWithConstantHeight(
+        container,
+        table.rowHeight,
+        current,
+        config.virtualSafeRows || 10,
+        config.rowsGutter || 0
+      )
+      : viewportDataWithDifferentHeights(
+        container,
+        table.rowHeight,
+        current,
+        config.virtualSafeRows || 10,
+        config.rowsGutter || 0
+      );
+  }
 
   if (currentVirtual.firstShownRowIndex != table.virtualConfig.firstShownRowIndex
     || currentVirtual.lastShownRowIndex != table.virtualConfig.lastShownRowIndex) {

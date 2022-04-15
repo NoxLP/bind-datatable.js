@@ -72,3 +72,5 @@ export function updateCell(cell, cellColumn, cellData) {
 
   return cell
 }
+
+//export function updateAllNextShownDataindexes()

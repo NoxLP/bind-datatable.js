@@ -2,7 +2,7 @@ import { Error } from "../error.js";
 import { initTable } from "../view/init.js";
 import { createRow, checkRowKeys, updateRow, updateCell } from "../view/domTableOperations.js";
 import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
-import { onScrollHandler, checkScroll } from "../virtual/virtual.js";
+import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "../virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -50,6 +50,7 @@ export function DataTable(data, config) {
   if (!table) return undefined
 
   Observable.observe(current, (changes) => {
+    console.log('CHANGE OBSERVED')
     changes.forEach((change) => {
       console.log('CHANGE ', change)
       // change.path have an ordered full path to the updated property
@@ -89,6 +90,7 @@ ${JSON.stringify(change.value, null, 4)}`)
               break;
             }
 
+            console.log(change)
             const rowTuplet = createRow(change.value, config.columns, config.headers)
             table.table.appendChild(rowTuplet.row)
             table.rows.push(rowTuplet)
@@ -108,17 +110,38 @@ ${JSON.stringify(change.value, null, 4)}`)
           }
           break;
         case 'reverse':
-          break;
         case 'shuffle':
-          console.log('SHUFFLE')
-          console.log(change)
-          //table.table.children.sort((a, b) => current.indexOf(a) - current.indexOf(b))
-          table.rows.sort((a, b) => current.indexOf(a) - current.indexOf(b))
+          {
+            console.log('SHUFFLE')
+            const virtualConfig = config.constantRowHeight ?
+              viewportDataWithConstantHeight(
+                container,
+                table.rowHeight,
+                current,
+                config.virtualSafeRows || 10,
+                config.rowsGutter || 0) :
+              viewportDataWithDifferentHeights(
+                container,
+                table.rowHeight,
+                current,
+                config.virtualSafeRows || 10,
+                config.rowsGutter || 0
+              )
+
+            for (let i = virtualConfig.firstShownRowIndex;
+              i <= virtualConfig.lastShownRowIndex;
+              i++) {
+              updateRow(table.rows[i - virtualConfig.firstShownRowIndex], i, current[i], config.columns, config.headers)
+            }
+
+            checkScroll(container, table, current, config, virtualConfig)
+          }
           break;
       }
 
     })
   })
+
 
   return {
     table,

@@ -11,7 +11,7 @@ const dataObject = () => {
         h2: ++j,
         h3: ++j,
         h4: ++j,
-        h5: i,
+        h5: Math.floor(i + (Math.random() * 50)),
         h6: ++j,
         h7: ++j,
         h8: ++j,
@@ -100,12 +100,16 @@ document.getElementById("table_button").addEventListener('click', () => {
 })
 
 document.getElementById('test_button').addEventListener('click', () => {
-  testTable.current[0].h1 = 'bla'
+  //testTable.current[0].h1 = 'bla'
   // console.log(testTable.current[0])
-  testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
-  testTable.current[1] = {
+  //testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
+  /*testTable.current[1] = {
     h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
-  }
+  }*/
+  /* const destructTest = [{
+    h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
+  }]
+  testTable.current = [...destructTest, ...testTable.current] */
   // console.log(testTable.current[0])
   // testTable.current[0].h2 = { more: [10, 'b'] }
   // testTable.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
@@ -113,4 +117,6 @@ document.getElementById('test_button').addEventListener('click', () => {
   // console.log(testTable.current[0])
   //testTable.current.splice(1, 1)
   //testTable.current.sort((a, b) => a.h2 + b.h2)
+  testTable.current.sort((a, b) => a.h5 - b.h5)
+  console.log('FINISHED')
 })
