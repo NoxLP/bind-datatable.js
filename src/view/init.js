@@ -46,7 +46,6 @@ export function initTable(container, config, data) {
       config.virtualSafeRows || 10,
       config.rowsGutter || 0
     )
-    console.log(virtualConfig)
 
     for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
       const datarow = data[i]

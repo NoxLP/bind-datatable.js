@@ -23,7 +23,6 @@ export function createRow(dataIndex, datarow, columns, headers) {
 }
 
 export function checkRowKeys(data, headers) {
-  console.log('checkRowKeys')
   if (data == null || headers == null) return false;
   const dataKeys = Object.keys(data)
 
