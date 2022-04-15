@@ -1,8 +1,8 @@
-import { Error } from "../error.js";
-import { initTable } from "../view/init.js";
-import { createRow, checkRowKeys, updateRow, updateCell } from "../view/domTableOperations.js";
-import { Observable } from '../../node_modules/object-observer/dist/object-observer.min.js';
-import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "../virtual/virtual.js";
+import { Error } from "./error.js";
+import { initTable } from "./view/init.js";
+import { createRow, checkRowKeys, updateRow, updateCell } from "./view/domTableOperations.js";
+import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
+import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "./virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))

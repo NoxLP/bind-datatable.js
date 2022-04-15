@@ -1,5 +1,4 @@
-import { DataTable } from "./src/model/data.js";
-import { viewportDataWithConstantHeight } from "./src/virtual/virtual.js";
+import { DataTable } from "./src/datatable.js";
 
 const dataObject = () => {
   const result = []
@@ -87,13 +86,6 @@ ${JSON.stringify(e.target, null, 4)}`)
   })
 
 window.testTable = testTable
-
-document.getElementById("viewport_button").addEventListener('click', () => {
-  console.log(viewportDataWithConstantHeight(
-    document.getElementById('table_container'),
-    testTable.table.rows,
-  ))
-})
 
 document.getElementById("table_button").addEventListener('click', () => {
   console.log(testTable)
