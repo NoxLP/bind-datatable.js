@@ -16,6 +16,7 @@ const getColIndexKey = (change, config) => (
  * @param {object} config Config object:
  * {
  *   constantRowHeight, // DEFAULT TRUE
+ *   heightPrecalculationsRowsNumber, //DEFAULT 200 (ignored if row height is constant)
  *   virtualSafeRows, // DEFAULT 10
  *   rowsGutter, // DEFAULT 0
  *   lastRowBottomOffset, //DEFAULT row height * 5
@@ -28,13 +29,18 @@ const getColIndexKey = (change, config) => (
  * @returns 
  */
 export function DataTable(data, config) {
+  // Check config is correct and set defaults
   if (!('containerSelector' in config) ||
     !('columns' in config) ||
     !('headers' in config)) {
     const msg = 'Bad config object. Revise mandatory options'
     Error(msg)
+    return undefined
   }
   if (!('constantRowHeight' in config)) config.constantRowHeight = true
+  if (!config.constantRowHeight
+    && !('heightPrecalculationsRowsNumber' in config))
+    config.heightPrecalculationsRowsNumber = 200
 
   const containers = document.querySelectorAll(config.containerSelector)
   if (!containers || containers.length > 1)
@@ -107,20 +113,12 @@ ${JSON.stringify(change.value, null, 4)}`)
         case 'reverse':
         case 'shuffle':
           {
-            const virtualConfig = config.constantRowHeight ?
-              viewportDataWithConstantHeight(
-                container,
-                table.rowHeight,
-                current,
-                config.virtualSafeRows || 10,
-                config.rowsGutter || 0) :
-              viewportDataWithDifferentHeights(
-                container,
-                table.rowHeight,
-                current,
-                config.virtualSafeRows || 10,
-                config.rowsGutter || 0
-              )
+            const virtualConfig = viewportDataWithConstantHeight(
+              container,
+              table.rowHeight,
+              current,
+              config.virtualSafeRows || 10,
+              config.rowsGutter || 0)
 
             for (let i = virtualConfig.firstShownRowIndex;
               i <= virtualConfig.lastShownRowIndex;

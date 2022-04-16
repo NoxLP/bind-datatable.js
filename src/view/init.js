@@ -1,4 +1,4 @@
-import { viewportDataWithConstantHeight } from "../virtual/virtual.js";
+import { viewportDataWithConstantHeight, getRowHeightWithConstantHeight, viewportDataWithDifferentHeights, getRowHeightMeanWithDifferentHeight } from "../virtual/virtual.js";
 import { createRow } from "./domTableOperations.js";
 
 export function initTable(container, config, data) {
@@ -28,43 +28,27 @@ export function initTable(container, config, data) {
 
   // Create rows
   bindedTable.rows = []
-  let virtualConfig
-  if (config.constantRowHeight) {
-    // Calculate rows height by drawing first row keeping it hidden
-    const firstRow = createRow(0, data[0], config.columns, config.headers)
-    firstRow.row.style.visibility = 'hidden'
-    container.appendChild(firstRow.row)
-    const rowHeight = firstRow.row.clientHeight
-    firstRow.row.remove()
-    bindedTable.rowHeight = rowHeight
+  bindedTable.rowHeight = config.constantRowHeight
+    ? getRowHeightWithConstantHeight(data, config, container)
+    : getRowHeightMeanWithDifferentHeight(data, config, container)
+  const virtualConfig = viewportDataWithConstantHeight(
+    container,
+    bindedTable.rowHeight,
+    config.lastRowBottomOffset,
+    data,
+    config.virtualSafeRows,
+    config.rowsGutter
+  )
 
-    virtualConfig = viewportDataWithConstantHeight(
-      container,
-      rowHeight,
-      config.lastRowBottomOffset,
-      data,
-      config.virtualSafeRows || 10,
-      config.rowsGutter || 0
-    )
+  for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
+    const datarow = data[i]
+    const rowObject = createRow(i, datarow, config.columns, config.headers)
 
-    for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
-      const datarow = data[i]
-      const rowObject = createRow(i, datarow, config.columns, config.headers)
-
-      table.appendChild(rowObject.row)
-      bindedTable.rows.push(rowObject)
-    }
-
-    bindedTable.virtualConfig = virtualConfig
-  } else {
-    for (let i = 0; i < data.length; i++) {
-      const datarow = data[i]
-      const rowTuplet = createRow(datarow, config.columns, config.headers)
-
-      table.appendChild(rowTuplet.row)
-      bindedTable.rows.push({ row: rowTuplet.row, cells: rowTuplet.cells })
-    }
+    table.appendChild(rowObject.row)
+    bindedTable.rows.push(rowObject)
   }
+
+  bindedTable.virtualConfig = virtualConfig
 
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller

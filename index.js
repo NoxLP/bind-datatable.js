@@ -3,7 +3,7 @@ import { DataTable } from "./src/datatable.js";
 const dataObject = () => {
   const result = []
   let j = 0
-  for (let i = 0; i < 100000; i++) {
+  for (let i = 0; i < 199; i++) {
     result.push(
       {
         h1: i,
@@ -27,6 +27,7 @@ const dataObject = () => {
 const testTable = new DataTable(
   dataObject(),
   {
+    constantRowHeight: false,
     containerSelector: '#table_container',
     headers: [
       { content: 'H1', key: 'h1' },

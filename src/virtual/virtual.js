@@ -1,9 +1,32 @@
-import { createRow } from "../view/domTableOperations.js";
+import { createRow, updateRow } from "../view/domTableOperations.js";
 
 let isScrolling = false
 let scrollChecked = false
 
-export function viewportDataWithDifferentHeights(container, rows, lastRowBottomOffset, safeRows = 10, rowGutter = 0) {
+const getRowHeight = (row, container) => {
+  //console.log(row)
+  row.row.style.visibility = 'hidden'
+  container.appendChild(row.row)
+  return row.row.clientHeight
+}
+export function getRowHeightMeanWithDifferentHeight(data, config, container) {
+  if (data.length <= config.heightPrecalculationsRowsNumber) {
+    let row = createRow(0, data[0], config.columns, config.headers)
+    let mean = getRowHeight(row, container)
+    for (let i = 1; i < data.length; i++) {
+      row = updateRow(row.row, i, data[i], config.columns, config.headers)
+      mean += getRowHeight(row, container)
+    }
+    mean /= data.length
+    row.row.remove()
+    return mean
+  } else {
+
+  }
+}
+
+export function viewportDataWithDifferentHeights(
+  container, lastRowBottomOffset, rows, rowHeightMean, safeRows = 10, rowGutter = 0) {
   let totalHeight = 0
 
   let firstShownRowIndex = undefined
@@ -12,10 +35,10 @@ export function viewportDataWithDifferentHeights(container, rows, lastRowBottomO
   let lastShownRowIndex = undefined
 
   for (let i = 0; i < rows.length; i++) {
-    const rowElement = rows[i].row;
-    totalHeight += rowElement.clientHeight + rowGutter
+    //const rowElement = rows[i].row;
+    totalHeight += rowHeightMean + rowGutter
     if (shownHeight != undefined && lastShownRowIndex == undefined)
-      shownHeight += rowElement.clientHeight + rowGutter
+      shownHeight += rowHeightMean + rowGutter
 
     if (firstShownRowIndex == undefined && totalHeight > container.scrollTop) {
       firstShownRowIndex = i
@@ -33,12 +56,10 @@ export function viewportDataWithDifferentHeights(container, rows, lastRowBottomO
   const totalShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
   firstShownRowIndex = firstShownRowIndex - safeRows
   firstShownRowIndex = firstShownRowIndex < 0 ? 0 : firstShownRowIndex
-  if (safeRows) {
-    // TODO: something is wrong here:
-    // "use a mean"... where is the mean?
-    // rowheight in line 44 doesn't exist here, it was copied from the constant height function
 
+  if (safeRows) {
     // just use a mean to calculate the offset of the safe rows
+    const rowHeight = totalHeight / rows.length
     rowOffset -= (rowOffset / totalShownRows) * safeRows
     rowOffset = rowOffset < 0 ? 0 : rowOffset < 0 ? 0 : rowOffset + (lastShownRowIndex == rows.length - 1
       ? lastRowBottomOffset ?? rowHeight * 5 : 0)
@@ -58,6 +79,16 @@ export function viewportDataWithDifferentHeights(container, rows, lastRowBottomO
     rowOffset,
     lastShownRowIndex
   }
+}
+
+export function getRowHeightWithConstantHeight(data, config, container) {
+  // Calculate rows height by drawing first row keeping it hidden
+  const firstRow = createRow(0, data[0], config.columns, config.headers)
+  firstRow.row.style.visibility = 'hidden'
+  container.appendChild(firstRow.row)
+  const rowHeight = firstRow.row.clientHeight
+  firstRow.row.remove()
+  return rowHeight
 }
 
 export function viewportDataWithConstantHeight(container, rowHeight, lastRowBottomOffset, rows, safeRows = 10, rowGutter = 0) {
@@ -99,26 +130,18 @@ export function onScrollHandler(
   scrollChecked = false
 
   // calculate new virtual data
-  table.virtualConfig = config.constantRowHeight
-    ? viewportDataWithConstantHeight(
-      container,
-      table.rowHeight,
-      config.lastRowBottomOffset,
-      current,
-      config.virtualSafeRows || 10,
-      config.rowsGutter || 0
-    )
-    : viewportDataWithDifferentHeights(
-      container,
-      current,
-      config.lastRowBottomOffset,
-      config.virtualSafeRows || 10,
-      config.rowsGutter || 0
-    );
+  table.virtualConfig = viewportDataWithConstantHeight(
+    container,
+    table.rowHeight,
+    config.lastRowBottomOffset,
+    current,
+    config.virtualSafeRows,
+    config.rowsGutter
+  )
 
   // remove rows
   let i = 0
-  while (i < table.rows.length - 1) {
+  while (i <= table.rows.length - 1) {
     if (table.rows[i].dataIndex < table.virtualConfig.firstShownRowIndex ||
       table.rows[i].dataIndex > table.virtualConfig.lastShownRowIndex) {
       table.rows[i].row.remove()
@@ -140,7 +163,7 @@ export function onScrollHandler(
       table.rows.splice(insertIndex, 0, rowObject)
       insertIndex++
       table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
-    } else if (!firstOld || i > lastOld) {
+    } else if (firstOld == undefined || i > lastOld) {
       const rowObject = createRow(i, current[i], config.columns, config.headers)
       table.rows.push(rowObject)
       table.table.appendChild(rowObject.row)
@@ -171,21 +194,14 @@ export function checkScroll(
   if (isScrolling || scrollChecked) return
 
   if (!currentVirtual) {
-    currentVirtual = config.constantRowHeight
-      ? viewportDataWithConstantHeight(
-        container,
-        table.rowHeight,
-        current,
-        config.virtualSafeRows || 10,
-        config.rowsGutter || 0
-      )
-      : viewportDataWithDifferentHeights(
-        container,
-        table.rowHeight,
-        current,
-        config.virtualSafeRows || 10,
-        config.rowsGutter || 0
-      );
+    currentVirtual = viewportDataWithConstantHeight(
+      container,
+      table.rowHeight,
+      config.lastRowBottomOffset,
+      current,
+      config.virtualSafeRows,
+      config.rowsGutter
+    )
   }
 
   if (currentVirtual.firstShownRowIndex != table.virtualConfig.firstShownRowIndex
@@ -194,7 +210,9 @@ export function checkScroll(
       container,
       table,
       current,
-      config)
+      config
+    )
+    table.virtualConfig = currentVirtual
   }
 
   scrollChecked = true

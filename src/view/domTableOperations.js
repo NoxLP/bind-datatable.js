@@ -53,10 +53,10 @@ export function updateRow(domRow, dataIndex, datarow, columns, headers) {
       cellData = datarow[key]
     }
 
-    updateCell(domRow.row.children[i], columns[i], cellData)
+    updateCell(domRow.children[i], columns[i], cellData)
   }
 
-  return { domRow, dataIndex, cells }
+  return { row: domRow, dataIndex, cells }
 }
 
 export function updateCell(cell, cellColumn, cellData) {
