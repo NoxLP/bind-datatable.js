@@ -2,7 +2,7 @@ import { Error } from "./error.js";
 import { initTable } from "./view/init.js";
 import { createRow, checkRowKeys, updateRow, updateCell } from "./view/domTableOperations.js";
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
-import { viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "./virtual/virtual.js";
+import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "./virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -15,7 +15,7 @@ const getColIndexKey = (change, config) => (
  * @param {object} data Data registers array
  * @param {object} config Config object:
  * {
- *   constantRowHeight, // DEFAULT TRUE
+ *   rowHeightMode, // [constant|average|all] DEFAULT constant
  *   heightPrecalculationsRowsNumber, //DEFAULT 200 (ignored if row height is constant)
  *   virtualSafeRows, // DEFAULT 10
  *   rowsGutter, // DEFAULT 0
@@ -37,8 +37,9 @@ export function DataTable(data, config) {
     Error(msg)
     return undefined
   }
-  if (!('constantRowHeight' in config)) config.constantRowHeight = true
-  if (!config.constantRowHeight
+  if (!('rowHeightMode' in config) || !ROW_HEIGHT_MODES.includes(config.rowHeightMode))
+    config.rowHeightMode = 'constant'
+  if (config.rowHeightMode != 'constant'
     && !('heightPrecalculationsRowsNumber' in config))
     config.heightPrecalculationsRowsNumber = 200
 

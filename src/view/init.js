@@ -1,4 +1,4 @@
-import { viewportDataWithConstantHeight, getRowHeightWithConstantHeight, viewportDataWithDifferentHeights, getRowHeightMeanWithDifferentHeight } from "../virtual/virtual.js";
+import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, getRowHeightWithConstantHeight, viewportDataWithDifferentHeights, calculateAllHeights, getRowHeightMeanWithDifferentHeight } from "../virtual/virtual.js";
 import { createRow } from "./domTableOperations.js";
 
 export function initTable(container, config, data) {
@@ -28,17 +28,39 @@ export function initTable(container, config, data) {
 
   // Create rows
   bindedTable.rows = []
-  bindedTable.rowHeight = config.constantRowHeight
-    ? getRowHeightWithConstantHeight(data, config, container)
-    : getRowHeightMeanWithDifferentHeight(data, config, container)
-  const virtualConfig = viewportDataWithConstantHeight(
-    container,
-    bindedTable.rowHeight,
-    config.lastRowBottomOffset,
-    data,
-    config.virtualSafeRows,
-    config.rowsGutter
-  )
+  let virtualConfig
+  if (config.rowHeightMode == ROW_HEIGHT_MODES[0]) { // constant
+    bindedTable.rowHeight = getRowHeightWithConstantHeight(data, config, container)
+    virtualConfig = viewportDataWithConstantHeight(
+      container,
+      bindedTable.rowHeight,
+      config.lastRowBottomOffset,
+      data,
+      config.virtualSafeRows,
+      config.rowsGutter
+    )
+  } else if (config.rowHeightMode == ROW_HEIGHT_MODES[1]) { // average
+    bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(data, config, container)
+    console.log('avergae ', bindedTable.rowHeight)
+    virtualConfig = viewportDataWithConstantHeight(
+      container,
+      bindedTable.rowHeight,
+      config.lastRowBottomOffset,
+      data,
+      config.virtualSafeRows,
+      config.rowsGutter
+    )
+  } else { // all
+    bindedTable.rowHeight = calculateAllHeights(data, config, container)
+    virtualConfig = viewportDataWithDifferentHeights(
+      container,
+      bindedTable.rowHeight,
+      config.lastRowBottomOffset,
+      data,
+      config.virtualSafeRows,
+      config.rowsGutter
+    )
+  }
 
   for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
     const datarow = data[i]

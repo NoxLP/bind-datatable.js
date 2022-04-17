@@ -1,5 +1,6 @@
 import { createRow, updateRow } from "../view/domTableOperations.js";
 
+export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
 let scrollChecked = false
 
@@ -51,8 +52,52 @@ export function getRowHeightMeanWithDifferentHeight(data, config, container) {
   return mean
 }
 
+export function calculateAllHeights(data, config, container) {
+  // The createRow and updateRow functions could calculate each row height, 
+  // the problem is that I don't want to render more rows than strictly needed,
+  // and to calculate that I need a row height
+
+  /*
+  Measured in my computer, with 1000 rows this lasts 2.5 seconds 
+  more or less, with 100000 that'd be 4 minutes... 
+  TODO: To avoid that large wating times:
+  => data will be divided into pages, 
+    at first each page will have meanHeight * numberOfRows height, 
+    each time the scroll is in a page which height haven't been calculated, 
+    calculate and store the real height
+
+  At init:
+    rowsHeightMean = getRowHeightMeanWithDifferentHeight
+    scroll = 0 // be sure we are in the first page
+    const rowsBetweenPage = Math.floor(data.length / config.heightPrecalculationsRowsNumber)
+    pageFirstRow = 0
+    pageLastRow = rowsBetweenPage
+    pageHeight = sum of heights of rows between pageFirstRow and pageLastRow
+    pagesHeights = [
+      pageHeight,
+      ...rowsHeightMean * rowsBetweenPage (per page)
+    ]
+  At scroll:
+    page = calculate page with current pagesHeights
+    if(page is mean) calculate real height of this page
+    totalHeight = sum of page heights
+    calculate rest
+  */
+
+  let row = createRow(0, data[0], config.columns, config.headers)
+  console.log(row)
+  const heights = data.map((reg, idx) => {
+    row = updateRow(row.row, idx, reg, config.columns, config.headers)
+    console.log(row)
+    return getRowHeight(row, container)
+  })
+  console.log(heights)
+  row.row.remove()
+  return heights
+}
+
 export function viewportDataWithDifferentHeights(
-  container, lastRowBottomOffset, rows, rowHeightMean, safeRows = 10, rowGutter = 0) {
+  container, rowHeights, lastRowBottomOffset, rows, safeRows = 10, rowGutter = 0) {
   let totalHeight = 0
 
   let firstShownRowIndex = undefined
@@ -62,9 +107,9 @@ export function viewportDataWithDifferentHeights(
 
   for (let i = 0; i < rows.length; i++) {
     //const rowElement = rows[i].row;
-    totalHeight += rowHeightMean + rowGutter
+    totalHeight += rowHeights[i] + rowGutter
     if (shownHeight != undefined && lastShownRowIndex == undefined)
-      shownHeight += rowHeightMean + rowGutter
+      shownHeight += rowHeights[i] + rowGutter
 
     if (firstShownRowIndex == undefined && totalHeight > container.scrollTop) {
       firstShownRowIndex = i

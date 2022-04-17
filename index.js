@@ -27,7 +27,7 @@ const dataObject = () => {
 const testTable = new DataTable(
   dataObject(),
   {
-    constantRowHeight: false,
+    rowHeightMode: 'average',
     containerSelector: '#table_container',
     headers: [
       { content: 'H1', key: 'h1' },
@@ -76,7 +76,7 @@ ${JSON.stringify(e.target, null, 4)}`)
       },
       {
         template: (reg) => {
-          return `<div style="min-height: ${reg % 100}px">${reg}</div>`
+          return `<div style="min-height: ${Math.random() * 100}px">${reg}</div>`
         }
       },
       {},
