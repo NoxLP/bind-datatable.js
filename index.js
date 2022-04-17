@@ -3,7 +3,7 @@ import { DataTable } from "./src/datatable.js";
 const dataObject = () => {
   const result = []
   let j = 0
-  for (let i = 0; i < 199; i++) {
+  for (let i = 0; i < 100000; i++) {
     result.push(
       {
         h1: i,
@@ -74,7 +74,11 @@ ${JSON.stringify(e.target, null, 4)}`)
           }
         ]
       },
-      {},
+      {
+        template: (reg) => {
+          return `<div style="min-height: ${reg % 100}px">${reg}</div>`
+        }
+      },
       {},
       {},
       {},

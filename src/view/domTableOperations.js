@@ -60,7 +60,7 @@ export function updateRow(domRow, dataIndex, datarow, columns, headers) {
 }
 
 export function updateCell(cell, cellColumn, cellData) {
-  cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : cellData ?? ''
+  cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : (cellData ?? '')
   cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
 
   if (cellColumn.cellEvents) {

@@ -4,25 +4,51 @@ let isScrolling = false
 let scrollChecked = false
 
 const getRowHeight = (row, container) => {
-  //console.log(row)
   row.row.style.visibility = 'hidden'
   container.appendChild(row.row)
   return row.row.clientHeight
 }
+
+const randomRange = (max, min) => {
+  const range = max - min + 1
+  return Math.floor(Math.random() * range) + min
+}
+
 export function getRowHeightMeanWithDifferentHeight(data, config, container) {
+  let row
+  let mean = 0
+
   if (data.length <= config.heightPrecalculationsRowsNumber) {
-    let row = createRow(0, data[0], config.columns, config.headers)
-    let mean = getRowHeight(row, container)
+    row = createRow(0, data[0], config.columns, config.headers)
+    mean = getRowHeight(row, container)
     for (let i = 1; i < data.length; i++) {
       row = updateRow(row.row, i, data[i], config.columns, config.headers)
       mean += getRowHeight(row, container)
     }
-    mean /= data.length
-    row.row.remove()
-    return mean
-  } else {
 
+    mean /= data.length
+  } else {
+    // Divide data in "pages" to pick a row from each page until reach
+    // config.heightPrecalculationsRowsNumber, and build the mean with those rows
+    const rowsBetweenPage = Math.floor(data.length / config.heightPrecalculationsRowsNumber)
+    row = createRow(0, data[0], config.columns, config.headers)
+    mean = getRowHeight(row, container)
+    for (let i = 1; i < config.heightPrecalculationsRowsNumber; i++) {
+      // Add random to get a somehow "normalized" sample
+      let rowIndex = Math.max(0,
+        Math.min(data.length - 1, (rowsBetweenPage * i) +
+          randomRange(1 - rowsBetweenPage, rowsBetweenPage - 1)
+        )
+      )
+      row = updateRow(row.row, rowIndex, data[rowIndex], config.columns, config.headers)
+      mean += getRowHeight(row, container)
+    }
+
+    mean /= config.heightPrecalculationsRowsNumber
   }
+
+  row.row.remove()
+  return mean
 }
 
 export function viewportDataWithDifferentHeights(
