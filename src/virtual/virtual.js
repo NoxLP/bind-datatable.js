@@ -242,11 +242,11 @@ export function onScrollHandler(
     }
 
     const transform = `translateY(${table.virtualConfig.rowOffset}px)`
-    table.tableBody.style.transform = transform
-    table.tableBody.style.WebkitTransform = transform
-    table.tableBody.style.MozTransform = transform
-    table.tableBody.style.OTransform = transform
-    table.tableBody.style.MsTransform = transform
+    table.table.style.transform = transform
+    table.table.style.WebkitTransform = transform
+    table.table.style.MozTransform = transform
+    table.table.style.OTransform = transform
+    table.table.style.MsTransform = transform
 
     setTimeout(() => {
       isScrolling = false

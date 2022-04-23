@@ -72,7 +72,6 @@ export function DataTable(data, config) {
   const scroller = document.createElement('div')
   if ('tableId' in config) scroller.id = `datatable_scroller_${config.tableId}`
   scroller.classList.add('datatable_scroller')
-  container.appendChild(scroller)
 
   const current = Observable.from(data)
 

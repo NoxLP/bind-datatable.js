@@ -5,3 +5,25 @@
   -ms-transition: -ms-transform 0.1s ease;
   transition: transform 0.1s ease;
 } */
+
+#table_container {
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.pb-datatable-table {
+  padding: 0;
+  width: 100%;
+}
+
+.pb-datatable-table td {
+  text-align: center;
+}
+
+.pb-datatable-headers-table {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1000;
+  width: 100%;
+}

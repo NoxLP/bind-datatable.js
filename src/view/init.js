@@ -2,12 +2,18 @@ import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, getRowHeightWithConst
 import { createRow } from "./domTableOperations.js";
 
 export function initTable(container, scroller, config, data) {
+  const tableHeaders = document.createElement('table')
+  tableHeaders.classList.add('pb-datatable-headers-table')
+  container.appendChild(tableHeaders)
+
   const table = document.createElement('table')
+  table.classList.add('pb-datatable-table')
   scroller.appendChild(table)
   const head = document.createElement('thead')
-  table.appendChild(head)
+  tableHeaders.appendChild(head)
   const body = document.createElement('tbody')
   table.appendChild(body)
+  container.appendChild(scroller)
 
   // This will hold references to DOM elements to perform binding later on
   const bindedTable = {
