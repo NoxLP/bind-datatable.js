@@ -2,7 +2,15 @@ import { Error } from "./error.js";
 import { initTable } from "./view/init.js";
 import { createRow, checkRowKeys, updateRow, updateCell } from "./view/domTableOperations.js";
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
-import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, viewportDataWithDifferentHeights, onScrollHandler, checkScroll } from "./virtual/virtual.js";
+import {
+  ROW_HEIGHT_MODES,
+  viewportDataWithConstantHeight,
+  viewportDataWithDifferentHeights,
+  checkScroll,
+  onScrollHandler,
+  onWheelHandler,
+  onKeyDownHandler,
+} from "./virtual/virtual.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -15,6 +23,7 @@ const getColIndexKey = (change, config) => (
  * @param {object} data Data registers array
  * @param {object} config Config object:
  * {
+ *   tableId, //OPTIONAL
  *   rowHeightMode, // [constant|average|all] DEFAULT constant
  *   heightPrecalculationsRowsNumber, //DEFAULT 200 (ignored if row height is constant)
  *   virtualSafeRows, // DEFAULT 10
@@ -42,18 +51,30 @@ export function DataTable(data, config) {
   if (config.rowHeightMode != 'constant'
     && !('heightPrecalculationsRowsNumber' in config))
     config.heightPrecalculationsRowsNumber = 200
+  if ('tableId' in config && typeof config.tableId != 'string') {
+    config.tableId = `${config.tableId}`
+  }
 
   const containers = document.querySelectorAll(config.containerSelector)
   if (!containers || containers.length > 1)
     Error('Found 0 or multiple table containers. Table need at least and only one container.')
   const container = containers[0]
+  container.setAttribute('tabIndex', 1)
+  const scroller = document.createElement('div')
+  if ('tableId' in config) scroller.id = `datatable_scroller_${config.tableId}`
+  scroller.classList.add('datatable_scroller')
+  container.appendChild(scroller)
 
   const current = Observable.from(data)
 
-  const table = initTable(container, config, current)
+  const table = initTable(container, scroller, config, current)
   if (!table) return undefined
   container.addEventListener('scroll',
     () => onScrollHandler(container, table, current, config))
+  container.addEventListener('wheel',
+    (e) => onWheelHandler(e, container, table, current, config))
+  container.addEventListener('keydown',
+    (e) => onKeyDownHandler(e, container))
 
   Observable.observe(current, (changes) => {
     changes.forEach((change) => {
@@ -61,8 +82,6 @@ export function DataTable(data, config) {
       let updated = table.rows[change.path[0]]
       const isCellChanged = change.path.length > 1
 
-      // TODO: all these can be optimized by updating innerHTML instead of creating
-      // cells and rows everywhere, probably mostly at the update case
       switch (change.type) {
         case 'update':
           if (isCellChanged) {
@@ -114,12 +133,22 @@ ${JSON.stringify(change.value, null, 4)}`)
         case 'reverse':
         case 'shuffle':
           {
-            const virtualConfig = viewportDataWithConstantHeight(
-              container,
-              table.rowHeight,
-              current,
-              config.virtualSafeRows || 10,
-              config.rowsGutter || 0)
+            const virtualConfig = config.rowHeightMode != ROW_HEIGHT_MODES[2]
+              ? viewportDataWithConstantHeight(
+                container,
+                table.rowHeight,
+                current,
+                config.virtualSafeRows,
+                config.rowsGutter
+              )
+              : viewportDataWithDifferentHeights(
+                container,
+                table.rowHeight,
+                config.lastRowBottomOffset,
+                current,
+                config.virtualSafeRows,
+                config.rowsGutter
+              )
 
             for (let i = virtualConfig.firstShownRowIndex;
               i <= virtualConfig.lastShownRowIndex;

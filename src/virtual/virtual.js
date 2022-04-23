@@ -3,6 +3,7 @@ import { createRow, updateRow } from "../view/domTableOperations.js";
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
 let scrollChecked = false
+let lastScrollTop = 0
 
 const getRowHeight = (row, container) => {
   row.row.style.visibility = 'hidden'
@@ -85,13 +86,10 @@ export function calculateAllHeights(data, config, container) {
   */
 
   let row = createRow(0, data[0], config.columns, config.headers)
-  console.log(row)
   const heights = data.map((reg, idx) => {
     row = updateRow(row.row, idx, reg, config.columns, config.headers)
-    console.log(row)
     return getRowHeight(row, container)
   })
-  console.log(heights)
   row.row.remove()
   return heights
 }
@@ -164,22 +162,21 @@ export function getRowHeightWithConstantHeight(data, config, container) {
 
 export function viewportDataWithConstantHeight(container, rowHeight, lastRowBottomOffset, rows, safeRows = 10, rowGutter = 0) {
   const totalHeight = rows.length * (rowHeight + rowGutter)
-  let firstShownRowIndex = container.scrollTop / (rowHeight - rowGutter)
-  let lastShownRowIndex = firstShownRowIndex + (container.clientHeight / (rowHeight + 2 * rowGutter))
-  const totalShownRows = Math.floor(lastShownRowIndex) - Math.floor(firstShownRowIndex)
+  let first = container.scrollTop / (rowHeight - rowGutter)
+  let lastShownRowIndex = Math.floor(first + (container.clientHeight / (rowHeight + 2 * rowGutter)))
+  const totalShownRows = lastShownRowIndex - first
 
-  firstShownRowIndex = firstShownRowIndex - safeRows
+  let firstShownRowIndex = Math.floor(first) - safeRows
   firstShownRowIndex = firstShownRowIndex < 0 ? 0 : firstShownRowIndex
   lastShownRowIndex = lastShownRowIndex + safeRows
   lastShownRowIndex = lastShownRowIndex > rows.length - 1
-    ? rows.length - 1
-    : lastShownRowIndex
-  let rowOffset = firstShownRowIndex * rowHeight
-  rowOffset = rowOffset < 0 ? 0 : rowOffset + (lastShownRowIndex == rows.length - 1
-    ? lastRowBottomOffset ?? rowHeight * 5 : 0)
+    ? rows.length - 1 : lastShownRowIndex
 
-  firstShownRowIndex = Math.floor(firstShownRowIndex)
-  lastShownRowIndex = Math.floor(lastShownRowIndex)
+  first -= safeRows
+  first = first < 0 ? 0 : first
+  const rowOffset = first * (rowHeight + rowGutter) +
+    (lastShownRowIndex == rows.length - 1
+      ? lastRowBottomOffset ?? rowHeight * 5 : 0)
 
   return {
     totalHeight,
@@ -196,63 +193,74 @@ export function onScrollHandler(
   current,
   config
 ) {
-  if (isScrolling) return
+  if (isScrolling) return // throttle
+  if (container.scrollTop == lastScrollTop) return //only vertical scroll
   isScrolling = true
   scrollChecked = false
+  lastScrollTop = container.scrollTop
+  console.log(container.scrollTop)
 
-  // calculate new virtual data
-  table.virtualConfig = viewportDataWithConstantHeight(
-    container,
-    table.rowHeight,
-    config.lastRowBottomOffset,
-    current,
-    config.virtualSafeRows,
-    config.rowsGutter
-  )
-
-  // remove rows
-  let i = 0
-  while (i <= table.rows.length - 1) {
-    if (table.rows[i].dataIndex < table.virtualConfig.firstShownRowIndex ||
-      table.rows[i].dataIndex > table.virtualConfig.lastShownRowIndex) {
-      table.rows[i].row.remove()
-      table.rows.splice(i, 1)
-    } else i++
-  }
-
-  // add rows
-  const firstOld = table.rows[0]?.dataIndex
-  const lastOld = table.rows[table.rows.length - 1]?.dataIndex
-  let insertIndex = 0
-
-  for (let i = table.virtualConfig.firstShownRowIndex;
-    i <= table.virtualConfig.lastShownRowIndex;
-    i++
-  ) {
-    if (firstOld && i < firstOld) {
-      const rowObject = createRow(i, current[i], config.columns, config.headers)
-      table.rows.splice(insertIndex, 0, rowObject)
-      insertIndex++
-      table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
-    } else if (firstOld == undefined || i > lastOld) {
-      const rowObject = createRow(i, current[i], config.columns, config.headers)
-      table.rows.push(rowObject)
-      table.table.appendChild(rowObject.row)
-    }
-  }
-  table.rows.forEach((r) => r.row.style.transform = `translateY(${table.virtualConfig.rowOffset}px)`)
-
-  setTimeout(() => {
-    isScrolling = false
-  }, 100)
-  setTimeout(() => {
-    checkScroll(
+  requestAnimationFrame(() => {
+    // calculate new virtual data
+    table.virtualConfig = viewportDataWithConstantHeight(
       container,
-      table,
+      table.rowHeight,
+      config.lastRowBottomOffset,
       current,
-      config
+      config.virtualSafeRows,
+      config.rowsGutter
     )
-  }, 250);
+
+    // remove rows
+    let i = 0
+    while (i <= table.rows.length - 1) {
+      if (table.rows[i].dataIndex < table.virtualConfig.firstShownRowIndex ||
+        table.rows[i].dataIndex > table.virtualConfig.lastShownRowIndex) {
+        table.rows[i].row.remove()
+        table.rows.splice(i, 1)
+      } else i++
+    }
+
+    // add rows
+    const firstOld = table.rows[0]?.dataIndex
+    const lastOld = table.rows[table.rows.length - 1]?.dataIndex
+    let insertIndex = 0
+
+    for (let i = table.virtualConfig.firstShownRowIndex;
+      i <= table.virtualConfig.lastShownRowIndex;
+      i++
+    ) {
+      if (firstOld && i < firstOld) {
+        const rowObject = createRow(i, current[i], config.columns, config.headers)
+        table.rows.splice(insertIndex, 0, rowObject)
+        insertIndex++
+        table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
+      } else if (firstOld == undefined || i > lastOld) {
+        const rowObject = createRow(i, current[i], config.columns, config.headers)
+        table.rows.push(rowObject)
+        table.table.appendChild(rowObject.row)
+      }
+    }
+
+    const transform = `translateY(${table.virtualConfig.rowOffset}px)`
+    table.table.style.transform = transform
+    table.table.style.WebkitTransform = transform
+    table.table.style.MozTransform = transform
+    table.table.style.OTransform = transform
+    table.table.style.MsTransform = transform
+
+    setTimeout(() => {
+      isScrolling = false
+    }, 100)
+    setTimeout(() => {
+      checkScroll(
+        container,
+        table,
+        current,
+        config
+      )
+    }, 250);
+  })
 }
 
 export function checkScroll(
@@ -287,4 +295,22 @@ export function checkScroll(
   }
 
   scrollChecked = true
+}
+
+export function onWheelHandler(e, container) {
+  e.preventDefault()
+  container.scrollTop += e.deltaY
+}
+
+export function onKeyDownHandler(e, container) {
+  e.preventDefault()
+  if (e.code == 'ArrowDown') {
+    container.scrollTop += container.clientHeight / 6
+  } else if (e.code == 'PageDown') {
+    container.scrollTop += container.clientHeight
+  } else if (e.code == 'ArrowUp' && container.scrollTop > 0) {
+    container.scrollTop -= container.clientHeight / 6
+  } else if (e.code == 'PageUp' && container.scrollTop > 0) {
+    container.scrollTop -= container.clientHeight
+  }
 }

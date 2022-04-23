@@ -1,10 +1,9 @@
 import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, getRowHeightWithConstantHeight, viewportDataWithDifferentHeights, calculateAllHeights, getRowHeightMeanWithDifferentHeight } from "../virtual/virtual.js";
 import { createRow } from "./domTableOperations.js";
 
-export function initTable(container, config, data) {
-  const scroller = document.createElement('div')
-  container.appendChild(scroller)
+export function initTable(container, scroller, config, data) {
   const table = document.createElement('table')
+  if ('tableId' in config) table.id = `datatable_${config.tableId}`
   scroller.appendChild(table)
 
   // This will hold references to DOM elements to perform binding later on
@@ -41,7 +40,6 @@ export function initTable(container, config, data) {
     )
   } else if (config.rowHeightMode == ROW_HEIGHT_MODES[1]) { // average
     bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(data, config, container)
-    console.log('avergae ', bindedTable.rowHeight)
     virtualConfig = viewportDataWithConstantHeight(
       container,
       bindedTable.rowHeight,

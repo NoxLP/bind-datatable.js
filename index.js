@@ -27,6 +27,7 @@ const dataObject = () => {
 const testTable = new DataTable(
   dataObject(),
   {
+    tableId: 'dtTest',
     rowHeightMode: 'average',
     containerSelector: '#table_container',
     headers: [
