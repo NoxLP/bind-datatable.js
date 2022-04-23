@@ -3,12 +3,16 @@ import { createRow } from "./domTableOperations.js";
 
 export function initTable(container, scroller, config, data) {
   const table = document.createElement('table')
-  if ('tableId' in config) table.id = `datatable_${config.tableId}`
   scroller.appendChild(table)
+  const head = document.createElement('thead')
+  table.appendChild(head)
+  const body = document.createElement('tbody')
+  table.appendChild(body)
 
   // This will hold references to DOM elements to perform binding later on
   const bindedTable = {
-    table
+    table,
+    tableBody: body
   }
   const headersRow = document.createElement('tr')
   bindedTable.headersRow = headersRow
@@ -23,7 +27,7 @@ export function initTable(container, scroller, config, data) {
     headersRow.appendChild(header)
     bindedTable.headers.push(header)
   }
-  table.appendChild(headersRow)
+  head.appendChild(headersRow)
 
   // Create rows
   bindedTable.rows = []
@@ -40,6 +44,7 @@ export function initTable(container, scroller, config, data) {
     )
   } else if (config.rowHeightMode == ROW_HEIGHT_MODES[1]) { // average
     bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(data, config, container)
+    console.log('avergae ', bindedTable.rowHeight)
     virtualConfig = viewportDataWithConstantHeight(
       container,
       bindedTable.rowHeight,
@@ -64,7 +69,7 @@ export function initTable(container, scroller, config, data) {
     const datarow = data[i]
     const rowObject = createRow(i, datarow, config.columns, config.headers)
 
-    table.appendChild(rowObject.row)
+    body.appendChild(rowObject.row)
     bindedTable.rows.push(rowObject)
   }
 

@@ -198,7 +198,6 @@ export function onScrollHandler(
   isScrolling = true
   scrollChecked = false
   lastScrollTop = container.scrollTop
-  console.log(container.scrollTop)
 
   requestAnimationFrame(() => {
     // calculate new virtual data
@@ -234,20 +233,20 @@ export function onScrollHandler(
         const rowObject = createRow(i, current[i], config.columns, config.headers)
         table.rows.splice(insertIndex, 0, rowObject)
         insertIndex++
-        table.table.insertBefore(rowObject.row, table.rows[insertIndex].row)
+        table.tableBody.insertBefore(rowObject.row, table.rows[insertIndex].row)
       } else if (firstOld == undefined || i > lastOld) {
         const rowObject = createRow(i, current[i], config.columns, config.headers)
         table.rows.push(rowObject)
-        table.table.appendChild(rowObject.row)
+        table.tableBody.appendChild(rowObject.row)
       }
     }
 
     const transform = `translateY(${table.virtualConfig.rowOffset}px)`
-    table.table.style.transform = transform
-    table.table.style.WebkitTransform = transform
-    table.table.style.MozTransform = transform
-    table.table.style.OTransform = transform
-    table.table.style.MsTransform = transform
+    table.tableBody.style.transform = transform
+    table.tableBody.style.WebkitTransform = transform
+    table.tableBody.style.MozTransform = transform
+    table.tableBody.style.OTransform = transform
+    table.tableBody.style.MsTransform = transform
 
     setTimeout(() => {
       isScrolling = false

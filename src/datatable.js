@@ -122,7 +122,7 @@ ${JSON.stringify(change.value, null, 4)}`)
 
             const rowTuplet = createRow(change.value, config.columns, config.headers)
 
-            table.table.appendChild(rowTuplet.row)
+            table.tableBody.appendChild(rowTuplet.row)
             table.rows.push(rowTuplet)
             checkScroll(container, table, current, config)
             break;
