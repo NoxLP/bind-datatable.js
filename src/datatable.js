@@ -18,6 +18,29 @@ const getColIndexKey = (change, config) => (
     : change.path[1]
 )
 
+const checkConfigAndSetDefaults = (config) => {
+  // Check config is correct and set defaults
+  if (!('containerSelector' in config) ||
+    !('columns' in config) ||
+    !('headers' in config)) {
+    const msg = 'Bad config object. Revise mandatory options'
+    Error(msg)
+    return undefined
+  }
+  if (!('rowHeightMode' in config) || !ROW_HEIGHT_MODES.includes(config.rowHeightMode))
+    config.rowHeightMode = 'constant'
+  if (config.rowHeightMode != 'constant'
+    && !('heightPrecalculationsRowsNumber' in config))
+    config.heightPrecalculationsRowsNumber = 200
+  if ('tableId' in config && typeof config.tableId != 'string') {
+    config.tableId = `${config.tableId}`
+  }
+  if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
+  if (!('rowsGutter' in config)) config.rowsGutter = 0
+
+  return config
+}
+
 /**
  * 
  * @param {object} data Data registers array
@@ -38,22 +61,8 @@ const getColIndexKey = (change, config) => (
  * @returns 
  */
 export function DataTable(data, config) {
-  // Check config is correct and set defaults
-  if (!('containerSelector' in config) ||
-    !('columns' in config) ||
-    !('headers' in config)) {
-    const msg = 'Bad config object. Revise mandatory options'
-    Error(msg)
-    return undefined
-  }
-  if (!('rowHeightMode' in config) || !ROW_HEIGHT_MODES.includes(config.rowHeightMode))
-    config.rowHeightMode = 'constant'
-  if (config.rowHeightMode != 'constant'
-    && !('heightPrecalculationsRowsNumber' in config))
-    config.heightPrecalculationsRowsNumber = 200
-  if ('tableId' in config && typeof config.tableId != 'string') {
-    config.tableId = `${config.tableId}`
-  }
+  config = checkConfigAndSetDefaults(config)
+  if (!config) return undefined
 
   const containers = document.querySelectorAll(config.containerSelector)
   if (!containers || containers.length > 1)
