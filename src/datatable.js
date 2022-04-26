@@ -1,6 +1,6 @@
 import { Error } from "./error.js";
 import { initTable } from "./view/init.js";
-import { createRow, checkRowKeys, updateRow, updateCell } from "./view/domTableOperations.js";
+import { createRow, checkRowKeys, updateRow, updateCell } from "./view/tableOperations.js"
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
 import {
   ROW_HEIGHT_MODES,

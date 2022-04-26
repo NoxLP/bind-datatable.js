@@ -1,4 +1,4 @@
-import { createRow, updateRow } from "../view/domTableOperations.js";
+import { createRow, updateRow, updateShownheadersWidth } from "../view/tableOperations.js"
 
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
@@ -95,7 +95,7 @@ export function calculateAllHeights(data, config, container) {
 }
 
 export function viewportDataWithDifferentHeights(
-  container, rowHeights, lastRowBottomOffset, rows, safeRows = 10, rowGutter = 0) {
+  container, rowHeights, lastRowBottomOffset, rows, safeRows, rowGutter = 0) {
   let totalHeight = 0
 
   let firstShownRowIndex = undefined
@@ -160,7 +160,7 @@ export function getRowHeightWithConstantHeight(data, config, container) {
   return rowHeight
 }
 
-export function viewportDataWithConstantHeight(container, rowHeight, lastRowBottomOffset, rows, safeRows = 10, rowGutter = 0) {
+export function viewportDataWithConstantHeight(container, rowHeight, lastRowBottomOffset, rows, safeRows, rowGutter = 0) {
   const totalHeight = rows.length * (rowHeight + rowGutter)
   let first = container.scrollTop / (rowHeight - rowGutter)
   let lastShownRowIndex = Math.floor(first + (container.clientHeight / (rowHeight + 2 * rowGutter)))
@@ -247,6 +247,8 @@ export function onScrollHandler(
     table.table.style.MozTransform = transform
     table.table.style.OTransform = transform
     table.table.style.MsTransform = transform
+
+    updateShownheadersWidth(table, config)
 
     setTimeout(() => {
       isScrolling = false

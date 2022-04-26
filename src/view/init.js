@@ -1,9 +1,18 @@
-import { ROW_HEIGHT_MODES, viewportDataWithConstantHeight, getRowHeightWithConstantHeight, viewportDataWithDifferentHeights, calculateAllHeights, getRowHeightMeanWithDifferentHeight } from "../virtual/virtual.js";
-import { createRow } from "./domTableOperations.js";
+import {
+  ROW_HEIGHT_MODES,
+  viewportDataWithConstantHeight,
+  getRowHeightWithConstantHeight,
+  viewportDataWithDifferentHeights,
+  calculateAllHeights,
+  getRowHeightMeanWithDifferentHeight,
+} from "../virtual/virtual.js";
+import { createRow, updateShownheadersWidth } from "./tableOperations.js"
 
 export function initTable(container, scroller, config, data) {
   const tableHeaders = document.createElement('table')
   tableHeaders.classList.add('pb-datatable-headers-table')
+  const colGroup = document.createElement('colgroup')
+  tableHeaders.appendChild(colGroup)
   container.appendChild(tableHeaders)
 
   const table = document.createElement('table')
@@ -25,7 +34,13 @@ export function initTable(container, scroller, config, data) {
 
   // Create headers
   bindedTable.headers = []
+  bindedTable.cols = {}
   for (let j = 0; j < config.headers.length; j++) {
+    const col = document.createElement('col')
+    colGroup.appendChild(col)
+    const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
+    bindedTable.cols[headerKey] = col
+
     const headerContent = config.headers[j].content ?? config.headers[j]
     const header = document.createElement('th')
     header.innerHTML = headerContent
@@ -39,7 +54,8 @@ export function initTable(container, scroller, config, data) {
   bindedTable.rows = []
   let virtualConfig
   if (config.rowHeightMode == ROW_HEIGHT_MODES[0]) { // constant
-    bindedTable.rowHeight = getRowHeightWithConstantHeight(data, config, container)
+    bindedTable.rowHeight =
+      getRowHeightWithConstantHeight(data, config, container)
     virtualConfig = viewportDataWithConstantHeight(
       container,
       bindedTable.rowHeight,
@@ -49,7 +65,8 @@ export function initTable(container, scroller, config, data) {
       config.rowsGutter
     )
   } else if (config.rowHeightMode == ROW_HEIGHT_MODES[1]) { // average
-    bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(data, config, container)
+    bindedTable.rowHeight =
+      getRowHeightMeanWithDifferentHeight(data, config, container, bindedTable.cols)
     console.log('avergae ', bindedTable.rowHeight)
     virtualConfig = viewportDataWithConstantHeight(
       container,
@@ -73,7 +90,7 @@ export function initTable(container, scroller, config, data) {
 
   for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
     const datarow = data[i]
-    const rowObject = createRow(i, datarow, config.columns, config.headers)
+    const rowObject = createRow(i, datarow, config.columns, config.headers, bindedTable.cols)
 
     body.appendChild(rowObject.row)
     bindedTable.rows.push(rowObject)
@@ -83,5 +100,6 @@ export function initTable(container, scroller, config, data) {
 
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
+  updateShownheadersWidth(bindedTable, config)
   return bindedTable
 }

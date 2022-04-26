@@ -1,5 +1,9 @@
 export function createRow(dataIndex, datarow, columns, headers) {
   const row = document.createElement('tr')
+
+  // TODO: If a column with row titles is needed, here should
+  // create a th with scope 'row'
+
   const cells = Array.isArray(datarow) ? [] : {}
   let key, cellData
 
@@ -72,4 +76,16 @@ export function updateCell(cell, cellColumn, cellData) {
   return cell
 }
 
-//export function updateAllNextShownDataindexes()
+// TODO: export function updateAllNextShownDataindexes()
+
+export function updateShownheadersWidth(bindedTable, config) {
+  const row = bindedTable.rows[
+    bindedTable.virtualConfig.firstShownRowIndex == 0
+      ? 0
+      : config.virtualSafeRows
+  ]
+  if (!row) return
+  Object.keys(row.cells).forEach((key) => {
+    bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
+  })
+}
