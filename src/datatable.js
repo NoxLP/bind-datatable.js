@@ -1,6 +1,6 @@
 import { Error } from "./error.js";
 import { initTable } from "./view/init.js";
-import { createRow, checkRowKeys, updateRow, updateCell } from "./view/tableOperations.js"
+import { createRow, checkRowKeys, updateRow, updateCell, updateShownheadersWidth } from "./view/tableOperations.js"
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
 import {
   ROW_HEIGHT_MODES,
@@ -79,6 +79,8 @@ export function DataTable(data, config) {
 
   const table = initTable(container, scroller, config, current)
   if (!table) return undefined
+
+  // events
   container.addEventListener('scroll',
     () => onScrollHandler(container, table, current, config))
   container.addEventListener('wheel',
@@ -86,6 +88,12 @@ export function DataTable(data, config) {
   container.addEventListener('keydown',
     (e) => onKeyDownHandler(e, container))
 
+  if (config.fixedHeaders) {
+    new ResizeObserver(() => updateShownheadersWidth(table, config))
+      .observe(container)
+  }
+
+  // observable
   Observable.observe(current, (changes) => {
     changes.forEach((change) => {
       // change.path have an ordered full path to the updated property
