@@ -248,7 +248,8 @@ export function onScrollHandler(
     table.table.style.OTransform = transform
     table.table.style.MsTransform = transform
 
-    updateShownheadersWidth(table, config)
+    if (config.fixedHeaders)
+      updateShownheadersWidth(table, config)
 
     setTimeout(() => {
       isScrolling = false

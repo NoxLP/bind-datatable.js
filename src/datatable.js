@@ -37,6 +37,7 @@ const checkConfigAndSetDefaults = (config) => {
   }
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
   if (!('rowsGutter' in config)) config.rowsGutter = 0
+  if (!('fixedHeaders' in config)) config.fixedHeaders = true
 
   return config
 }
@@ -53,6 +54,7 @@ const checkConfigAndSetDefaults = (config) => {
  *   rowsGutter, // DEFAULT 0
  *   lastRowBottomOffset, //DEFAULT row height * 5
  *   checkUpdatedRows, //DEFAULT true
+ *   fixedHeaders, //DEFAULT true
  *   containerSelector, //MANDATORY
  *   columns, //MANDATORY
  *   headers, //MANDATORY

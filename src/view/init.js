@@ -9,46 +9,65 @@ import {
 import { createRow, updateShownheadersWidth } from "./tableOperations.js"
 
 export function initTable(container, scroller, config, data) {
-  const tableHeaders = document.createElement('table')
-  tableHeaders.classList.add('pb-datatable-headers-table')
-  const colGroup = document.createElement('colgroup')
-  tableHeaders.appendChild(colGroup)
-  container.appendChild(tableHeaders)
-
   const table = document.createElement('table')
   table.classList.add('pb-datatable-table')
   scroller.appendChild(table)
-  const head = document.createElement('thead')
-  tableHeaders.appendChild(head)
+
+  // This will hold references to DOM elements to perform binding later on,
+  // and other configurations
+  const bindedTable = { table }
+
+  // Create headers
+  if (config.fixedHeaders) {
+    const tableHeaders = document.createElement('table')
+    tableHeaders.classList.add('pb-datatable-headers-table')
+    const colGroup = document.createElement('colgroup')
+    tableHeaders.appendChild(colGroup)
+    const head = document.createElement('thead')
+    tableHeaders.appendChild(head)
+    const headersRow = document.createElement('tr')
+    bindedTable.headersRow = headersRow
+    container.appendChild(tableHeaders)
+
+    bindedTable.headers = []
+    bindedTable.cols = {}
+    for (let j = 0; j < config.headers.length; j++) {
+      const col = document.createElement('col')
+      colGroup.appendChild(col)
+      const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
+      bindedTable.cols[headerKey] = col
+
+      const headerContent = config.headers[j].content ?? config.headers[j]
+      const header = document.createElement('th')
+      header.innerHTML = headerContent
+
+      headersRow.appendChild(header)
+      bindedTable.headers.push(header)
+    }
+    head.appendChild(headersRow)
+  } else {
+    const head = document.createElement('thead')
+    bindedTable.table.appendChild(head)
+    const headersRow = document.createElement('tr')
+    bindedTable.headersRow = headersRow
+
+    bindedTable.headers = []
+    for (let j = 0; j < config.headers.length; j++) {
+      const headerContent = config.headers[j].content ?? config.headers[j]
+      const header = document.createElement('th')
+      header.innerHTML = headerContent
+
+      headersRow.appendChild(header)
+      bindedTable.headers.push(header)
+    }
+    head.appendChild(headersRow)
+  }
+
   const body = document.createElement('tbody')
   table.appendChild(body)
   container.appendChild(scroller)
 
-  // This will hold references to DOM elements to perform binding later on
-  const bindedTable = {
-    table,
-    tableBody: body
-  }
-  const headersRow = document.createElement('tr')
-  bindedTable.headersRow = headersRow
-
-  // Create headers
-  bindedTable.headers = []
-  bindedTable.cols = {}
-  for (let j = 0; j < config.headers.length; j++) {
-    const col = document.createElement('col')
-    colGroup.appendChild(col)
-    const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
-    bindedTable.cols[headerKey] = col
-
-    const headerContent = config.headers[j].content ?? config.headers[j]
-    const header = document.createElement('th')
-    header.innerHTML = headerContent
-
-    headersRow.appendChild(header)
-    bindedTable.headers.push(header)
-  }
-  head.appendChild(headersRow)
+  bindedTable.tableBody = body
 
   // Create rows
   bindedTable.rows = []
@@ -100,6 +119,8 @@ export function initTable(container, scroller, config, data) {
 
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
-  updateShownheadersWidth(bindedTable, config)
+  if (config.fixedHeaders)
+    updateShownheadersWidth(bindedTable, config)
+
   return bindedTable
 }

@@ -30,6 +30,7 @@ const testTable = new DataTable(
     tableId: 'dtTest',
     rowHeightMode: 'average',
     containerSelector: '#table_container',
+    fixedHeaders: false,
     headers: [
       { content: 'H1', key: 'h1' },
       { content: 'H2', key: 'h2' },
