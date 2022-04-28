@@ -37,9 +37,9 @@ export function initTable(container, scroller, config, data) {
       const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
       bindedTable.cols[headerKey] = col
 
-      const headerContent = config.headers[j].content ?? config.headers[j]
+      const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
-      header.innerHTML = headerContent
+      header.innerHTML = headertemplate
 
       headersRow.appendChild(header)
       bindedTable.headers.push(header)
@@ -53,9 +53,9 @@ export function initTable(container, scroller, config, data) {
 
     bindedTable.headers = []
     for (let j = 0; j < config.headers.length; j++) {
-      const headerContent = config.headers[j].content ?? config.headers[j]
+      const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
-      header.innerHTML = headerContent
+      header.innerHTML = headertemplate
 
       headersRow.appendChild(header)
       bindedTable.headers.push(header)
@@ -119,8 +119,23 @@ export function initTable(container, scroller, config, data) {
 
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
-  if (config.fixedHeaders)
-    updateShownheadersWidth(bindedTable, config)
+
+  // calculate columns/headers widths => can't do in first loop because we need
+  // all the elements to be created in DOM
+  if (config.fixedHeaders) updateShownheadersWidth(bindedTable, config)
+  if (config.columns.some((c) => 'width' in c)) {
+    const colGroup = document.createElement('colgroup')
+    bindedTable.table.prepend(colGroup)
+    config.columns.forEach((c) => {
+      if (!('width' in c)) {
+        colGroup.appendChild(document.createElement('col'))
+      } else {
+        const col = document.createElement('col')
+        colGroup.appendChild(col)
+        col.width = typeof c.width == 'string' ? c.width : `${c.width} px`
+      }
+    })
+  }
 
   return bindedTable
 }

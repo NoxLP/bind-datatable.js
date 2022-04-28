@@ -85,7 +85,29 @@ export function updateShownheadersWidth(bindedTable, config) {
       : config.virtualSafeRows
   ]
   if (!row) return
-  Object.keys(row.cells).forEach((key) => {
-    bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
-  })
+  const configColumns = config.columns.reduce((acc, curr, idx) => {
+    if ('width' in curr) {
+      acc.push({
+        width: curr.width,
+        key: typeof config.headers[idx] != 'string' ? config.headers[idx].key :
+          config.headers[idx].toLowerCase()
+      })
+    }
+    return acc
+  }, [])
+  if (configColumns.length > 0) {
+    configColumns.forEach((cc) => {
+      const width = typeof cc.width == 'string' ? cc.width : `${cc.width} px`
+      bindedTable.cols[cc.key].width = width
+    })
+    Object.keys(row.cells).filter((key) => !configColumns.some((cc) => cc.key == key))
+      .forEach((key) => {
+        bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
+      })
+  } else {
+    Object.keys(row.cells)
+      .forEach((key) => {
+        bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
+      })
+  }
 }

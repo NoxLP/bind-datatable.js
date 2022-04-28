@@ -30,12 +30,11 @@ const testTable = new DataTable(
     tableId: 'dtTest',
     rowHeightMode: 'average',
     containerSelector: '#table_container',
-    fixedHeaders: false,
     headers: [
-      { content: 'H1', key: 'h1' },
-      { content: 'H2', key: 'h2' },
-      { content: 'H3', key: 'h3' },
-      { content: 'H4', key: 'h4' },
+      { template: 'H1', key: 'h1' },
+      { template: 'H2', key: 'h2' },
+      { template: 'H3', key: 'h3' },
+      { template: 'H4', key: 'h4' },
       'H5',
       'H6',
       'H7',
@@ -74,7 +73,8 @@ const testTable = new DataTable(
 ${JSON.stringify(e.target, null, 4)}`)
             }
           }
-        ]
+        ],
+        width: 50
       },
       {
         template: (reg) => {

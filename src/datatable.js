@@ -54,10 +54,20 @@ const checkConfigAndSetDefaults = (config) => {
  *   rowsGutter, // DEFAULT 0
  *   lastRowBottomOffset, //DEFAULT row height * 5
  *   checkUpdatedRows, //DEFAULT true
- *   fixedHeaders, //DEFAULT true
  *   containerSelector, //MANDATORY
- *   columns, //MANDATORY
- *   headers, //MANDATORY
+ *   columns, //MANDATORY 
+ *      { template, style, cellEvents, width } all object properties are optional but need 
+ *      at least an empty object per column
+ *   fixedHeaders, //DEFAULT true
+ *   headers, //MANDATORY Array: 
+ *      - every element is a header
+ *      - each element can be:
+ *        · string: column key will be the string with a toLowerCase
+ *        · object: { 
+ *            template, //MANDATORY
+ *            key //MANDATORY
+ *            width,
+ *          }
  *   rows, //TODO
  * }
  * @returns 
