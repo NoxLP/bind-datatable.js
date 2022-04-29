@@ -28,3 +28,7 @@
   z-index: 1000;
   width: 100%;
 }
+
+.my-headers {
+  background-color:darkslategray;
+}

@@ -39,6 +39,8 @@ export function initTable(container, scroller, config, data) {
 
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
+      if (config.headersClass) header.classList.add(config.headersClass)
+      if (config.headersStyle) header.style = config.headersStyle
       header.innerHTML = headertemplate
 
       headersRow.appendChild(header)

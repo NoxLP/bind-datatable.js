@@ -59,6 +59,8 @@ const checkConfigAndSetDefaults = (config) => {
  *      { template, style, cellEvents, width } all object properties are optional but need 
  *      at least an empty object per column
  *   fixedHeaders, //DEFAULT true
+ *   headersClass, //OPTIONAL
+ *   headersStyle, //OPTIONAL
  *   headers, //MANDATORY Array: 
  *      - every element is a header
  *      - each element can be:
