@@ -1,29 +1,41 @@
-export function createRow(dataIndex, datarow, columns, headers) {
+export function createRow(dataIndex, datarow, config) {
   const row = document.createElement('tr')
 
   // TODO: If a column with row titles is needed, here should
   // create a th with scope 'row'
 
   const cells = Array.isArray(datarow) ? [] : {}
+  const rowObject = { row, dataIndex }
   let key, cellData
 
-  for (let i = 0; i < headers.length; i++) {
+  if (config.showRowHeaders) {
+    const rowHeader = document.createElement('th')
+    rowHeader.scope = 'row'
+    rowHeader.innerHTML = dataIndex
+    row.appendChild(rowHeader)
+    rowObject.rowHeader = rowHeader
+    if (config.rowHeaderClass) rowHeader.classList.add(config.rowHeaderClass)
+    if (config.rowHeaderStyle) rowHeader.style = config.rowHeaderStyle
+  }
+
+  for (let i = 0; i < config.headers.length; i++) {
     if (Array.isArray(datarow)) {
       key = i
       cellData = datarow[i]
     }
     else {
-      key = headers[i].key ?? headers[i].toLowerCase()
+      key = config.headers[i].key ?? config.headers[i].toLowerCase()
       cellData = datarow[key]
     }
 
-    const cell = updateCell(document.createElement('td'), columns[i], cellData)
+    const cell = updateCell(document.createElement('td'), config.columns[i], cellData)
 
     row.appendChild(cell)
     cells[key] = cell
   }
+  rowObject.cells = cells
 
-  return { row, dataIndex, cells }
+  return rowObject
 }
 
 export function checkRowKeys(data, headers) {
@@ -43,24 +55,31 @@ export function checkRowKeys(data, headers) {
   return true
 }
 
-export function updateRow(domRow, dataIndex, datarow, columns, headers) {
+export function updateRow(domRow, dataIndex, datarow, config) {
   const cells = Array.isArray(datarow) ? [] : {}
+  const rowObject = { row: domRow, dataIndex }
   let key, cellData
 
-  for (let i = 0; i < headers.length; i++) {
+  if (config.showRowHeaders) {
+    domRow.children[0].innerHTML = dataIndex
+    rowObject.rowHeader = domRow.children[0]
+  }
+
+  for (let i = 0; i < config.headers.length; i++) {
     if (Array.isArray(datarow)) {
       key = i
       cellData = datarow[i]
     }
     else {
-      key = headers[i].key ?? headers[i].toLowerCase()
+      key = config.headers[i].key ?? config.headers[i].toLowerCase()
       cellData = datarow[key]
     }
 
-    updateCell(domRow.children[i], columns[i], cellData)
+    updateCell(domRow.children[i], config.columns[i], cellData)
   }
+  rowObject.cells = cells
 
-  return { row: domRow, dataIndex, cells }
+  return rowObject
 }
 
 export function updateCell(cell, cellColumn, cellData) {
@@ -85,6 +104,11 @@ export function updateShownheadersWidth(bindedTable, config) {
       : config.virtualSafeRows
   ]
   if (!row) return
+
+  if (config.showRowHeaders && config.fixedHeaders) {
+    bindedTable.cols.rowHeaderHeader.width = row.rowHeader.clientWidth
+  }
+
   const configColumns = config.columns.reduce((acc, curr, idx) => {
     if ('width' in curr) {
       acc.push({

@@ -9,12 +9,12 @@ import {
 import { createRow, updateShownheadersWidth } from "./tableOperations.js"
 
 const applyStyleToHeader = (config, header) => {
-  if (config.headersClass) header.classList.add(config.headersClass)
-  if (config.headersStyle) header.style = config.headersStyle
+  if (config.colHeadersClass) header.classList.add(config.colHeadersClass)
+  if (config.colHeadersStyle) header.style = config.colHeadersStyle
 }
 const applyStyleToHeaderRow = (config, row) => {
-  if (config.headersRowClass) row.classList.add(config.headersRowClass)
-  if (config.headersRowStyle) row.style = config.headersRowStyle
+  if (config.colHeadersRowClass) row.classList.add(config.colHeadersRowClass)
+  if (config.colHeadersRowStyle) row.style = config.colHeadersRowStyle
 }
 
 export function initTable(container, scroller, config, data) {
@@ -41,6 +41,12 @@ export function initTable(container, scroller, config, data) {
 
     bindedTable.headers = []
     bindedTable.cols = {}
+    if (config.showRowHeaders) {
+      const rowHeaderCol = document.createElement('col')
+      colGroup.appendChild(rowHeaderCol)
+      bindedTable.cols.rowHeaderHeader = rowHeaderCol
+      headersRow.appendChild(document.createElement('th'))
+    }
     for (let j = 0; j < config.headers.length; j++) {
       const col = document.createElement('col')
       colGroup.appendChild(col)
@@ -49,6 +55,7 @@ export function initTable(container, scroller, config, data) {
 
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
+      header.scope = 'col'
       applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
 
@@ -67,6 +74,7 @@ export function initTable(container, scroller, config, data) {
     for (let j = 0; j < config.headers.length; j++) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
+      header.scope = 'col'
       applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
 
@@ -122,7 +130,7 @@ export function initTable(container, scroller, config, data) {
 
   for (let i = virtualConfig.firstShownRowIndex; i < virtualConfig.lastShownRowIndex; i++) {
     const datarow = data[i]
-    const rowObject = createRow(i, datarow, config.columns, config.headers, bindedTable.cols)
+    const rowObject = createRow(i, datarow, config)
 
     body.appendChild(rowObject.row)
     bindedTable.rows.push(rowObject)
@@ -138,6 +146,11 @@ export function initTable(container, scroller, config, data) {
   if (config.fixedHeaders) updateShownheadersWidth(bindedTable, config)
   if (config.columns.some((c) => 'width' in c)) {
     const colGroup = document.createElement('colgroup')
+    if (config.showRowHeaders) {
+      const rowHeaderCol = document.createElement('col')
+      colGroup.appendChild(rowHeaderCol)
+      bindedTable.cols.rowHeader = rowHeaderCol
+    }
     bindedTable.table.prepend(colGroup)
     config.columns.forEach((c) => {
       if (!('width' in c)) {

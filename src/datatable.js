@@ -59,10 +59,13 @@ const checkConfigAndSetDefaults = (config) => {
  *      { template, style, cellEvents, width } all object properties are optional but need 
  *      at least an empty object per column
  *   fixedHeaders, //DEFAULT true
- *   headersClass, //OPTIONAL
- *   headersStyle, //OPTIONAL
- *   headersRowClass, //OPTIONAL
- *   headersRowStyle, //OPTIONAL
+ *   showRowHeaders, //DEFAULT false
+ *   colHeadersClass, //OPTIONAL string
+ *   colHeadersStyle, //OPTIONAL string
+ *   colHeadersRowClass, //OPTIONAL string
+ *   colHeadersRowStyle, //OPTIONAL string
+ *   rowHeaderClass, //OPTIONAL string
+ *   rowHeaderStyle, //OPTIONAL string
  *   headers, //MANDATORY Array: 
  *      - every element is a header
  *      - each element can be:
@@ -132,7 +135,7 @@ Some headers may be incorrect:
 ${JSON.stringify(change.value, null, 4)}`)
             }
             else {
-              updateRow(updated, updated.dataIndex, change.value, config.columns, config.headers)
+              updateRow(updated, updated.dataIndex, change.value, config)
             }
           }
           break;
@@ -143,7 +146,7 @@ ${JSON.stringify(change.value, null, 4)}`)
               break;
             }
 
-            const rowTuplet = createRow(change.value, config.columns, config.headers)
+            const rowTuplet = createRow(change.value, config)
 
             table.tableBody.appendChild(rowTuplet.row)
             table.rows.push(rowTuplet)
@@ -185,7 +188,7 @@ ${JSON.stringify(change.value, null, 4)}`)
             for (let i = virtualConfig.firstShownRowIndex;
               i <= virtualConfig.lastShownRowIndex;
               i++) {
-              updateRow(table.rows[i - virtualConfig.firstShownRowIndex], i, current[i], config.columns, config.headers)
+              updateRow(table.rows[i - virtualConfig.firstShownRowIndex], i, current[i], config)
             }
 
             checkScroll(container, table, current, config, virtualConfig)
