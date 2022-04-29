@@ -32,6 +32,8 @@ const testTable = new DataTable(
     containerSelector: '#table_container',
     headersClass: 'my-headers',
     headersStyle: 'color: white',
+    headersRowClass: 'my-headers-row',
+    headersRowStyle: 'height: 100px',
     headers: [
       { template: 'H1', key: 'h1' },
       { template: 'H2', key: 'h2' },

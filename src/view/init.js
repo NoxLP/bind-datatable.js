@@ -8,6 +8,15 @@ import {
 } from "../virtual/virtual.js";
 import { createRow, updateShownheadersWidth } from "./tableOperations.js"
 
+const applyStyleToHeader = (config, header) => {
+  if (config.headersClass) header.classList.add(config.headersClass)
+  if (config.headersStyle) header.style = config.headersStyle
+}
+const applyStyleToHeaderRow = (config, row) => {
+  if (config.headersRowClass) row.classList.add(config.headersRowClass)
+  if (config.headersRowStyle) row.style = config.headersRowStyle
+}
+
 export function initTable(container, scroller, config, data) {
   const table = document.createElement('table')
   table.classList.add('pb-datatable-table')
@@ -26,6 +35,7 @@ export function initTable(container, scroller, config, data) {
     const head = document.createElement('thead')
     tableHeaders.appendChild(head)
     const headersRow = document.createElement('tr')
+    applyStyleToHeaderRow(config, headersRow)
     bindedTable.headersRow = headersRow
     container.appendChild(tableHeaders)
 
@@ -39,8 +49,7 @@ export function initTable(container, scroller, config, data) {
 
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
-      if (config.headersClass) header.classList.add(config.headersClass)
-      if (config.headersStyle) header.style = config.headersStyle
+      applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
 
       headersRow.appendChild(header)
@@ -51,12 +60,14 @@ export function initTable(container, scroller, config, data) {
     const head = document.createElement('thead')
     bindedTable.table.appendChild(head)
     const headersRow = document.createElement('tr')
+    applyStyleToHeaderRow(config, headersRow)
     bindedTable.headersRow = headersRow
 
     bindedTable.headers = []
     for (let j = 0; j < config.headers.length; j++) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
+      applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
 
       headersRow.appendChild(header)

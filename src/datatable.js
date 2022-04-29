@@ -61,6 +61,8 @@ const checkConfigAndSetDefaults = (config) => {
  *   fixedHeaders, //DEFAULT true
  *   headersClass, //OPTIONAL
  *   headersStyle, //OPTIONAL
+ *   headersRowClass, //OPTIONAL
+ *   headersRowStyle, //OPTIONAL
  *   headers, //MANDATORY Array: 
  *      - every element is a header
  *      - each element can be:
