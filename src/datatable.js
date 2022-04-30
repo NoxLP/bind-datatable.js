@@ -157,6 +157,7 @@ ${JSON.stringify(change.value, null, 4)}`)
               ? viewportDataWithConstantHeight(
                 container,
                 table.rowHeight,
+                config.lastRowBottomOffset,
                 current,
                 config.virtualSafeRows,
                 config.rowsGutter
@@ -170,10 +171,11 @@ ${JSON.stringify(change.value, null, 4)}`)
                 config.rowsGutter
               )
 
-            for (let i = virtualConfig.firstShownRowIndex;
-              i <= virtualConfig.lastShownRowIndex;
+            for (let i = 0;
+              i < table.rows.length;
               i++) {
-              updateRow(table.rows[i - virtualConfig.firstShownRowIndex].row, i, current[i], config)
+              const row = table.rows[i]
+              updateRow(row.row, row.dataIndex, current[row.dataIndex], config)
             }
 
             checkScroll(container, table, current, config, virtualConfig)

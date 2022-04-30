@@ -134,12 +134,13 @@ export function viewportDataWithDifferentHeights(
       ? lastRowBottomOffset ?? rowHeight * 5 : 0)
   }
   lastShownRowIndex += safeRows
-  lastShownRowIndex = lastShownRowIndex > rows.length - 1
-    ? rows.length - 1
-    : lastShownRowIndex
 
   firstShownRowIndex = Math.floor(firstShownRowIndex)
   lastShownRowIndex = Math.floor(lastShownRowIndex)
+  lastShownRowIndex = lastShownRowIndex > rows.length - 1
+    ? rows.length - 1
+    : lastShownRowIndex
+  console.log('>> LAST CALC ', lastShownRowIndex);
 
   return {
     totalHeight,
@@ -275,14 +276,23 @@ export function checkScroll(
   if (isScrolling || scrollChecked) return
 
   if (!currentVirtual) {
-    currentVirtual = viewportDataWithConstantHeight(
-      container,
-      table.rowHeight,
-      config.lastRowBottomOffset,
-      current,
-      config.virtualSafeRows,
-      config.rowsGutter
-    )
+    currentVirtual = config.rowHeightMode != ROW_HEIGHT_MODES[2]
+      ? viewportDataWithConstantHeight(
+        container,
+        table.rowHeight,
+        config.lastRowBottomOffset,
+        current,
+        config.virtualSafeRows,
+        config.rowsGutter
+      )
+      : viewportDataWithDifferentHeights(
+        container,
+        table.rowHeight,
+        config.lastRowBottomOffset,
+        current,
+        config.virtualSafeRows,
+        config.rowsGutter
+      )
   }
 
   if (currentVirtual.firstShownRowIndex != table.virtualConfig.firstShownRowIndex
