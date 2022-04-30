@@ -37,6 +37,7 @@ const testTable = new DataTable(
     colHeadersRowStyle: 'height: 100px',
     rowHeaderClass: 'my-headers-row',
     rowHeaderStyle: 'color: white',
+    saveScroll: true,
     headers: [
       { template: 'H1', key: 'h1' },
       { template: 'H2', key: 'h2' },

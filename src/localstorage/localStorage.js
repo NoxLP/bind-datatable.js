@@ -1,6 +1,8 @@
 const buildTableKey = (table) => `pb-datatable-${table.table.id}`
 
 export function saveScrollOnLocalStorage(scrollTop, table) {
+  if (!table.table.id || table.table.id.length == 0) return
+
   const data = JSON.stringify({
     scroll: scrollTop
   })
@@ -9,10 +11,13 @@ export function saveScrollOnLocalStorage(scrollTop, table) {
 }
 
 export function getScrollFromLocalStorage(table) {
+  if (!table.table.id || table.table.id.length == 0) return null
+
   let data = localStorage.getItem(buildTableKey(table))
   if (data && data.length > 0) {
     data = JSON.parse(data)
     return data.scroll
   }
-  return null
+
+  return 0
 }

@@ -19,6 +19,8 @@ const applyStyleToHeaderRow = (config, row) => {
 
 export function initTable(container, scroller, config, data) {
   const table = document.createElement('table')
+  if (config.tableId && config.tableId.length != 0)
+    table.id = config.tableId
   table.classList.add('pb-datatable-table')
   scroller.appendChild(table)
 

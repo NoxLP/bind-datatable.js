@@ -184,8 +184,10 @@ ${JSON.stringify(change.value, null, 4)}`)
     })
   })
 
-  const scroll = getScrollFromLocalStorage(table)
-  if (scroll) container.scrollTop = scroll
+  if (config.saveScroll) {
+    const scroll = getScrollFromLocalStorage(table)
+    if (scroll) container.scrollTop = scroll
+  }
 
   return {
     current,

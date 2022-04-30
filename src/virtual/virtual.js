@@ -195,12 +195,13 @@ export function onScrollHandler(
   current,
   config
 ) {
+  if (config.saveScroll)
+    saveScrollOnLocalStorage(container.scrollTop, table)
   if (isScrolling) return // throttle
   if (container.scrollTop == lastScrollTop) return //only vertical scroll
   isScrolling = true
   scrollChecked = false
   lastScrollTop = container.scrollTop
-  saveScrollOnLocalStorage(container.scrollTop, table)
 
   requestAnimationFrame(() => {
     // calculate new virtual data
