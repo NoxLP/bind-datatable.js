@@ -55,7 +55,7 @@ const testTable = new DataTable(
       return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
     },*/
     rowsClass: (reg, index) => {
-      return index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white'
+      return (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black'
     },
     columns: [
       {
