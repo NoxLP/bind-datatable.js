@@ -1,6 +1,6 @@
 import { Error } from "./error.js";
-import { initTable } from "./view/init.js";
-import { createRow, checkRowKeys, updateRow, updateCell, updateShownheadersWidth } from "./view/tableOperations.js"
+import { initTable } from "./table/init.js";
+import { createRow, checkRowKeys, updateRow, updateCell, updateShownheadersWidth } from "./table/tableOperations.js"
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js';
 import {
   ROW_HEIGHT_MODES,
@@ -11,6 +11,7 @@ import {
   onWheelHandler,
   onKeyDownHandler,
 } from "./virtual/virtual.js";
+import { getScrollFromLocalStorage } from "./localstorage/localStorage.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -171,9 +172,7 @@ ${JSON.stringify(change.value, null, 4)}`)
                 config.rowsGutter
               )
 
-            for (let i = 0;
-              i < table.rows.length;
-              i++) {
+            for (let i = 0; i < table.rows.length; i++) {
               const row = table.rows[i]
               updateRow(row.row, row.dataIndex, current[row.dataIndex], config)
             }
@@ -184,6 +183,9 @@ ${JSON.stringify(change.value, null, 4)}`)
       }
     })
   })
+
+  const scroll = getScrollFromLocalStorage(table)
+  if (scroll) container.scrollTop = scroll
 
   return {
     current,

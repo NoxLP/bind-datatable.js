@@ -1,4 +1,5 @@
-import { createRow, updateRow, updateShownheadersWidth } from "../view/tableOperations.js"
+import { createRow, updateRow, updateShownheadersWidth } from "../table/tableOperations.js"
+import { saveScrollOnLocalStorage } from "../localstorage/localStorage.js";
 
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
@@ -199,6 +200,7 @@ export function onScrollHandler(
   isScrolling = true
   scrollChecked = false
   lastScrollTop = container.scrollTop
+  saveScrollOnLocalStorage(container.scrollTop, table)
 
   requestAnimationFrame(() => {
     // calculate new virtual data
