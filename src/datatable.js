@@ -38,6 +38,22 @@ const checkConfigAndSetDefaults = (config) => {
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
   if (!('rowsGutter' in config)) config.rowsGutter = 0
   if (!('fixedHeaders' in config)) config.fixedHeaders = true
+  if (config.colHeadersClass && config.colHeadersClass.length == 0)
+    delete config.colHeadersClass
+  if (config.colHeadersStyle && config.colHeadersStyle.length == 0)
+    delete config.colHeadersStyle
+  if (config.colHeadersRowClass && config.colHeadersRowClass.length == 0)
+    delete config.colHeadersRowClass
+  if (config.colHeadersRowStyle && config.colHeadersRowStyle.length == 0)
+    delete config.colHeadersRowStyle
+  if (config.rowHeaderClass && config.rowHeaderClass.length == 0)
+    delete config.rowHeaderClass
+  if (config.rowHeaderStyle && config.rowHeaderStyle.length == 0)
+    delete config.rowHeaderStyle
+  if (config.rowsStyle && config.rowsStyle.length == 0)
+    delete config.rowsStyle
+  if (config.rowsClass && config.rowsClass.length == 0)
+    delete config.rowsClass
 
   return config
 }

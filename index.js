@@ -51,9 +51,11 @@ const testTable = new DataTable(
       'H11',
       'H12',
     ],
-    rows: {
-      // eslint-disable-next-line no-unused-vars
-      template: (row) => { }
+    /*rowsStyle: (reg, index) => {
+      return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
+    },*/
+    rowsClass: (reg, index) => {
+      return index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white'
     },
     columns: [
       {

@@ -1,3 +1,8 @@
+const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
+  if (config.rowsStyle) row.style = config.rowsStyle(datarow, dataIndex)
+  if (config.rowsClass) row.classList.add(config.rowsClass(datarow, dataIndex))
+}
+
 export function createRow(dataIndex, datarow, config) {
   const row = document.createElement('tr')
 
@@ -6,7 +11,6 @@ export function createRow(dataIndex, datarow, config) {
 
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row, dataIndex }
-  let key, cellData
 
   if (config.showRowHeaders) {
     const rowHeader = document.createElement('th')
@@ -18,6 +22,9 @@ export function createRow(dataIndex, datarow, config) {
     if (config.rowHeaderStyle) rowHeader.style = config.rowHeaderStyle
   }
 
+  setRowStyleAndClass(row, dataIndex, datarow, config)
+
+  let key, cellData
   for (let i = 0; i < config.headers.length; i++) {
     if (Array.isArray(datarow)) {
       key = i
@@ -65,6 +72,8 @@ export function updateRow(domRow, dataIndex, datarow, config) {
     domRow.children[0].innerHTML = dataIndex
     rowObject.rowHeader = domRow.children[0]
   }
+
+  setRowStyleAndClass(domRow, dataIndex, datarow, config)
 
   for (let i = 0; i < config.headers.length; i++) {
     if (Array.isArray(datarow)) {
