@@ -58,9 +58,10 @@ export function checkRowKeys(data, headers) {
 export function updateRow(domRow, dataIndex, datarow, config) {
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row: domRow, dataIndex }
-  let key, cellData
+  let key, cellData, childrenSum = 0
 
   if (config.showRowHeaders) {
+    childrenSum = 1
     domRow.children[0].innerHTML = dataIndex
     rowObject.rowHeader = domRow.children[0]
   }
@@ -75,7 +76,7 @@ export function updateRow(domRow, dataIndex, datarow, config) {
       cellData = datarow[key]
     }
 
-    updateCell(domRow.children[i], config.columns[i], cellData)
+    updateCell(domRow.children[i + childrenSum], config.columns[i], cellData)
   }
   rowObject.cells = cells
 

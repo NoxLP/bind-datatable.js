@@ -45,38 +45,7 @@ const checkConfigAndSetDefaults = (config) => {
 /**
  * 
  * @param {object} data Data registers array
- * @param {object} config Config object:
- * {
- *   tableId, //OPTIONAL
- *   rowHeightMode, // [constant|average|all] DEFAULT constant
- *   heightPrecalculationsRowsNumber, //DEFAULT 200 (ignored if row height is constant)
- *   virtualSafeRows, // DEFAULT 10
- *   rowsGutter, // DEFAULT 0
- *   lastRowBottomOffset, //DEFAULT row height * 5
- *   checkUpdatedRows, //DEFAULT true
- *   containerSelector, //MANDATORY
- *   columns, //MANDATORY 
- *      { template, style, cellEvents, width } all object properties are optional but need 
- *      at least an empty object per column
- *   fixedHeaders, //DEFAULT true
- *   showRowHeaders, //DEFAULT false
- *   colHeadersClass, //OPTIONAL string
- *   colHeadersStyle, //OPTIONAL string
- *   colHeadersRowClass, //OPTIONAL string
- *   colHeadersRowStyle, //OPTIONAL string
- *   rowHeaderClass, //OPTIONAL string
- *   rowHeaderStyle, //OPTIONAL string
- *   headers, //MANDATORY Array: 
- *      - every element is a header
- *      - each element can be:
- *        · string: column key will be the string with a toLowerCase
- *        · object: { 
- *            template, //MANDATORY
- *            key //MANDATORY
- *            width,
- *          }
- *   rows, //TODO
- * }
+ * @param {object} config Config object: see readme
  * @returns 
  */
 export function DataTable(data, config) {
@@ -188,7 +157,7 @@ ${JSON.stringify(change.value, null, 4)}`)
             for (let i = virtualConfig.firstShownRowIndex;
               i <= virtualConfig.lastShownRowIndex;
               i++) {
-              updateRow(table.rows[i - virtualConfig.firstShownRowIndex], i, current[i], config)
+              updateRow(table.rows[i - virtualConfig.firstShownRowIndex].row, i, current[i], config)
             }
 
             checkScroll(container, table, current, config, virtualConfig)
