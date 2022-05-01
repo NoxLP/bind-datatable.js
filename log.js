@@ -4,15 +4,15 @@ export function logScroll(table) {
 
   const firstTdText = domRows[1].children[0].innerHTML
   const lastTdText = domRows[domRows.length - 1].children[0].innerHTML
-  if (firstTdText == table.virtualConfig.firstShownRowIndex
-    && lastTdText == table.virtualConfig.lastShownRowIndex
+  if (firstTdText == table.virtualConfig.firstRowIndex
+    && lastTdText == table.virtualConfig.lastRowIndex
   ) {
     console.log('CORRECT')
-    console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstShownRowIndex}`)
-    console.log(`> last row: ${lastTdText} / ${table.virtualConfig.lastShownRowIndex}`);
+    console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstRowIndex}`)
+    console.log(`> last row: ${lastTdText} / ${table.virtualConfig.lastRowIndex}`);
   } else {
     console.log('INCORRECT')
-    console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstShownRowIndex}`)
-    console.log(`> last row: ${lastTdText} / ${table.virtualConfig.lastShownRowIndex}`);
+    console.log(`> First row: ${firstTdText} / ${table.virtualConfig.firstRowIndex}`)
+    console.log(`> last row: ${lastTdText} / ${table.virtualConfig.lastRowIndex}`);
   }
 }

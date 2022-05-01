@@ -109,7 +109,7 @@ export function updateCell(cell, cellColumn, cellData) {
 
 export function updateShownheadersWidth(bindedTable, config) {
   const row = bindedTable.rows[
-    bindedTable.virtualConfig.firstShownRowIndex == 0
+    bindedTable.virtualConfig.firstRowIndex == 0
       ? 0
       : config.virtualSafeRows
   ]
