@@ -108,6 +108,10 @@ document.getElementById("table_button").addEventListener('click', () => {
   console.log(testTable)
 })
 
+document.getElementById("scroll_button").addEventListener('click', () => {
+  console.log(document.getElementById('table_container').scrollTop)
+})
+
 document.getElementById('test_button').addEventListener('click', () => {
   //testTable.current[0].h1 = 'bla'
   // console.log(testTable.current[0])

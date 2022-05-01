@@ -95,7 +95,7 @@ export function initTable(container, scroller, config, data) {
 
   // Create rows
   bindedTable.rows = []
-  let virtualConfig
+  let virtualConfig, currentScroll
   const scroll = getScrollFromLocalStorage(bindedTable)
   if (config.saveScroll && scroll) {
     if (config.rowHeightMode != ROW_HEIGHT_MODES[1] ||
@@ -113,7 +113,7 @@ export function initTable(container, scroller, config, data) {
         scroll.scroll
       )
     } else {
-      let currentScroll = scroll.scroll
+      currentScroll = scroll.scroll
       bindedTable.rowHeight =
         getRowHeightMeanWithDifferentHeight(data, config, container, bindedTable.cols)
       virtualConfig = viewportDataWithConstantHeight(
@@ -126,13 +126,13 @@ export function initTable(container, scroller, config, data) {
         currentScroll
       )
       let i = 0
-      while (virtualConfig.firstRowIndex != scroll.firstShownRowIndex && i < 50) {
-        if (virtualConfig.firstRowIndex < scroll.firstShownRowIndex) {
+      while (virtualConfig.firstShownRowIndex != scroll.firstShownRowIndex && i < 50) {
+        if (virtualConfig.firstShownRowIndex < scroll.firstShownRowIndex) {
           currentScroll +=
-            (scroll.firstShownRowIndex - virtualConfig.firstRowIndex) * bindedTable.rowHeight
+            (scroll.firstShownRowIndex - virtualConfig.firstShownRowIndex) * bindedTable.rowHeight
         } else {
           currentScroll +=
-            (scroll.firstShownRowIndex - virtualConfig.firstRowIndex) * bindedTable.rowHeight
+            (scroll.firstShownRowIndex - virtualConfig.firstShownRowIndex) * bindedTable.rowHeight
         }
         virtualConfig = viewportDataWithConstantHeight(
           container,
@@ -146,8 +146,6 @@ export function initTable(container, scroller, config, data) {
 
         i++
       }
-
-      container.scrollTop = currentScroll
     }
   } else {
     if (config.rowHeightMode == ROW_HEIGHT_MODES[0]) { // constant
@@ -197,6 +195,8 @@ export function initTable(container, scroller, config, data) {
 
   scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
+
+  if (currentScroll) container.scrollTop = currentScroll
 
   // calculate columns/headers widths => can't do in first loop because we need
   // all the elements to be created in DOM

@@ -209,13 +209,16 @@ export function onScrollHandler(
   current,
   config
 ) {
-  if (config.saveScroll) {
-    if (storageScrollSetted)
-      saveScrollOnLocalStorage(container.scrollTop, table, config)
-    else
-      storageScrollSetted = true
+  if (isScrolling) // throttle 
+  {
+    if (config.saveScroll) {
+      if (storageScrollSetted)
+        saveScrollOnLocalStorage(container.scrollTop, table, config)
+      else
+        storageScrollSetted = true
+    }
+    return
   }
-  if (isScrolling) return // throttle
   if (container.scrollTop == lastScrollTop) return //only vertical scroll
   isScrolling = true
   scrollChecked = false
@@ -272,6 +275,13 @@ export function onScrollHandler(
 
     if (config.fixedHeaders)
       updateShownheadersWidth(table, config)
+
+    if (config.saveScroll) {
+      if (storageScrollSetted)
+        saveScrollOnLocalStorage(container.scrollTop, table, config)
+      else
+        storageScrollSetted = true
+    }
 
     setTimeout(() => {
       isScrolling = false
