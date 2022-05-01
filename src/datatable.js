@@ -11,7 +11,6 @@ import {
   onWheelHandler,
   onKeyDownHandler,
 } from "./virtual/virtual.js";
-import { getScrollFromLocalStorage } from "./localstorage/localStorage.js";
 
 const getColIndexKey = (change, config) => (
   !(/^\d+$/.test(change.path[1]))
@@ -184,18 +183,13 @@ ${JSON.stringify(change.value, null, 4)}`)
     })
   })
 
-  if (config.saveScroll) {
-    const scroll = getScrollFromLocalStorage(table)
-    if (scroll) container.scrollTop = scroll
-  }
-
   return {
     current,
     get table() {
       return table
     },
     get shown() {
-      return current.slice(table.virtualConfig.firstShownRowIndex, table.virtualConfig.lastShownRowIndex)
+      return current.slice(table.virtualConfig.firstRowIndex, table.virtualConfig.lastRowIndex)
     }
   }
 }
