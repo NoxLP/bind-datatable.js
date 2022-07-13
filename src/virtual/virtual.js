@@ -1,10 +1,15 @@
-import { createRow, updateRow, updateShownheadersWidth } from "../table/tableOperations.js"
-import { saveScrollOnLocalStorage } from "../localstorage/localStorage.js";
+import {
+  createRow,
+  updateRow,
+  updateShownheadersWidth,
+} from '../table/tableOperations.js'
+import { saveScrollOnLocalStorage } from '../localstorage/localStorage.js'
 
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
 let scrollChecked = false
 let lastScrollTop = 0
+let storageScrollSetted = false
 
 const getRowHeight = (row, container) => {
   row.row.style.visibility = 'hidden'
@@ -33,14 +38,19 @@ export function getRowHeightMeanWithDifferentHeight(data, config, container) {
   } else {
     // Divide data in "pages" to pick a row from each page until reach
     // config.heightPrecalculationsRowsNumber, and build the mean with those rows
-    const rowsBetweenPage = Math.floor(data.length / config.heightPrecalculationsRowsNumber)
+    const rowsBetweenPage = Math.floor(
+      data.length / config.heightPrecalculationsRowsNumber
+    )
     row = createRow(0, data[0], config)
     mean = getRowHeight(row, container)
     for (let i = 1; i < config.heightPrecalculationsRowsNumber; i++) {
       // Add random to get a somehow "normalized" sample
-      let rowIndex = Math.max(0,
-        Math.min(data.length - 1, (rowsBetweenPage * i) +
-          randomRange(1 - rowsBetweenPage, rowsBetweenPage - 1)
+      let rowIndex = Math.max(
+        0,
+        Math.min(
+          data.length - 1,
+          rowsBetweenPage * i +
+            randomRange(1 - rowsBetweenPage, rowsBetweenPage - 1)
         )
       )
       row = updateRow(row.row, rowIndex, data[rowIndex], config)
@@ -55,7 +65,7 @@ export function getRowHeightMeanWithDifferentHeight(data, config, container) {
 }
 
 export function calculateAllHeights(data, config, container) {
-  // The createRow and updateRow functions could calculate each row height, 
+  // The createRow and updateRow functions could calculate each row height,
   // the problem is that I don't want to render more rows than strictly needed,
   // and to calculate that I need a row height
 
@@ -96,7 +106,13 @@ export function calculateAllHeights(data, config, container) {
 }
 
 export function viewportDataWithDifferentHeights(
-  container, rowHeights, lastRowBottomOffset, rows, safeRows, rowGutter = 0) {
+  container,
+  rowHeights,
+  lastRowBottomOffset,
+  rows,
+  safeRows,
+  rowGutter = 0
+) {
   let totalHeight = 0
 
   let firstRowIndex = undefined
@@ -117,8 +133,7 @@ export function viewportDataWithDifferentHeights(
     }
 
     if (firstRowIndex != undefined && lastRowIndex == undefined) {
-      if (shownHeight >= container.clientHeight)
-        lastRowIndex = i - 1
+      if (shownHeight >= container.clientHeight) lastRowIndex = i - 1
       else if (i == rows.length - 1) lastRowIndex = i
     }
   }
@@ -131,24 +146,29 @@ export function viewportDataWithDifferentHeights(
     // just use a mean to calculate the offset of the safe rows
     const rowHeight = totalHeight / rows.length
     rowOffset -= (rowOffset / totalShownRows) * safeRows
-    rowOffset = rowOffset < 0 ? 0 : rowOffset < 0 ? 0 : rowOffset + (lastRowIndex == rows.length - 1
-      ? lastRowBottomOffset ?? rowHeight * 5 : 0)
+    rowOffset =
+      rowOffset < 0
+        ? 0
+        : rowOffset < 0
+        ? 0
+        : rowOffset +
+          (lastRowIndex == rows.length - 1
+            ? lastRowBottomOffset ?? rowHeight * 5
+            : 0)
   }
   lastRowIndex += safeRows
 
   firstRowIndex = Math.floor(firstRowIndex)
   lastRowIndex = Math.floor(lastRowIndex)
-  lastRowIndex = lastRowIndex > rows.length - 1
-    ? rows.length - 1
-    : lastRowIndex
-  console.log('>> LAST CALC ', lastRowIndex);
+  lastRowIndex = lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
+  console.log('>> LAST CALC ', lastRowIndex)
 
   return {
     totalHeight,
     totalShownRows,
     firstRowIndex,
     rowOffset,
-    lastRowIndex
+    lastRowIndex,
   }
 }
 
@@ -175,19 +195,20 @@ export function viewportDataWithConstantHeight(
 
   const totalHeight = rows.length * (rowHeight + rowGutter)
   let firstShownRowIndex = scrollTop / (rowHeight - rowGutter)
-  let lastShownRowIndex = Math.floor(firstShownRowIndex + (container.clientHeight / (rowHeight + 2 * rowGutter)))
+  let lastShownRowIndex = Math.floor(
+    firstShownRowIndex + container.clientHeight / (rowHeight + 2 * rowGutter)
+  )
 
   let firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
   firstRowIndex = firstRowIndex < 0 ? 0 : firstRowIndex
   let lastRowIndex = lastShownRowIndex + safeRows
-  lastRowIndex = lastRowIndex > rows.length - 1
-    ? rows.length - 1 : lastRowIndex
+  lastRowIndex = lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
 
   let firstWithoutFloor = firstShownRowIndex - safeRows
   firstWithoutFloor = firstWithoutFloor < 0 ? 0 : firstWithoutFloor
-  const rowOffset = firstWithoutFloor * (rowHeight + rowGutter) +
-    (lastRowIndex == rows.length - 1
-      ? lastRowBottomOffset ?? rowHeight * 5 : 0)
+  const rowOffset =
+    firstWithoutFloor * (rowHeight + rowGutter) +
+    (lastRowIndex == rows.length - 1 ? lastRowBottomOffset ?? rowHeight * 5 : 0)
   firstShownRowIndex = Math.floor(firstShownRowIndex)
   const totalShownRows = lastShownRowIndex - firstShownRowIndex
 
@@ -198,24 +219,17 @@ export function viewportDataWithConstantHeight(
     rowOffset,
     totalShownRows,
     firstShownRowIndex,
-    lastShownRowIndex
+    lastShownRowIndex,
   }
 }
 
-let storageScrollSetted = false
-export function onScrollHandler(
-  container,
-  table,
-  current,
-  config
-) {
-  if (isScrolling) // throttle 
-  {
+export function onScrollHandler(container, table, current, config) {
+  if (isScrolling) {
+    // throttle
     if (config.saveScroll) {
       if (storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
-      else
-        storageScrollSetted = true
+      else storageScrollSetted = true
     }
     return
   }
@@ -238,8 +252,10 @@ export function onScrollHandler(
     // remove rows
     let i = 0
     while (i <= table.rows.length - 1) {
-      if (table.rows[i].dataIndex < table.virtualConfig.firstRowIndex ||
-        table.rows[i].dataIndex > table.virtualConfig.lastRowIndex) {
+      if (
+        table.rows[i].dataIndex < table.virtualConfig.firstRowIndex ||
+        table.rows[i].dataIndex > table.virtualConfig.lastRowIndex
+      ) {
         table.rows[i].row.remove()
         table.rows.splice(i, 1)
       } else i++
@@ -250,7 +266,8 @@ export function onScrollHandler(
     const lastOld = table.rows[table.rows.length - 1]?.dataIndex
     let insertIndex = 0
 
-    for (let i = table.virtualConfig.firstRowIndex;
+    for (
+      let i = table.virtualConfig.firstRowIndex;
       i <= table.virtualConfig.lastRowIndex;
       i++
     ) {
@@ -273,67 +290,52 @@ export function onScrollHandler(
     table.table.style.OTransform = transform
     table.table.style.MsTransform = transform
 
-    if (config.fixedHeaders)
-      updateShownheadersWidth(table, config)
+    if (config.fixedHeaders) updateShownheadersWidth(table, config)
 
     if (config.saveScroll) {
       if (storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
-      else
-        storageScrollSetted = true
+      else storageScrollSetted = true
     }
 
     setTimeout(() => {
       isScrolling = false
     }, 100)
     setTimeout(() => {
-      checkScroll(
-        container,
-        table,
-        current,
-        config
-      )
-    }, 250);
+      checkScroll(container, table, current, config)
+    }, 250)
   })
 }
 
-export function checkScroll(
-  container,
-  table,
-  current,
-  config,
-  currentVirtual
-) {
+export function checkScroll(container, table, current, config, currentVirtual) {
   if (isScrolling || scrollChecked) return
 
   if (!currentVirtual) {
-    currentVirtual = config.rowHeightMode != ROW_HEIGHT_MODES[2]
-      ? viewportDataWithConstantHeight(
-        container,
-        table.rowHeight,
-        config.lastRowBottomOffset,
-        current,
-        config.virtualSafeRows,
-        config.rowsGutter
-      )
-      : viewportDataWithDifferentHeights(
-        container,
-        table.rowHeight,
-        config.lastRowBottomOffset,
-        current,
-        config.virtualSafeRows,
-        config.rowsGutter
-      )
+    currentVirtual =
+      config.rowHeightMode != ROW_HEIGHT_MODES[2]
+        ? viewportDataWithConstantHeight(
+            container,
+            table.rowHeight,
+            config.lastRowBottomOffset,
+            current,
+            config.virtualSafeRows,
+            config.rowsGutter
+          )
+        : viewportDataWithDifferentHeights(
+            container,
+            table.rowHeight,
+            config.lastRowBottomOffset,
+            current,
+            config.virtualSafeRows,
+            config.rowsGutter
+          )
   }
 
-  if (currentVirtual.firstRowIndex != table.virtualConfig.firstRowIndex
-    || currentVirtual.lastRowIndex != table.virtualConfig.lastRowIndex) {
-    onScrollHandler(
-      container,
-      table,
-      current,
-      config
-    )
+  if (
+    currentVirtual.firstRowIndex != table.virtualConfig.firstRowIndex ||
+    currentVirtual.lastRowIndex != table.virtualConfig.lastRowIndex
+  ) {
+    onScrollHandler(container, table, current, config)
     table.virtualConfig = currentVirtual
   }
 
