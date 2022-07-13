@@ -113,7 +113,7 @@ document.getElementById("scroll_button").addEventListener('click', () => {
 })
 
 document.getElementById('test_button').addEventListener('click', () => {
-  //testTable.current[0].h1 = 'bla'
+  testTable.current[0].h1 = 'bla'
   // console.log(testTable.current[0])
   //testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
   /*testTable.current[1] = {
@@ -131,5 +131,6 @@ document.getElementById('test_button').addEventListener('click', () => {
   //testTable.current.splice(1, 1)
   //testTable.current.sort((a, b) => a.h2 + b.h2)
   testTable.current.sort((a, b) => a.h5 - b.h5)
+  testTable.current[0].h1 = 'bla'
   console.log('FINISHED')
 })
