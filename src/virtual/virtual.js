@@ -3,7 +3,10 @@ import {
   updateRow,
   updateShownheadersWidth,
 } from '../table/tableOperations.js'
-import { saveScrollOnLocalStorage } from '../localstorage/localStorage.js'
+import {
+  saveScrollOnLocalStorage,
+  getScrollFromLocalStorage,
+} from '../localstorage/localStorage.js'
 
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
 let isScrolling = false
@@ -358,4 +361,121 @@ export function onKeyDownHandler(e, container) {
   } else if (e.code == 'PageUp' && container.scrollTop > 0) {
     container.scrollTop -= container.clientHeight
   }
+}
+
+export function createVirtualConfig(container, data, config, bindedTable) {
+  let virtualConfig, currentScroll
+  const scroll = getScrollFromLocalStorage(bindedTable)
+
+  if (config.saveScroll && scroll) {
+    if (
+      config.rowHeightMode != ROW_HEIGHT_MODES[1] ||
+      scroll.firstShownRowIndex == undefined
+    ) {
+      // average
+      bindedTable.rowHeight = getRowHeightWithConstantHeight(
+        data,
+        config,
+        container
+      )
+      virtualConfig = viewportDataWithConstantHeight(
+        container,
+        bindedTable.rowHeight,
+        config.lastRowBottomOffset,
+        data,
+        config.virtualSafeRows,
+        config.rowsGutter,
+        scroll.scroll
+      )
+    } else {
+      currentScroll = scroll.scroll
+      bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(
+        data,
+        config,
+        container,
+        bindedTable.cols
+      )
+      virtualConfig = viewportDataWithConstantHeight(
+        container,
+        bindedTable.rowHeight,
+        config.lastRowBottomOffset,
+        data,
+        config.virtualSafeRows,
+        config.rowsGutter,
+        currentScroll
+      )
+      let i = 0
+      while (
+        virtualConfig.firstShownRowIndex != scroll.firstShownRowIndex &&
+        i < 50
+      ) {
+        if (virtualConfig.firstShownRowIndex < scroll.firstShownRowIndex) {
+          currentScroll +=
+            (scroll.firstShownRowIndex - virtualConfig.firstShownRowIndex) *
+            bindedTable.rowHeight
+        } else {
+          currentScroll +=
+            (scroll.firstShownRowIndex - virtualConfig.firstShownRowIndex) *
+            bindedTable.rowHeight
+        }
+        virtualConfig = viewportDataWithConstantHeight(
+          container,
+          bindedTable.rowHeight,
+          config.lastRowBottomOffset,
+          data,
+          config.virtualSafeRows,
+          config.rowsGutter,
+          currentScroll
+        )
+
+        i++
+      }
+    }
+  } else {
+    if (config.rowHeightMode == ROW_HEIGHT_MODES[0]) {
+      // constant
+      bindedTable.rowHeight = getRowHeightWithConstantHeight(
+        data,
+        config,
+        container
+      )
+      virtualConfig = viewportDataWithConstantHeight(
+        container,
+        bindedTable.rowHeight,
+        config.lastRowBottomOffset,
+        data,
+        config.virtualSafeRows,
+        config.rowsGutter
+      )
+    } else if (config.rowHeightMode == ROW_HEIGHT_MODES[1]) {
+      // average
+      bindedTable.rowHeight = getRowHeightMeanWithDifferentHeight(
+        data,
+        config,
+        container,
+        bindedTable.cols
+      )
+      virtualConfig = viewportDataWithConstantHeight(
+        container,
+        bindedTable.rowHeight,
+        config.lastRowBottomOffset,
+        data,
+        config.virtualSafeRows,
+        config.rowsGutter
+      )
+    } else {
+      // all
+      bindedTable.rowHeight = calculateAllHeights(data, config, container)
+      virtualConfig = viewportDataWithDifferentHeights(
+        container,
+        bindedTable.rowHeight,
+        config.lastRowBottomOffset,
+        data,
+        config.virtualSafeRows,
+        config.rowsGutter
+      )
+    }
+  }
+
+  return [virtualConfig, currentScroll]
 }

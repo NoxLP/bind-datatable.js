@@ -1,114 +1,112 @@
-import { DataTable } from "./src/datatable.js";
+import { DataTable } from './src/datatable.js'
 
 const dataObject = () => {
   const result = []
   let j = 0
   for (let i = 0; i < 100000; i++) {
-    result.push(
-      {
-        h1: i,
-        h2: ++j,
-        h3: ++j,
-        h4: ++j,
-        h5: Math.floor(i + (Math.random() * 50)),
-        h6: ++j,
-        h7: ++j,
-        h8: ++j,
-        h9: i,
-        h10: ++j,
-        h11: ++j,
-        h12: ++j,
-      },
-    )
+    result.push({
+      h1: i,
+      h2: ++j,
+      h3: ++j,
+      h4: ++j,
+      h5: Math.floor(i + Math.random() * 50),
+      h6: ++j,
+      h7: ++j,
+      h8: ++j,
+      h9: i,
+      h10: ++j,
+      h11: ++j,
+      h12: ++j,
+    })
   }
   return result
 }
 
-const testTable = new DataTable(
-  dataObject(),
-  {
-    tableId: 'dtTest',
-    rowHeightMode: 'average',
-    containerSelector: '#table_container',
-    showRowHeaders: true,
-    colHeadersClass: 'my-headers',
-    colHeadersStyle: 'color: white',
-    colHeadersRowClass: 'my-headers-row',
-    colHeadersRowStyle: 'height: 100px',
-    rowHeaderClass: 'my-headers-row',
-    rowHeaderStyle: 'color: white',
-    saveScroll: true,
-    headers: [
-      { template: 'H1', key: 'h1' },
-      { template: 'H2', key: 'h2' },
-      { template: 'H3', key: 'h3' },
-      { template: 'H4', key: 'h4' },
-      'H5',
-      'H6',
-      'H7',
-      'H8',
-      'H9',
-      'H10',
-      'H11',
-      'H12',
-    ],
-    /*rowsStyle: (reg, index) => {
+window.data = dataObject()
+
+const testTable = new DataTable(dataObject(), {
+  tableId: 'dtTest',
+  rowHeightMode: 'average',
+  containerSelector: '#table_container',
+  showRowHeaders: true,
+  colHeadersClass: 'my-headers',
+  colHeadersStyle: 'color: white',
+  colHeadersRowClass: 'my-headers-row',
+  colHeadersRowStyle: 'height: 100px',
+  rowHeaderClass: 'my-headers-row',
+  rowHeaderStyle: 'color: white',
+  saveScroll: true,
+  headers: [
+    { template: 'H1', key: 'h1' },
+    { template: 'H2', key: 'h2' },
+    { template: 'H3', key: 'h3' },
+    { template: 'H4', key: 'h4' },
+    'H5',
+    'H6',
+    'H7',
+    'H8',
+    'H9',
+    'H10',
+    'H11',
+    'H12',
+  ],
+  /*rowsStyle: (reg, index) => {
       return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
     },*/
-    rowsClass: (reg, index) => {
-      return (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black'
+  rowsClass: (reg, index) => {
+    return (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black'
+  },
+  columns: [
+    {
+      template: (reg) => {
+        return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
+      },
     },
-    columns: [
-      {
-        template: (reg) => {
-          return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
-        }
-      },
-      {
-        template: (reg) => {
-          if (!reg.more) return reg
+    {
+      template: (reg) => {
+        if (!reg.more) return reg
 
-          return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
-        },
-        style: () => `color: red;`
+        return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
       },
-      {
-        cellEvents: [
-          {
-            name: () => 'click',
-            callback: (reg, e) => {
-              console.log('CLICK');
-              console.log(e)
-              alert(`${reg}
+      style: () => `color: red;`,
+    },
+    {
+      cellEvents: [
+        {
+          name: () => 'click',
+          callback: (reg, e) => {
+            console.log('CLICK')
+            console.log(e)
+            alert(`${reg}
 ${JSON.stringify(e.target, null, 4)}`)
-            }
-          }
-        ],
-        width: 50
+          },
+        },
+      ],
+      width: 50,
+    },
+    {
+      template: (reg) => {
+        return `<div style="min-height: ${Math.random() * 100}px">${reg}</div>`
       },
-      {
-        template: (reg) => {
-          return `<div style="min-height: ${Math.random() * 100}px">${reg}</div>`
-        }
-      },
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-    ]
-  })
+    },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+  ],
+})
 
 window.testTable = testTable
 
-document.getElementById("table_button").addEventListener('click', () => {
+document.getElementById('table_button').addEventListener('click', () => {
   console.log(testTable)
 })
 
-document.getElementById("scroll_button").addEventListener('click', () => {
+document.getElementById('scroll_button').addEventListener('click', () => {
   console.log(document.getElementById('table_container').scrollTop)
 })
 

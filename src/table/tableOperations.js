@@ -1,3 +1,5 @@
+import { createVirtualConfig } from '../virtual/virtual.js'
+
 const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
   if (config.rowsStyle) row.style = config.rowsStyle(datarow, dataIndex)
   if (config.rowsClass) row.className = config.rowsClass(datarow, dataIndex)
@@ -29,13 +31,16 @@ export function createRow(dataIndex, datarow, config) {
     if (Array.isArray(datarow)) {
       key = i
       cellData = datarow[i]
-    }
-    else {
+    } else {
       key = config.headers[i].key ?? config.headers[i].toLowerCase()
       cellData = datarow[key]
     }
 
-    const cell = updateCell(document.createElement('td'), config.columns[i], cellData)
+    const cell = updateCell(
+      document.createElement('td'),
+      config.columns[i],
+      cellData
+    )
 
     row.appendChild(cell)
     cells[key] = cell
@@ -46,15 +51,13 @@ export function createRow(dataIndex, datarow, config) {
 }
 
 export function checkRowKeys(data, headers) {
-  if (data == null || headers == null) return false;
+  if (data == null || headers == null) return false
   const dataKeys = Object.keys(data)
 
-  if (dataKeys.length !== headers.length) return false;
+  if (dataKeys.length !== headers.length) return false
 
   dataKeys.sort((a, b) => a + b)
-  headers = headers
-    .map((h) => h.key ?? h.toLowerCase())
-    .sort((a, b) => a + b)
+  headers = headers.map((h) => h.key ?? h.toLowerCase()).sort((a, b) => a + b)
 
   for (let i = 0; i < dataKeys.length; i++) {
     if (dataKeys[i] != headers[i]) return false
@@ -65,7 +68,9 @@ export function checkRowKeys(data, headers) {
 export function updateRow(domRow, dataIndex, datarow, config) {
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row: domRow, dataIndex }
-  let key, cellData, childrenSum = 0
+  let key,
+    cellData,
+    childrenSum = 0
 
   if (config.showRowHeaders) {
     childrenSum = 1
@@ -79,8 +84,7 @@ export function updateRow(domRow, dataIndex, datarow, config) {
     if (Array.isArray(datarow)) {
       key = i
       cellData = datarow[i]
-    }
-    else {
+    } else {
       key = config.headers[i].key ?? config.headers[i].toLowerCase()
       cellData = datarow[key]
     }
@@ -93,12 +97,18 @@ export function updateRow(domRow, dataIndex, datarow, config) {
 }
 
 export function updateCell(cell, cellColumn, cellData) {
-  cell.innerHTML = cellColumn.template ? cellColumn.template(cellData) : (cellData ?? '')
+  cell.innerHTML = cellColumn.template
+    ? cellColumn.template(cellData)
+    : cellData ?? ''
   cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
 
   if (cellColumn.cellEvents) {
     cellColumn.cellEvents.forEach((event) => {
-      cell.addEventListener(event.name(cellData), (e) => event.callback(cellData, e), true)
+      cell.addEventListener(
+        event.name(cellData),
+        (e) => event.callback(cellData, e),
+        true
+      )
     })
   }
 
@@ -108,11 +118,10 @@ export function updateCell(cell, cellColumn, cellData) {
 // TODO: export function updateAllNextShownDataindexes()
 
 export function updateShownheadersWidth(bindedTable, config) {
-  const row = bindedTable.rows[
-    bindedTable.virtualConfig.firstRowIndex == 0
-      ? 0
-      : config.virtualSafeRows
-  ]
+  const row =
+    bindedTable.rows[
+      bindedTable.virtualConfig.firstRowIndex == 0 ? 0 : config.virtualSafeRows
+    ]
   if (!row) return
 
   if (config.showRowHeaders && config.fixedHeaders) {
@@ -123,8 +132,10 @@ export function updateShownheadersWidth(bindedTable, config) {
     if ('width' in curr) {
       acc.push({
         width: curr.width,
-        key: typeof config.headers[idx] != 'string' ? config.headers[idx].key :
-          config.headers[idx].toLowerCase()
+        key:
+          typeof config.headers[idx] != 'string'
+            ? config.headers[idx].key
+            : config.headers[idx].toLowerCase(),
       })
     }
     return acc
@@ -134,14 +145,43 @@ export function updateShownheadersWidth(bindedTable, config) {
       const width = typeof cc.width == 'string' ? cc.width : `${cc.width} px`
       bindedTable.cols[cc.key].width = width
     })
-    Object.keys(row.cells).filter((key) => !configColumns.some((cc) => cc.key == key))
+    Object.keys(row.cells)
+      .filter((key) => !configColumns.some((cc) => cc.key == key))
       .forEach((key) => {
         bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
       })
   } else {
-    Object.keys(row.cells)
-      .forEach((key) => {
-        bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
-      })
+    Object.keys(row.cells).forEach((key) => {
+      bindedTable.cols[key].width = `${row.cells[key].clientWidth} px`
+    })
   }
+}
+
+export function createAllRows(data, bindedTable, body, config) {
+  for (
+    let i = bindedTable.virtualConfig.firstRowIndex;
+    i <= bindedTable.virtualConfig.lastRowIndex;
+    i++
+  ) {
+    const datarow = data[i]
+    const rowObject = createRow(i, datarow, config)
+
+    body.appendChild(rowObject.row)
+    bindedTable.rows.push(rowObject)
+  }
+}
+
+export function reDraw(data, table, container, config) {
+  const [virtualConfig, currentScroll] = createVirtualConfig(
+    container,
+    data,
+    config,
+    table
+  )
+  table.virtualConfig = virtualConfig
+  table.rows.forEach((r) => {
+    r.row.remove()
+  })
+  table.rows = []
+  createAllRows(data, table, table.tableBody, config)
 }
