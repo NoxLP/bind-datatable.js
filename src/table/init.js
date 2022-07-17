@@ -33,11 +33,13 @@ export function initTable(container, scroller, config, data) {
     tableHeaders.appendChild(head)
     const headersRow = document.createElement('tr')
     applyStyleToHeaderRow(config, headersRow)
+
     bindedTable.headersRow = headersRow
     container.appendChild(tableHeaders)
-
+    bindedTable.headersTable = tableHeaders
     bindedTable.headers = []
     bindedTable.cols = {}
+
     if (config.showRowHeaders) {
       const rowHeaderCol = document.createElement('col')
       colGroup.appendChild(rowHeaderCol)
@@ -98,7 +100,18 @@ export function initTable(container, scroller, config, data) {
 
   bindedTable.virtualConfig = virtualConfig
 
-  createAllRows(data, bindedTable, body, config, scroller)
+  for (
+    let i = bindedTable.virtualConfig.firstRowIndex;
+    i <= bindedTable.virtualConfig.lastRowIndex;
+    i++
+  ) {
+    const datarow = data[i]
+    const rowObject = createRow(i, datarow, config)
+
+    body.appendChild(rowObject.row)
+    bindedTable.rows.push(rowObject)
+  }
+  scroller.style.minHeight = `${bindedTable.virtualConfig.totalHeight}px`
 
   bindedTable.scroller = scroller
 
@@ -129,21 +142,6 @@ export function initTable(container, scroller, config, data) {
   return bindedTable
 }
 
-export function createAllRows(data, bindedTable, body, config, scroller) {
-  for (
-    let i = bindedTable.virtualConfig.firstRowIndex;
-    i <= bindedTable.virtualConfig.lastRowIndex;
-    i++
-  ) {
-    const datarow = data[i]
-    const rowObject = createRow(i, datarow, config)
-
-    body.appendChild(rowObject.row)
-    bindedTable.rows.push(rowObject)
-  }
-  scroller.style.minHeight = `${bindedTable.virtualConfig.totalHeight}px`
-}
-
 export function reDraw(data, table, container, config) {
   const [virtualConfig, currentScroll] = createVirtualConfig(
     container,
@@ -156,5 +154,6 @@ export function reDraw(data, table, container, config) {
     r.row.remove()
   })
   table.rows = []
-  createAllRows(data, table, table.tableBody, config, table.scroller)
+  table.headersTable.remove()
+  initTable(container, table.scroller, config, data)
 }

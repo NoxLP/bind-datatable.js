@@ -211,13 +211,11 @@ export function DataTable(data, config) {
 
   const result = {
     current,
-    get table() {
-      return table
-    },
+    table,
     get shown() {
       return current.slice(
         table.virtualConfig.firstRowIndex,
-        table.virtualConfig.lastRowIndex
+        table.virtualConfig.lastRowIndex + 1
       )
     },
   }
