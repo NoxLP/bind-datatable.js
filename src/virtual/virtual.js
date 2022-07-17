@@ -344,7 +344,8 @@ export function checkScroll(container, table, current, config, currentVirtual) {
 
 export function onWheelHandler(e, container) {
   e.preventDefault()
-  container.scrollTop += e.deltaY
+  if (!e.shiftKey) container.scrollTop += e.deltaY
+  else container.scrollLeft += e.deltaY
 }
 
 export function onKeyDownHandler(e, container) {
