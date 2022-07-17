@@ -9,10 +9,6 @@ import {
 } from '../localstorage/localStorage.js'
 
 export const ROW_HEIGHT_MODES = ['constant', 'average', 'all']
-let isScrolling = false
-let scrollChecked = false
-let lastScrollTop = 0
-let storageScrollSetted = false
 
 const getRowHeight = (row, container) => {
   row.row.style.visibility = 'hidden'
@@ -227,19 +223,19 @@ export function viewportDataWithConstantHeight(
 }
 
 export function onScrollHandler(container, table, current, config) {
-  if (isScrolling) {
+  if (table.virtualConfig.isScrolling) {
     // throttle
     if (config.saveScroll) {
-      if (storageScrollSetted)
+      if (table.virtualConfig.storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
-      else storageScrollSetted = true
+      else table.virtualConfig.storageScrollSetted = true
     }
     return
   }
-  if (container.scrollTop == lastScrollTop) return //only vertical scroll
-  isScrolling = true
-  scrollChecked = false
-  lastScrollTop = container.scrollTop
+  if (container.scrollTop == table.virtualConfig.lastScrollTop) return //only vertical scroll
+  table.virtualConfig.isScrolling = true
+  table.virtualConfig.scrollChecked = false
+  table.virtualConfig.lastScrollTop = container.scrollTop
 
   requestAnimationFrame(() => {
     // calculate new virtual data
@@ -296,13 +292,13 @@ export function onScrollHandler(container, table, current, config) {
     if (config.fixedHeaders) updateShownheadersWidth(table, config)
 
     if (config.saveScroll) {
-      if (storageScrollSetted)
+      if (table.virtualConfig.storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
-      else storageScrollSetted = true
+      else table.virtualConfig.storageScrollSetted = true
     }
 
     setTimeout(() => {
-      isScrolling = false
+      table.virtualConfig.isScrolling = false
     }, 100)
     setTimeout(() => {
       checkScroll(container, table, current, config)
@@ -311,7 +307,8 @@ export function onScrollHandler(container, table, current, config) {
 }
 
 export function checkScroll(container, table, current, config, currentVirtual) {
-  if (isScrolling || scrollChecked) return
+  if (table.virtualConfig.isScrolling || table.virtualConfig.scrollChecked)
+    return
 
   if (!currentVirtual) {
     currentVirtual =
@@ -342,7 +339,7 @@ export function checkScroll(container, table, current, config, currentVirtual) {
     table.virtualConfig = currentVirtual
   }
 
-  scrollChecked = true
+  table.virtualConfig.scrollChecked = true
 }
 
 export function onWheelHandler(e, container) {
