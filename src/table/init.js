@@ -97,9 +97,8 @@ export function initTable(container, scroller, config, data) {
 
   bindedTable.virtualConfig = virtualConfig
 
-  createAllRows(data, bindedTable, body, config)
+  createAllRows(data, bindedTable, body, config, scroller)
 
-  scroller.style.minHeight = `${virtualConfig.totalHeight}px`
   bindedTable.scroller = scroller
 
   if (currentScroll) container.scrollTop = currentScroll

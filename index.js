@@ -1,5 +1,15 @@
 import { DataTable } from './src/datatable.js'
 
+window.scroll0 = (table, container) => {
+  container.scrollTop = 0
+  const transform = `translateY(0)`
+  table.table.style.setProperty('transform', transform)
+  table.table.style.setProperty('WebkitTransform', transform)
+  table.table.style.setProperty('MozTransform', transform)
+  table.table.style.setProperty('OTransform', transform)
+  table.table.style.setProperty('MsTransform', transform)
+}
+
 const dataObject = () => {
   const result = []
   let j = 0

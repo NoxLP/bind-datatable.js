@@ -157,7 +157,7 @@ export function updateShownheadersWidth(bindedTable, config) {
   }
 }
 
-export function createAllRows(data, bindedTable, body, config) {
+export function createAllRows(data, bindedTable, body, config, scroller) {
   for (
     let i = bindedTable.virtualConfig.firstRowIndex;
     i <= bindedTable.virtualConfig.lastRowIndex;
@@ -169,6 +169,7 @@ export function createAllRows(data, bindedTable, body, config) {
     body.appendChild(rowObject.row)
     bindedTable.rows.push(rowObject)
   }
+  scroller.style.minHeight = `${bindedTable.virtualConfig.totalHeight}px`
 }
 
 export function reDraw(data, table, container, config) {
@@ -183,5 +184,5 @@ export function reDraw(data, table, container, config) {
     r.row.remove()
   })
   table.rows = []
-  createAllRows(data, table, table.tableBody, config)
+  createAllRows(data, table, table.tableBody, config, table.scroller)
 }
