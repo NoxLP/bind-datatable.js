@@ -147,6 +147,7 @@ const checkConfigAndSetDefaults = (config) => {
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
   if (!('rowsGutter' in config)) config.rowsGutter = 0
   if (!('fixedHeaders' in config)) config.fixedHeaders = true
+  if (!('scrollBottomOffset' in config)) config.scrollBottomOffset = 1000
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass
   if (config.colHeadersStyle && config.colHeadersStyle.length == 0)
@@ -192,11 +193,18 @@ export function DataTable(data, config) {
   if (!table) return undefined
 
   // events
-  container.addEventListener('scroll', function () {
+  // when container.scrollTop change
+  container.addEventListener('scroll', () => {
     onScrollHandler(container, table, current, config)
   })
-  container.addEventListener('wheel', (e) => onWheelHandler(e, container))
-  container.addEventListener('keydown', (e) => onKeyDownHandler(e, container))
+  // when mouse wheel change
+  container.addEventListener('wheel', (e) => {
+    onWheelHandler(e, container)
+  })
+  // key down
+  container.addEventListener('keydown', (e) => {
+    onKeyDownHandler(e, container, table)
+  })
 
   if (config.fixedHeaders) {
     new ResizeObserver(() => updateShownheadersWidth(table, config)).observe(

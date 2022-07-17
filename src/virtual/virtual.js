@@ -190,18 +190,29 @@ export function viewportDataWithConstantHeight(
   rowGutter = 0,
   scrollTop = undefined
 ) {
-  if (scrollTop == undefined) scrollTop = container.scrollTop
-
+  let firstShownRowIndex, lastShownRowIndex, firstRowIndex, lastRowIndex
   const totalHeight = rows.length * (rowHeight + rowGutter)
-  let firstShownRowIndex = scrollTop / (rowHeight - rowGutter)
-  let lastShownRowIndex = Math.floor(
-    firstShownRowIndex + container.clientHeight / (rowHeight + 2 * rowGutter)
-  )
 
-  let firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
-  firstRowIndex = firstRowIndex < 0 ? 0 : firstRowIndex
-  let lastRowIndex = lastShownRowIndex + safeRows
-  lastRowIndex = lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
+  if (scrollTop === undefined || scrollTop != totalHeight) {
+    if (scrollTop === undefined) scrollTop = container.scrollTop
+
+    firstShownRowIndex = scrollTop / (rowHeight - rowGutter)
+    lastShownRowIndex = Math.floor(
+      firstShownRowIndex + container.clientHeight / (rowHeight + 2 * rowGutter)
+    )
+
+    firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
+    firstRowIndex = firstRowIndex < 0 ? 0 : firstRowIndex
+    lastRowIndex = lastShownRowIndex + safeRows
+    lastRowIndex =
+      lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
+  } else {
+    lastShownRowIndex = rows.length - 1
+    firstShownRowIndex =
+      lastShownRowIndex - container.clientHeight / (rowHeight - rowGutter)
+    firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
+    lastRowIndex = lastShownRowIndex
+  }
 
   let firstWithoutFloor = firstShownRowIndex - safeRows
   firstWithoutFloor = firstWithoutFloor < 0 ? 0 : firstWithoutFloor
@@ -219,10 +230,20 @@ export function viewportDataWithConstantHeight(
     totalShownRows,
     firstShownRowIndex,
     lastShownRowIndex,
+    rowHeight,
   }
 }
 
 export function onScrollHandler(container, table, current, config) {
+  let forcedScroll = undefined
+  if (
+    container.scrollTop > (table.virtualConfig.lastScrollTop || 0) &&
+    container.scrollTop >
+      table.virtualConfig.totalHeight - config.scrollBottomOffset
+  ) {
+    table.virtualConfig.scriptScroll = true
+    forcedScroll = table.virtualConfig.totalHeight
+  }
   if (table.virtualConfig.isScrolling) {
     // throttle
     if (config.saveScroll) {
@@ -235,7 +256,6 @@ export function onScrollHandler(container, table, current, config) {
   if (container.scrollTop == table.virtualConfig.lastScrollTop) return //only vertical scroll
   table.virtualConfig.isScrolling = true
   table.virtualConfig.scrollChecked = false
-  table.virtualConfig.lastScrollTop = container.scrollTop
 
   requestAnimationFrame(() => {
     // calculate new virtual data
@@ -245,8 +265,10 @@ export function onScrollHandler(container, table, current, config) {
       config.lastRowBottomOffset,
       current,
       config.virtualSafeRows,
-      config.rowsGutter
+      config.rowsGutter,
+      forcedScroll
     )
+    table.virtualConfig.lastScrollTop = container.scrollTop
 
     // remove rows
     let i = 0
@@ -336,7 +358,9 @@ export function checkScroll(container, table, current, config, currentVirtual) {
     currentVirtual.lastRowIndex != table.virtualConfig.lastRowIndex
   ) {
     onScrollHandler(container, table, current, config)
+    const lastScrollTop = table.virtualConfig.lastScrollTop
     table.virtualConfig = currentVirtual
+    table.virtualConfig.lastScrollTop = lastScrollTop
   }
 
   table.virtualConfig.scrollChecked = true
@@ -348,11 +372,13 @@ export function onWheelHandler(e, container) {
   else container.scrollLeft += e.deltaY
 }
 
-export function onKeyDownHandler(e, container) {
+export function onKeyDownHandler(e, container, table) {
   e.preventDefault()
+  console.log(e)
   if (e.code == 'ArrowDown') {
     container.scrollTop += container.clientHeight / 6
   } else if (e.code == 'PageDown') {
+    if (container.scrollTop == table.virtualConfig.totalHeight) return
     container.scrollTop += container.clientHeight
   } else if (e.code == 'ArrowUp' && container.scrollTop > 0) {
     container.scrollTop -= container.clientHeight / 6
