@@ -1,7 +1,6 @@
 import { Error } from './error.js'
-import { initTable } from './table/init.js'
+import { initTable, reDraw } from './table/init.js'
 import {
-  reDraw,
   createRow,
   checkRowKeys,
   updateRow,
@@ -23,51 +22,6 @@ const getColIndexKey = (change, config) =>
   !/^\d+$/.test(change.path[1])
     ? config.headers.findIndex((h) => h.key == change.path[1])
     : change.path[1]
-
-const checkConfigAndSetDefaults = (config) => {
-  // Check config is correct and set defaults
-  if (
-    !('containerSelector' in config) ||
-    !('columns' in config) ||
-    !('headers' in config)
-  ) {
-    const msg = 'Bad config object. Revise mandatory options'
-    Error(msg)
-    return undefined
-  }
-  if (
-    !('rowHeightMode' in config) ||
-    !ROW_HEIGHT_MODES.includes(config.rowHeightMode)
-  )
-    config.rowHeightMode = 'constant'
-  if (
-    config.rowHeightMode != 'constant' &&
-    !('heightPrecalculationsRowsNumber' in config)
-  )
-    config.heightPrecalculationsRowsNumber = 200
-  if ('tableId' in config && typeof config.tableId != 'string') {
-    config.tableId = `${config.tableId}`
-  }
-  if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
-  if (!('rowsGutter' in config)) config.rowsGutter = 0
-  if (!('fixedHeaders' in config)) config.fixedHeaders = true
-  if (config.colHeadersClass && config.colHeadersClass.length == 0)
-    delete config.colHeadersClass
-  if (config.colHeadersStyle && config.colHeadersStyle.length == 0)
-    delete config.colHeadersStyle
-  if (config.colHeadersRowClass && config.colHeadersRowClass.length == 0)
-    delete config.colHeadersRowClass
-  if (config.colHeadersRowStyle && config.colHeadersRowStyle.length == 0)
-    delete config.colHeadersRowStyle
-  if (config.rowHeaderClass && config.rowHeaderClass.length == 0)
-    delete config.rowHeaderClass
-  if (config.rowHeaderStyle && config.rowHeaderStyle.length == 0)
-    delete config.rowHeaderStyle
-  if (config.rowsStyle && config.rowsStyle.length == 0) delete config.rowsStyle
-  if (config.rowsClass && config.rowsClass.length == 0) delete config.rowsClass
-
-  return config
-}
 
 const observableChangesCallback = (
   changes,
@@ -160,6 +114,55 @@ ${JSON.stringify(change.value, null, 4)}`)
         break
     }
   })
+}
+
+const checkConfigAndSetDefaults = (config) => {
+  // Check config is correct and set defaults
+  if (
+    !('containerSelector' in config) ||
+    !('columns' in config) ||
+    !('headers' in config)
+  ) {
+    const msg = 'Bad config object. Revise mandatory options'
+    Error(msg)
+    return undefined
+  }
+  if (config.columns.length != config.headers.length) {
+    for (let i = config.columns.length; i < config.headers.length; i++)
+      config.columns.push({})
+  }
+  if (
+    !('rowHeightMode' in config) ||
+    !ROW_HEIGHT_MODES.includes(config.rowHeightMode)
+  )
+    config.rowHeightMode = 'constant'
+  if (
+    config.rowHeightMode != 'constant' &&
+    !('heightPrecalculationsRowsNumber' in config)
+  )
+    config.heightPrecalculationsRowsNumber = 200
+  if ('tableId' in config && typeof config.tableId != 'string') {
+    config.tableId = `${config.tableId}`
+  }
+  if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
+  if (!('rowsGutter' in config)) config.rowsGutter = 0
+  if (!('fixedHeaders' in config)) config.fixedHeaders = true
+  if (config.colHeadersClass && config.colHeadersClass.length == 0)
+    delete config.colHeadersClass
+  if (config.colHeadersStyle && config.colHeadersStyle.length == 0)
+    delete config.colHeadersStyle
+  if (config.colHeadersRowClass && config.colHeadersRowClass.length == 0)
+    delete config.colHeadersRowClass
+  if (config.colHeadersRowStyle && config.colHeadersRowStyle.length == 0)
+    delete config.colHeadersRowStyle
+  if (config.rowHeaderClass && config.rowHeaderClass.length == 0)
+    delete config.rowHeaderClass
+  if (config.rowHeaderStyle && config.rowHeaderStyle.length == 0)
+    delete config.rowHeaderStyle
+  if (config.rowsStyle && config.rowsStyle.length == 0) delete config.rowsStyle
+  if (config.rowsClass && config.rowsClass.length == 0) delete config.rowsClass
+
+  return config
 }
 
 /**

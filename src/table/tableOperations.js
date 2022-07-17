@@ -156,33 +156,3 @@ export function updateShownheadersWidth(bindedTable, config) {
     })
   }
 }
-
-export function createAllRows(data, bindedTable, body, config, scroller) {
-  for (
-    let i = bindedTable.virtualConfig.firstRowIndex;
-    i <= bindedTable.virtualConfig.lastRowIndex;
-    i++
-  ) {
-    const datarow = data[i]
-    const rowObject = createRow(i, datarow, config)
-
-    body.appendChild(rowObject.row)
-    bindedTable.rows.push(rowObject)
-  }
-  scroller.style.minHeight = `${bindedTable.virtualConfig.totalHeight}px`
-}
-
-export function reDraw(data, table, container, config) {
-  const [virtualConfig, currentScroll] = createVirtualConfig(
-    container,
-    data,
-    config,
-    table
-  )
-  table.virtualConfig = virtualConfig
-  table.rows.forEach((r) => {
-    r.row.remove()
-  })
-  table.rows = []
-  createAllRows(data, table, table.tableBody, config, table.scroller)
-}

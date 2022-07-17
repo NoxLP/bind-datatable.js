@@ -66,9 +66,7 @@ Cada elemento del array puede ser uno de dos:
 
 ## Columns
 
-Todas las propiedades de los objetos son opcionales, pero actualmente el array necesita al menos un objeto vacío por cada columna.
-
-TODO: Que no necesite un objeto vacío por columna
+Todas las propiedades de los objetos son opcionales.
 
 | NOMBRE       | VALOR                        | DESCRIPCIÓN                                                                                                                                                                          |
 | ---------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -150,7 +148,7 @@ Each element of the array can be one of the following two:
 
 ## Columns
 
-All the objects properties are optional, but the array needs at least one empty object per column.
+All the objects properties are optional
 
 | NAME       | VALUE                        | OTHER                                                                                                                                                                          |
 | ---------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

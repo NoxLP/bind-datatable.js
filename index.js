@@ -106,7 +106,6 @@ ${JSON.stringify(e.target, null, 4)}`)
     {},
     {},
     {},
-    {},
   ],
 })
 
