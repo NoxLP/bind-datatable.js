@@ -300,6 +300,8 @@ export function updateRow(domRow, dataIndex, datarow, config) {
 }
 
 export function updateCell(cell, cellColumn, rowData, cellData) {
+  if (!cellColumn) return
+
   cell.innerHTML = cellColumn.template
     ? cellColumn.template(rowData)
     : cellData ?? ''

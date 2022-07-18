@@ -18,6 +18,10 @@ import {
   onWheelHandler,
   onKeyDownHandler,
 } from './virtual/virtual.js'
+import {
+  gtds_getDataByPrimaryKey,
+  gtds_updateDataByPrimaryKey,
+} from './table/gtdsCompatibility.js'
 
 const buildIndexesById = (data, config) => {
   return data.reduce(
@@ -401,6 +405,10 @@ export function DataTable(data, config) {
       data = tableData
       proxiedResult.data = tableData
     },
+    getDataByPrimaryKey: (id) =>
+      gtds_getDataByPrimaryKey(current, table.indexesById, id),
+    updateDataByPrimaryKey: (id, value) =>
+      gtds_updateDataByPrimaryKey(current, table.indexesById, id, value),
   }
 
   if (config.selectRows) {
