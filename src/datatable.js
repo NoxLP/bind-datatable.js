@@ -63,11 +63,17 @@ ${JSON.stringify(change.value, null, 4)}`)
           break
         }
 
-        const rowTuplet = createRow(change.value, config)
+        if (
+          table.virtualConfig.firstRowIndex < change.path &&
+          (table.virtualConfig.lastRowIndex > change.path ||
+            table.virtualConfig.lastRowIndex == current.length - 1)
+        ) {
+          const rowTuplet = createRow(change.path, change.value, config)
 
-        table.tableBody.appendChild(rowTuplet.row)
-        table.rows.push(rowTuplet)
-        checkScroll(container, table, current, config)
+          table.tableBody.appendChild(rowTuplet.row)
+          table.rows.push(rowTuplet)
+          checkScroll(container, table, current, config)
+        }
         break
       }
       case 'delete':
