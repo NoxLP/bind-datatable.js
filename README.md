@@ -1,4 +1,9 @@
 # ESPAÑOL
+
+TODO: 
+- Funciones de domtable anterior para poder insertar esta directamente
+- Función de filtro
+
 # Parámetro config:
 
 | NOMBRE                            | OPCIONAL / OBLIGATORIO | VALOR                  | DEFAULT   | DESCRIPCIÓN | OTROS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |

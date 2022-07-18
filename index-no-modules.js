@@ -1,8 +1,9 @@
 // import { DataTable } from './src/datatable.js'
-
+var data
+var testTable
 ;(async () => {
   var { DataTable } = await import('./src/datatable.js')
-  var dataObject = () => {
+  const dataObject = () => {
     const result = []
     let j = 0
     for (let i = 0; i < 100000; i++) {
@@ -24,8 +25,8 @@
     return result
   }
 
-  var data = dataObject()
-  var testTable = new DataTable(data, {
+  data = dataObject()
+  testTable = new DataTable(data, {
     tableId: 'dtTest',
     rowHeightMode: 'average',
     containerSelector: '#table_container',
@@ -103,35 +104,35 @@
       {},
     ],
   })
-
-  document.getElementById('table_button').addEventListener('click', () => {
-    console.log(testTable)
-  })
-
-  document.getElementById('scroll_button').addEventListener('click', () => {
-    console.log(document.getElementById('table_container').scrollTop)
-  })
-
-  document.getElementById('test_button').addEventListener('click', () => {
-    testTable.current[0].h1 = 'bla'
-    // console.log(testTable.current[0])
-    //testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
-    /*testTable.current[1] = {
-      h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
-    }*/
-    /* const destructTest = [{
-      h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
-    }]
-    testTable.current = [...destructTest, ...testTable.current] */
-    // console.log(testTable.current[0])
-    // testTable.current[0].h2 = { more: [10, 'b'] }
-    // testTable.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
-    // delete testTable.current[0].h3
-    // console.log(testTable.current[0])
-    //testTable.current.splice(1, 1)
-    //testTable.current.sort((a, b) => a.h2 + b.h2)
-    testTable.current.sort((a, b) => a.h5 - b.h5)
-    testTable.current[0].h1 = 'bla'
-    console.log('FINISHED')
-  })
 })()
+
+document.getElementById('table_button').addEventListener('click', () => {
+  console.log(testTable)
+})
+
+document.getElementById('scroll_button').addEventListener('click', () => {
+  console.log(document.getElementById('table_container').scrollTop)
+})
+
+document.getElementById('test_button').addEventListener('click', () => {
+  testTable.current[0].h1 = 'bla'
+  // console.log(testTable.current[0])
+  //testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
+  /*testTable.current[1] = {
+    h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
+  }*/
+  /* const destructTest = [{
+    h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
+  }]
+  testTable.current = [...destructTest, ...testTable.current] */
+  // console.log(testTable.current[0])
+  // testTable.current[0].h2 = { more: [10, 'b'] }
+  // testTable.current.push({ h1: 'a', h2: 'b', h3: 'c', h4: 'd' })
+  // delete testTable.current[0].h3
+  // console.log(testTable.current[0])
+  //testTable.current.splice(1, 1)
+  //testTable.current.sort((a, b) => a.h2 + b.h2)
+  testTable.current.sort((a, b) => a.h5 - b.h5)
+  testTable.current[0].h1 = 'bla'
+  console.log('FINISHED')
+})
