@@ -1,5 +1,10 @@
+import { Error } from '../error.js'
 export const gtds_replaceIndexId = (indexesById, index, newId) => {
+  if (typeof newId != 'string' && typeof newId != 'number')
+    Error("Updated id to a value that wasn't a string nor a number")
+
   const id = indexesById.byIndexes[index]
+  newId = `${newId}`
   delete indexesById.byIds[id]
   delete indexesById.byIndexes[index]
   indexesById.byIds[newId] = index
