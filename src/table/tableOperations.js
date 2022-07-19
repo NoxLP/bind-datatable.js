@@ -1,9 +1,12 @@
-import { createVirtualConfig } from '../virtual/virtual.js'
-
 const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
   if (config.rowsStyle) row.style = config.rowsStyle(datarow, dataIndex)
   if (config.rowsClass) row.className = config.rowsClass(datarow, dataIndex)
 }
+
+export const filterRow = (dataIndex, datarow, config) =>
+  !('filter' in config) ||
+  typeof config.filter != 'function' ||
+  config.filter(datarow, dataIndex)
 
 export function createRow(dataIndex, datarow, config) {
   const row = document.createElement('tr')

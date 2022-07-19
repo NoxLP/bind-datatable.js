@@ -1,6 +1,6 @@
 import { createVirtualConfig } from '../virtual/virtual.js'
 import { updateShownheadersWidth } from './tableOperations.js'
-import { createRow } from './tableOperations.js'
+import { filterRow, createRow } from './tableOperations.js'
 
 const applyStyleToHeader = (config, header) => {
   if (config.colHeadersClass) header.classList.add(config.colHeadersClass)
@@ -12,6 +12,7 @@ const applyStyleToHeaderRow = (config, row) => {
 }
 
 export function initTable(container, scroller, config, data) {
+  data = data.filter((reg, idx) => filterRow(idx, reg, config))
   const table = document.createElement('table')
   if (config.tableId && config.tableId.length != 0) table.id = config.tableId
   table.classList.add('pb-datatable-table')

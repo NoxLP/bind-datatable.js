@@ -55,11 +55,9 @@ var testTable
     /*rowsStyle: (reg, index) => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
       },*/
-    rowsClass: (reg, index) => {
-      return (
-        (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black'
-      )
-    },
+    rowsClass: (reg, index) =>
+      (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black',
+    filter: (reg) => reg.h7 % 2 == 0,
     columns: [
       {
         template: (reg) => {
