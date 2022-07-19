@@ -21,6 +21,12 @@ export const gtds_pushIndexId = (indexesById, current, config, value) => {
   indexesById.byIndexes[current.length] = value.id
 }
 
+export const gtds_removeIndexId = (indexesById, index) => {
+  const id = indexesById.byIndexes[index]
+  delete indexesById.byIds[id]
+  delete indexesById.byIndexes[index]
+}
+
 export const gtds_getDataByPrimaryKey = (current, indexesById, id) =>
   current[indexesById[id]]
 
