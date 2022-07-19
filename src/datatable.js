@@ -82,7 +82,12 @@ ${JSON.stringify(change.value, null, 4)}`)
           const col = getColIndexKey(change, config)
 
           updated.replaceWith(updateCell(updated, config.columns[col], ''))
-        } else {
+        } else if (
+          table.virtualConfig.firstRowIndex < change.path &&
+          (table.virtualConfig.lastRowIndex > change.path ||
+            table.virtualConfig.lastRowIndex == current.length - 1) &&
+          updated
+        ) {
           updated.row.remove()
           table.rows.splice(change.path[0], 1)
           checkScroll(container, table, current, config)
