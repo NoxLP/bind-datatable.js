@@ -247,7 +247,7 @@ export function onScrollHandler(container, table, current, config) {
   if (table.virtualConfig.isScrolling) {
     // throttle
     if (config.saveScroll) {
-      if (table.virtualConfig.storageScrollSetted)
+      if (!table.virtualConfig.storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
       else table.virtualConfig.storageScrollSetted = true
     }
@@ -314,7 +314,7 @@ export function onScrollHandler(container, table, current, config) {
     if (config.fixedHeaders) updateShownheadersWidth(table, config)
 
     if (config.saveScroll) {
-      if (table.virtualConfig.storageScrollSetted)
+      if (!table.virtualConfig.storageScrollSetted)
         saveScrollOnLocalStorage(container.scrollTop, table, config)
       else table.virtualConfig.storageScrollSetted = true
     }
