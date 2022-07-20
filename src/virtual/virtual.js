@@ -235,6 +235,9 @@ export function viewportDataWithConstantHeight(
 }
 
 export function onScrollHandler(container, table, current, config) {
+  console.log('onScrollHandler')
+  console.log(table)
+  console.log(current)
   let forcedScroll = undefined
   if (
     container.scrollTop > (table.virtualConfig.lastScrollTop || 0) &&

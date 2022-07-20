@@ -1,6 +1,7 @@
 import { Error } from './error.js'
 import { initTable, reDraw } from './table/init.js'
 import {
+  filterRow,
   createRow,
   checkRowKeys,
   updateRow,
@@ -216,6 +217,8 @@ const checkConfigAndSetDefaults = (config) => {
 
   if (!('scrollBottomOffset' in config)) config.scrollBottomOffset = 1000
 
+  if (!('lastRowBottomOffset' in config)) config.lastRowBottomOffset = 0
+
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass
 
@@ -262,9 +265,17 @@ export function DataTable(data, config) {
   if ('tableId' in config) scroller.id = `datatable_scroller_${config.tableId}`
   scroller.classList.add('datatable_scroller')
 
-  let current = Observable.from(data)
+  let current, table
+  let filteredData = data
 
-  const table = initTable(container, scroller, config, current)
+  //filter
+  if ('filter' in config && typeof config.filter != 'function')
+    filteredData = data.filter((reg, idx) => config.filter(reg, idx))
+
+  //current
+  current = Observable.from(filteredData)
+
+  table = initTable(container, scroller, config, current)
   if (!table) return undefined
 
   // events
@@ -308,9 +319,17 @@ export function DataTable(data, config) {
     )
   )
 
+  let proxiedResult
   const result = {
     data: current,
     table,
+    filter: (log) => {
+      if (log) console.log('FILTERING')
+      if (!('filter' in config) || typeof config.filter != 'function') return
+
+      proxiedResult.data = data.filter((reg, idx) => config.filter(reg, idx))
+      if (log) console.log('FILTERED')
+    },
     get shown() {
       return current.slice(
         table.virtualConfig.firstRowIndex,
@@ -322,9 +341,9 @@ export function DataTable(data, config) {
     },
   }
 
-  return new Proxy(result, {
+  proxiedResult = new Proxy(result, {
     set: (target, prop, value, receiver) => {
-      if (prop == 'current') {
+      if (prop == 'data') {
         container.scrollTop = 0
         const transform = `translateY(0px)`
         table.table.style.setProperty('transform', transform)
@@ -351,4 +370,6 @@ export function DataTable(data, config) {
       return true
     },
   })
+
+  return proxiedResult
 }

@@ -1,6 +1,12 @@
 // import { DataTable } from './src/datatable.js'
+
 var data
 var testTable
+var logFilter = false
+const filterInput = document.getElementById('filterInput')
+filterInput.addEventListener('keyup', () => {
+  testTable.filter(true)
+})
 ;(async () => {
   var { DataTable } = await import('./src/datatable.js')
   const dataObject = () => {
@@ -57,7 +63,14 @@ var testTable
       },*/
     rowsClass: (reg, index) =>
       (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black',
-    filter: (reg) => reg.h7 % 2 == 0,
+    filter: (reg, index) => {
+      // if (logFilter) console.log(reg)
+      return (
+        reg.h7 % 2 == 0 &&
+        (filterInput.value.length == 0 ||
+          `${reg.h3}`.includes(filterInput.value))
+      )
+    },
     columns: [
       {
         template: (reg) => {
@@ -102,6 +115,7 @@ var testTable
       {},
     ],
   })
+  logFilter = true
 })()
 
 document.getElementById('table_button').addEventListener('click', () => {

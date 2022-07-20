@@ -11,16 +11,17 @@ const applyStyleToHeaderRow = (config, row) => {
   if (config.colHeadersRowStyle) row.style = config.colHeadersRowStyle
 }
 
-export function initTable(container, scroller, config, data) {
-  data = data.filter((reg, idx) => filterRow(idx, reg, config))
-  const table = document.createElement('table')
+export function initTable(container, scroller, config, data, bindedTable) {
+  const table = !bindedTable
+    ? document.createElement('table')
+    : bindedTable.table
   if (config.tableId && config.tableId.length != 0) table.id = config.tableId
   table.classList.add('pb-datatable-table')
   scroller.appendChild(table)
 
   // This will hold references to DOM elements to perform binding later on,
   // and other configurations
-  const bindedTable = { table }
+  bindedTable = !bindedTable ? { table } : bindedTable
 
   // Create headers
   if (config.fixedHeaders) {
@@ -154,7 +155,15 @@ export function reDraw(data, table, container, config) {
   table.rows.forEach((r) => {
     r.row.remove()
   })
+  table.headers.forEach((h) => {
+    h.remove()
+  })
+  table.headers = []
   table.rows = []
+  table.headersRow.remove()
+  table.headersRow = ''
   table.headersTable.remove()
-  initTable(container, table.scroller, config, data)
+  table.headersTable = ''
+  table.table.getElementsByTagName('colgroup')[0].remove()
+  initTable(container, table.scroller, config, data, table)
 }
