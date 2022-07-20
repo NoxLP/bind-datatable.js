@@ -188,7 +188,8 @@ export function viewportDataWithConstantHeight(
   rows,
   safeRows,
   rowGutter = 0,
-  scrollTop = undefined
+  scrollTop = undefined,
+  lastVirtual
 ) {
   let firstShownRowIndex, lastShownRowIndex, firstRowIndex, lastRowIndex
   const totalHeight = rows.length * (rowHeight + rowGutter)
@@ -208,19 +209,25 @@ export function viewportDataWithConstantHeight(
       lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
   } else {
     lastShownRowIndex = rows.length - 1
+
     firstShownRowIndex =
       lastShownRowIndex - container.clientHeight / (rowHeight - rowGutter)
     firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
     lastRowIndex = lastShownRowIndex
   }
 
+  const totalShownRows = lastShownRowIndex - firstShownRowIndex
   let firstWithoutFloor = firstShownRowIndex - safeRows
   firstWithoutFloor = firstWithoutFloor < 0 ? 0 : firstWithoutFloor
+  lastRowBottomOffset = lastRowBottomOffset ?? rowHeight * 5
+  const lastRowOffset =
+    firstRowIndex * (rowHeight + rowGutter) + lastRowBottomOffset
+  const normalOffset = firstWithoutFloor * (rowHeight + rowGutter)
   const rowOffset =
-    firstWithoutFloor * (rowHeight + rowGutter) +
-    (lastRowIndex == rows.length - 1 ? lastRowBottomOffset ?? rowHeight * 5 : 0)
+    lastShownRowIndex >= rows.length - 1 ? lastRowOffset : normalOffset
   firstShownRowIndex = Math.floor(firstShownRowIndex)
-  const totalShownRows = lastShownRowIndex - firstShownRowIndex
+
+  if (lastShownRowIndex >= rows.length - 1) console.log('RO: ', rowOffset)
 
   return {
     totalHeight,
@@ -235,18 +242,6 @@ export function viewportDataWithConstantHeight(
 }
 
 export function onScrollHandler(container, table, current, config) {
-  console.log('onScrollHandler')
-  console.log(table)
-  console.log(current)
-  let forcedScroll = undefined
-  if (
-    container.scrollTop > (table.virtualConfig.lastScrollTop || 0) &&
-    container.scrollTop >
-      table.virtualConfig.totalHeight - config.scrollBottomOffset
-  ) {
-    table.virtualConfig.scriptScroll = true
-    forcedScroll = table.virtualConfig.totalHeight
-  }
   if (table.virtualConfig.isScrolling) {
     // throttle
     if (config.saveScroll) {
@@ -269,7 +264,8 @@ export function onScrollHandler(container, table, current, config) {
       current,
       config.virtualSafeRows,
       config.rowsGutter,
-      forcedScroll
+      undefined,
+      table.virtualConfig
     )
     table.virtualConfig.lastScrollTop = container.scrollTop
 

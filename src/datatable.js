@@ -215,10 +215,6 @@ const checkConfigAndSetDefaults = (config) => {
 
   if (!('fixedHeaders' in config)) config.fixedHeaders = true
 
-  if (!('scrollBottomOffset' in config)) config.scrollBottomOffset = 1000
-
-  if (!('lastRowBottomOffset' in config)) config.lastRowBottomOffset = 0
-
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass
 
