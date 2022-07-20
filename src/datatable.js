@@ -18,6 +18,31 @@ import {
   onKeyDownHandler,
 } from './virtual/virtual.js'
 
+const replaceIndexId = (indexesById, index, newId) => {
+  if (typeof newId != 'string' && typeof newId != 'number')
+    Error("Updated id to a value that wasn't a string nor a number")
+
+  const id = indexesById.byIndexes[index]
+  newId = `${newId}`
+  delete indexesById.byIds[id]
+  delete indexesById.byIndexes[index]
+  indexesById.byIds[newId] = index
+  indexesById.byIndexes[index] = newId
+}
+const pushIndexId = (indexesById, current, config, value) => {
+  if (!(`${config.id}` in value))
+    Error(`New row needs a key with name ${config.id}`)
+  if (`${value.id}` in indexesById.byIds)
+    Error('Registry with same id already exists')
+  indexesById.byIds[value.id] = current.length
+  indexesById.byIndexes[current.length] = value.id
+}
+const removeIndexId = (indexesById, index) => {
+  const id = indexesById.byIndexes[index]
+  delete indexesById.byIds[id]
+  delete indexesById.byIndexes[index]
+}
+
 const getColIndexKey = (change, config) =>
   !/^\d+$/.test(change.path[1])
     ? config.headers.findIndex((h) => h.key == change.path[1])
@@ -28,10 +53,13 @@ const observableChangesCallback = (
   table,
   config,
   container,
-  current
+  current,
+  indexesById
 ) => {
   changes.forEach((change) => {
     // change.path have an ordered full path to the updated property
+    // f.i.: [0,'h1'] would be data[0][h1]
+
     let updated = table.rows[change.path[0]]
     const isCellChanged = change.path.length > 1
 
@@ -42,7 +70,9 @@ const observableChangesCallback = (
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          updateCell(updated, config.columns[col], change.value)
+          if (change.path[1] == config.id)
+            replaceIndexId(indexesById, change.path[0], change.value)
+          else updateCell(updated, config.columns[col], change.value)
         } else {
           // complete row updated
           if (
@@ -53,6 +83,7 @@ const observableChangesCallback = (
 Some headers may be incorrect: 
 ${JSON.stringify(change.value, null, 4)}`)
           } else {
+            replaceIndexId(indexesById, change.path[0], change.value)
             updateRow(updated, updated.dataIndex, change.value, config)
           }
         }
@@ -62,6 +93,8 @@ ${JSON.stringify(change.value, null, 4)}`)
           Error('Can not add a new cell')
           break
         }
+
+        pushIndexId(indexesById, current, config, change.value)
 
         if (
           table.virtualConfig.firstRowIndex < change.path &&
@@ -81,13 +114,16 @@ ${JSON.stringify(change.value, null, 4)}`)
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          updated.replaceWith(updateCell(updated, config.columns[col], ''))
+          if (change.path[1] == config.id) Error("Can't remove id")
+          else updated.replaceWith(updateCell(updated, config.columns[col], ''))
         } else if (
           table.virtualConfig.firstRowIndex < change.path &&
           (table.virtualConfig.lastRowIndex > change.path ||
             table.virtualConfig.lastRowIndex == current.length - 1) &&
           updated
         ) {
+          console.log(change)
+          removeIndexId(indexesById, change.path[1])
           updated.row.remove()
           table.rows.splice(change.path[0], 1)
           checkScroll(container, table, current, config)
@@ -120,6 +156,12 @@ ${JSON.stringify(change.value, null, 4)}`)
             updateRow(row.row, row.dataIndex, current[row.dataIndex], config)
           }
 
+          indexesById.byIds = {}
+          indexesById.byIndexes = {}
+          current.forEach((reg, idx) => {
+            indexesById.byIds[reg.id] = idx
+            indexesById.byIndexes[idx] = reg.id
+          })
           checkScroll(container, table, current, config, virtualConfig)
         }
         break
@@ -130,6 +172,7 @@ ${JSON.stringify(change.value, null, 4)}`)
 const checkConfigAndSetDefaults = (config) => {
   // Check config is correct and set defaults
   if (
+    !config ||
     !('containerSelector' in config) ||
     !('columns' in config) ||
     !('headers' in config)
@@ -138,40 +181,61 @@ const checkConfigAndSetDefaults = (config) => {
     Error(msg)
     return undefined
   }
+
+  if (!config.primary || typeof config.primary != 'string') config.id = 'id'
+  else {
+    config.id = config.primary
+    delete config.primary
+  }
+
   if (config.columns.length != config.headers.length) {
     for (let i = config.columns.length; i < config.headers.length; i++)
       config.columns.push({})
   }
+
   if (
     !('rowHeightMode' in config) ||
     !ROW_HEIGHT_MODES.includes(config.rowHeightMode)
   )
     config.rowHeightMode = 'constant'
+
   if (
     config.rowHeightMode != 'constant' &&
     !('heightPrecalculationsRowsNumber' in config)
   )
     config.heightPrecalculationsRowsNumber = 200
-  if ('tableId' in config && typeof config.tableId != 'string') {
+
+  if ('tableId' in config && typeof config.tableId != 'string')
     config.tableId = `${config.tableId}`
-  }
+
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
+
   if (!('rowsGutter' in config)) config.rowsGutter = 0
+
   if (!('fixedHeaders' in config)) config.fixedHeaders = true
+
   if (!('scrollBottomOffset' in config)) config.scrollBottomOffset = 1000
+
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass
+
   if (config.colHeadersStyle && config.colHeadersStyle.length == 0)
     delete config.colHeadersStyle
+
   if (config.colHeadersRowClass && config.colHeadersRowClass.length == 0)
     delete config.colHeadersRowClass
+
   if (config.colHeadersRowStyle && config.colHeadersRowStyle.length == 0)
     delete config.colHeadersRowStyle
+
   if (config.rowHeaderClass && config.rowHeaderClass.length == 0)
     delete config.rowHeaderClass
+
   if (config.rowHeaderStyle && config.rowHeaderStyle.length == 0)
     delete config.rowHeaderStyle
+
   if (config.rowsStyle && config.rowsStyle.length == 0) delete config.rowsStyle
+
   if (config.rowsClass && config.rowsClass.length == 0) delete config.rowsClass
 
   return config
@@ -223,19 +287,38 @@ export function DataTable(data, config) {
     )
   }
 
+  let indexesById = data.reduce(
+    (acc, reg, idx) => {
+      acc.byIds[reg.id] = idx
+      acc.byIndexes[idx] = reg.id
+      return acc
+    },
+    { byIds: {}, byIndexes: {} }
+  )
+
   // observable
   Observable.observe(current, (changes) =>
-    observableChangesCallback(changes, table, config, container, current)
+    observableChangesCallback(
+      changes,
+      table,
+      config,
+      container,
+      current,
+      indexesById
+    )
   )
 
   const result = {
-    current,
+    data: current,
     table,
     get shown() {
       return current.slice(
         table.virtualConfig.firstRowIndex,
         table.virtualConfig.lastRowIndex + 1
       )
+    },
+    get indexesById() {
+      return indexesById
     },
   }
 
@@ -258,7 +341,8 @@ export function DataTable(data, config) {
               table,
               config,
               container,
-              current
+              current,
+              indexesById
             )
           )
           reDraw(current, table, container, config)
