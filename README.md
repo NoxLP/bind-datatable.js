@@ -1,10 +1,76 @@
 # ESPAÑOL
 
-TODO: 
-- Funciones de domtable anterior para poder insertar esta directamente
-- Función de filtro
+Tabla que usa proxies anidados([Observable](https://github.com/gullerya/object-observer)) para registrar los cambios en un array de datos y reflejarlos automáticamente en el `DOM`.
 
-# Parámetro config:
+<br>
+
+# Uso:
+
+En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos de uso.
+
+<br>
+
+- Crea una variable con la tabla:
+    ```javascript
+    const testTable = new DataTable(data, configObjet)
+    ```
+
+- La tabla espera que los datos(`data`) vengan en un array de objetos, donde cada elemento del array sea un objeto de `Javascript`.
+
+- El objeto de configuración está descrito más abajo. Un ejemplo con las propiedades mínimas requeridas podría ser el siguiente:
+    ```javascript
+    {
+      containerSelector: '#table_container',
+      headers: [
+        { template: 'H1', key: 'h1' },
+        { template: 'H2', key: 'h2' },
+        'H3'
+      ],
+      columns: [
+        {
+          template: (reg) => {
+            return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
+          },
+        },
+        {
+          template: (reg) => {
+            if (!reg.more) return reg
+
+            return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
+          },
+          style: () => `color: red;`,
+        },
+        {},
+      ]
+    })
+    ```
+- `testTable` es un objeto con las propiedades:
+    - `data`: Para realizar cambios en los datos que se vean reflejados en la tabla, hay que usar `data` o `shown`(ver más abajo):
+    
+    ```javascript
+    testTable.data[482].h1 = 'foo'
+    ```
+
+    - `table`: Contiene varios elementos del `DOM` que conforman la tabla, y la información del scroll virtual.
+    
+      Se provee para que pueda accederse a los estilos y clases de los elementos, NO para modificar los datos.
+
+    - `filter`: Es una función sin parámetros que vuelve a aplicar los filtros establecidos en el objeto de configuración. Cuando los valores de filtrado cambien, hay que llamar a este función, por ejemplo:
+
+    ```javascript
+    const filterInput = document.getElementById('filterInput')
+    filterInput.addEventListener('keyup', () => {
+      testTable.filter()
+    })
+    ```
+
+    - `shown`: Contiene los registros de los datos que la tabla carga actualmente en el `DOM`, incluyendo las filas seguras. No se provee los datos originales, sino los proxies, de forma que se pueden cambiar los datos directamente usando esta propiedad igual que con `data`.
+
+    - `indexesById`: Si los datos contienen un campo `id` o se ha especificado otro campo en el objeto de configuración, registra qué índice de los datos corresponde a cada id y viceversa, con la intención de acceder a los datos más rápidamente, sin tener que recorrer el array de datos.
+
+<br>
+
+# Objecto de configuración:
 
 | NOMBRE                            | OPCIONAL / OBLIGATORIO | VALOR                  | DEFAULT   | DESCRIPCIÓN | OTROS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | ------------------------------- | -------------------- | ---------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |---|
@@ -29,7 +95,7 @@ TODO:
 | saveScroll                      | optional             | boolean                | false           | Guarda el último scroll en localStorage y lo recarga con la página | Cuidado, se usa el atributo `id` de la tabla como key para el `localStorage`. Si por cualquier razón la id cambia(entre versiones, por ejemplo), NO limpiará la key vieja y no recogerá los datos antiguos. Si a la tabla no se le asigna una id, falla sin lanzar error. Además, si se está usando el `rowHeightMode` como `average`, tiene un error que usualmente es de +-2 filas |
 | containerSelector               | mandatory            | string                 | -               | Selector CSS del eemento del DOM que actua como contenedor de la tabla | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | headers                         | mandatory            | array                  | -               | Configuración de headers | Ver valores abajo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| filter | optional | function | - | Filtro a aplicar a cada registro | - |
+| filter | optional | function | - | Filtro a aplicar a cada registro | El filtro se aplica cada vez que la tabla se carga, y cada vez que se llama a la función `filter` |
 | columns                         | mandatory            | array                  | -               | Configuración de columnas | Ver valores abajo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---
@@ -113,7 +179,7 @@ Todas las propiedades de los objetos son opcionales.
 | saveScroll                      | optional             | boolean                | false           | Be careful, this uses the table `id` attribute as a key to save values in localStorage. If for some reason the id changes(between versions, for example), it does NOT clean the old keys and wouldn't be able to retreive the data. If you are using this, you may save the tables ids in a database, so you can set always the same ids to the same tables. Obviously, the table must have an id assigned or it will silently fail. Also, if you're using rowHeightMode `average`, it has a bias of approximately +-2 rows when loading the scroll |
 | containerSelector               | mandatory            | string                 | -               | Table's container CSS selector                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | headers                         | mandatory            | array                  | -               | See possible values below                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| filter | optional | function | - | Filter to apply to every registers | - |
+| filter | optional | function | - | Filter to apply to every registers | The table is filtered at loading and every time the function `filter` is called |
 | columns                         | mandatory            | array                  | -               | See possible values below                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---

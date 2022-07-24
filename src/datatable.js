@@ -319,12 +319,10 @@ export function DataTable(data, config) {
   const result = {
     data: current,
     table,
-    filter: (log) => {
-      if (log) console.log('FILTERING')
+    filter: () => {
       if (!('filter' in config) || typeof config.filter != 'function') return
 
       proxiedResult.data = data.filter((reg, idx) => config.filter(reg, idx))
-      if (log) console.log('FILTERED')
     },
     get shown() {
       return current.slice(

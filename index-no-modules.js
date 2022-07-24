@@ -2,10 +2,9 @@
 
 var data
 var testTable
-var logFilter = false
 const filterInput = document.getElementById('filterInput')
 filterInput.addEventListener('keyup', () => {
-  testTable.filter(true)
+  testTable.filter()
 })
 ;(async () => {
   var { DataTable } = await import('./src/datatable.js')
@@ -14,6 +13,7 @@ filterInput.addEventListener('keyup', () => {
     let j = 0
     for (let i = 0; i < 100000; i++) {
       result.push({
+        id: i,
         h1: i,
         h2: ++j,
         h3: ++j,
