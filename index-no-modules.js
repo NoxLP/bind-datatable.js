@@ -44,6 +44,8 @@ filterInput.addEventListener('keyup', () => {
     rowHeaderClass: 'my-headers-row',
     rowHeaderStyle: 'color: white',
     saveScroll: true,
+    selectRows: true,
+    multipleSelection: true,
     headers: [
       { template: 'H1', key: 'h1' },
       { template: 'H2', key: 'h2' },
@@ -61,8 +63,6 @@ filterInput.addEventListener('keyup', () => {
     /*rowsStyle: (reg, index) => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
       },*/
-    selectRows: true,
-    multipleSelection: false,
     rowsClass: (reg, index) =>
       (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black',
     filter: (reg, index) => {

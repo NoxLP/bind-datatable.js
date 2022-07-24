@@ -12,6 +12,7 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
     row.classList.toggle(config.selectedRowClass)
 
     if (!config.multipleSelection) {
+      //single selection
       console.log('NO MULTIPLE ', rowObject)
       rowObject.isSelected = true
       if (table.selectedRow) {
@@ -20,6 +21,7 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       }
       table.selectedRow = rowObject
     } else {
+      //multiple selection
       table.selectedRows.push(rowObject)
       rowObject.selectedIndex = table.selectedRows.length - 1
     }
@@ -30,8 +32,10 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
     row.classList.toggle(config.selectedRowClass)
 
     if (!config.multipleSelection) {
+      //single selection
       table.selectedRow = undefined
     } else {
+      //multiple selection
       table.selectedRows.splice(rowObject.selectedIndex, 1)
       delete rowObject.selectedIndex
     }
@@ -52,11 +56,6 @@ export function createRow(dataIndex, datarow, config, table) {
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row, dataIndex }
   if (config.id in datarow) rowObject[config.id] = datarow[config.id]
-  if (config.selectRows) {
-    row.addEventListener('click', (e) =>
-      clickRowCallback(e, row, rowObject, table, config)
-    )
-  }
 
   if (config.showRowHeaders) {
     const rowHeader = document.createElement('th')
@@ -69,6 +68,34 @@ export function createRow(dataIndex, datarow, config, table) {
   }
 
   setRowStyleAndClass(row, dataIndex, datarow, config)
+
+  if (config.selectRows) {
+    row.addEventListener('click', (e) =>
+      clickRowCallback(e, row, rowObject, table, config)
+    )
+
+    if (
+      !config.multipleSelection &&
+      table.selectedRow &&
+      table.selectedRow.dataIndex == dataIndex
+    ) {
+      //single selection
+      rowObject.isSelected = true
+      row.classList.add(config.selectedRowClass)
+      table.selectedRow = rowObject
+    } else if (table.selectedRows && table.selectedRows.length > 0) {
+      //multiple selection
+      const index = table.selectedRows.findIndex(
+        (ro) => ro.dataIndex == dataIndex
+      )
+      if (index != -1) {
+        rowObject.isSelected = true
+        row.classList.add(config.selectedRowClass)
+        rowObject.selectedIndex = index
+        table.selectedRows[index] = rowObject
+      }
+    }
+  }
 
   let key, cellData
   for (let i = 0; i < config.headers.length; i++) {
