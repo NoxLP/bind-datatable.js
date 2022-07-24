@@ -15,13 +15,27 @@ export function createRow(dataIndex, datarow, config, table) {
   // create a th with scope 'row'
 
   const cells = Array.isArray(datarow) ? [] : {}
-  const rowObject = { row, dataIndex, isSelected: false }
+  const rowObject = { row, dataIndex }
   if (config.selectRows) {
     row.addEventListener('click', () => {
+      console.log('CLICK ROW')
       if (!rowObject.isSelected) {
+        console.log('NO SELECTED ', table)
         //select row
+        if (!config.multipleSelection) {
+          console.log('NO MULTIPLE ', rowObject)
+          rowObject.isSelected = true
+          table.selectedRow = rowObject
+          row.classList.toggle(config.selectedRowClass)
+        }
       } else {
+        console.log('SELECTED')
         //unselect row
+        if (!config.multipleSelection) {
+          delete rowObject.isSelected
+          table.selectedRow = undefined
+          row.classList.toggle(config.selectedRowClass)
+        }
       }
     })
   }

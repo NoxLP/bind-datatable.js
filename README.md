@@ -54,6 +54,7 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
     - `table`: Contiene varios elementos del `DOM` que conforman la tabla, y la información del scroll virtual.
     
       Se provee para que pueda accederse a los estilos y clases de los elementos, NO para modificar los datos.
+      TODO: ¿Quizás esto no debería pasarse a menos que se habilitara alguna opción de debug?
 
     - `filter`: Es una función sin parámetros que vuelve a aplicar los filtros establecidos en el objeto de configuración. Cuando los valores de filtrado cambien, hay que llamar a este función, por ejemplo:
 

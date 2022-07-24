@@ -62,7 +62,7 @@ filterInput.addEventListener('keyup', () => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
       },*/
     selectRows: true,
-    multipleSelection: true,
+    multipleSelection: false,
     rowsClass: (reg, index) =>
       (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black',
     filter: (reg, index) => {

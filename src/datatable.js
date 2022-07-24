@@ -340,6 +340,16 @@ export function DataTable(data, config) {
     },
   }
 
+  if (config.selectRows) {
+    if (!config.multipleSelection) {
+      Object.defineProperty(result, 'selectedRow', {
+        get() {
+          return result.table.selectedRow
+        },
+      })
+    }
+  }
+
   proxiedResult = new Proxy(result, {
     set: (target, prop, value, receiver) => {
       if (prop == 'data') {
