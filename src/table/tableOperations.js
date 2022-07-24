@@ -22,19 +22,32 @@ export function createRow(dataIndex, datarow, config, table) {
       if (!rowObject.isSelected) {
         console.log('NO SELECTED ', table)
         //select row
+        rowObject.isSelected = true
+        row.classList.toggle(config.selectedRowClass)
+
         if (!config.multipleSelection) {
           console.log('NO MULTIPLE ', rowObject)
           rowObject.isSelected = true
+          if (table.selectedRow) {
+            table.selectedRow.row.classList.toggle(config.selectedRowClass)
+            delete table.selectedRow.isSelected
+          }
           table.selectedRow = rowObject
-          row.classList.toggle(config.selectedRowClass)
+        } else {
+          table.selectedRows.push(rowObject)
+          rowObject.selectedIndex = table.selectedRows.length - 1
         }
       } else {
         console.log('SELECTED')
         //unselect row
+        delete rowObject.isSelected
+        row.classList.toggle(config.selectedRowClass)
+
         if (!config.multipleSelection) {
-          delete rowObject.isSelected
           table.selectedRow = undefined
-          row.classList.toggle(config.selectedRowClass)
+        } else {
+          table.selectedRows.splice(rowObject.selectedIndex, 1)
+          delete rowObject.selectedIndex
         }
       }
     })

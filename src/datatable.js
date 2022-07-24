@@ -347,6 +347,13 @@ export function DataTable(data, config) {
           return result.table.selectedRow
         },
       })
+    } else {
+      result.table.selectedRows = []
+      Object.defineProperty(result, 'selectedRows', {
+        get() {
+          return result.table.selectedRows
+        },
+      })
     }
   }
 

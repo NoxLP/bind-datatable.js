@@ -31,6 +31,10 @@
   border-collapse: collapse;
 }
 
+.datatable-selected-row {
+  background-color: gray !important;
+}
+
 .my-headers {
   background-color:darkslategray;
   border-bottom: 1px solid black;
