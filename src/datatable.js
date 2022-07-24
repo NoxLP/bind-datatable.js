@@ -1,7 +1,6 @@
 import { Error } from './error.js'
 import { initTable, reDraw } from './table/init.js'
 import {
-  filterRow,
   createRow,
   checkRowKeys,
   updateRow,
@@ -299,7 +298,7 @@ export function DataTable(data, config) {
     )
   }
 
-  let indexesById = data.reduce(
+  table.indexesById = data.reduce(
     (acc, reg, idx) => {
       acc.byIds[reg.id] = idx
       acc.byIndexes[idx] = reg.id
@@ -316,7 +315,7 @@ export function DataTable(data, config) {
       config,
       container,
       current,
-      indexesById
+      table.indexesById
     )
   )
 
@@ -336,7 +335,7 @@ export function DataTable(data, config) {
       )
     },
     get indexesById() {
-      return indexesById
+      return table.indexesById
     },
   }
 
@@ -377,7 +376,7 @@ export function DataTable(data, config) {
               config,
               container,
               current,
-              indexesById
+              table.indexesById
             )
           )
           reDraw(current, table, container, config)

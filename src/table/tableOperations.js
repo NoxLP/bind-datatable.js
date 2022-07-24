@@ -3,6 +3,41 @@ const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
   if (config.rowsClass) row.className = config.rowsClass(datarow, dataIndex)
 }
 
+const clickRowCallback = (e, row, rowObject, table, config) => {
+  console.log('CLICK ROW')
+  if (!rowObject.isSelected) {
+    console.log('NO SELECTED ', table)
+    //select row
+    rowObject.isSelected = true
+    row.classList.toggle(config.selectedRowClass)
+
+    if (!config.multipleSelection) {
+      console.log('NO MULTIPLE ', rowObject)
+      rowObject.isSelected = true
+      if (table.selectedRow) {
+        table.selectedRow.row.classList.toggle(config.selectedRowClass)
+        delete table.selectedRow.isSelected
+      }
+      table.selectedRow = rowObject
+    } else {
+      table.selectedRows.push(rowObject)
+      rowObject.selectedIndex = table.selectedRows.length - 1
+    }
+  } else {
+    console.log('SELECTED')
+    //unselect row
+    delete rowObject.isSelected
+    row.classList.toggle(config.selectedRowClass)
+
+    if (!config.multipleSelection) {
+      table.selectedRow = undefined
+    } else {
+      table.selectedRows.splice(rowObject.selectedIndex, 1)
+      delete rowObject.selectedIndex
+    }
+  }
+}
+
 export const filterRow = (dataIndex, datarow, config) =>
   !('filter' in config) ||
   typeof config.filter != 'function' ||
@@ -16,41 +51,11 @@ export function createRow(dataIndex, datarow, config, table) {
 
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row, dataIndex }
+  if (config.id in datarow) rowObject[config.id] = datarow[config.id]
   if (config.selectRows) {
-    row.addEventListener('click', () => {
-      console.log('CLICK ROW')
-      if (!rowObject.isSelected) {
-        console.log('NO SELECTED ', table)
-        //select row
-        rowObject.isSelected = true
-        row.classList.toggle(config.selectedRowClass)
-
-        if (!config.multipleSelection) {
-          console.log('NO MULTIPLE ', rowObject)
-          rowObject.isSelected = true
-          if (table.selectedRow) {
-            table.selectedRow.row.classList.toggle(config.selectedRowClass)
-            delete table.selectedRow.isSelected
-          }
-          table.selectedRow = rowObject
-        } else {
-          table.selectedRows.push(rowObject)
-          rowObject.selectedIndex = table.selectedRows.length - 1
-        }
-      } else {
-        console.log('SELECTED')
-        //unselect row
-        delete rowObject.isSelected
-        row.classList.toggle(config.selectedRowClass)
-
-        if (!config.multipleSelection) {
-          table.selectedRow = undefined
-        } else {
-          table.selectedRows.splice(rowObject.selectedIndex, 1)
-          delete rowObject.selectedIndex
-        }
-      }
-    })
+    row.addEventListener('click', (e) =>
+      clickRowCallback(e, row, rowObject, table, config)
+    )
   }
 
   if (config.showRowHeaders) {
