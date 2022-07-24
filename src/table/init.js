@@ -108,7 +108,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
     i++
   ) {
     const datarow = data[i]
-    const rowObject = createRow(i, datarow, config)
+    const rowObject = createRow(i, datarow, config, bindedTable)
 
     body.appendChild(rowObject.row)
     bindedTable.rows.push(rowObject)

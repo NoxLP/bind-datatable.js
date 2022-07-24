@@ -102,7 +102,7 @@ ${JSON.stringify(change.value, null, 4)}`)
           (table.virtualConfig.lastRowIndex > change.path ||
             table.virtualConfig.lastRowIndex == current.length - 1)
         ) {
-          const rowTuplet = createRow(change.path, change.value, config)
+          const rowTuplet = createRow(change.path, change.value, config, table)
 
           table.tableBody.appendChild(rowTuplet.row)
           table.rows.push(rowTuplet)
@@ -214,6 +214,11 @@ const checkConfigAndSetDefaults = (config) => {
   if (!('rowsGutter' in config)) config.rowsGutter = 0
 
   if (!('fixedHeaders' in config)) config.fixedHeaders = true
+
+  if (!('selectRows' in config)) config.selectRows = true
+
+  if (!('selectedRowClass' in config))
+    config.selectedRowClass = 'datatable-selected-row'
 
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass

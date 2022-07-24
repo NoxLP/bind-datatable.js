@@ -8,14 +8,23 @@ export const filterRow = (dataIndex, datarow, config) =>
   typeof config.filter != 'function' ||
   config.filter(datarow, dataIndex)
 
-export function createRow(dataIndex, datarow, config) {
+export function createRow(dataIndex, datarow, config, table) {
   const row = document.createElement('tr')
 
   // TODO: If a column with row titles is needed, here should
   // create a th with scope 'row'
 
   const cells = Array.isArray(datarow) ? [] : {}
-  const rowObject = { row, dataIndex }
+  const rowObject = { row, dataIndex, isSelected: false }
+  if (config.selectRows) {
+    row.addEventListener('click', () => {
+      if (!rowObject.isSelected) {
+        //select row
+      } else {
+        //unselect row
+      }
+    })
+  }
 
   if (config.showRowHeaders) {
     const rowHeader = document.createElement('th')

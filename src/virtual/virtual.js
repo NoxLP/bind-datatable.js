@@ -21,12 +21,17 @@ const randomRange = (max, min) => {
   return Math.floor(Math.random() * range) + min
 }
 
-export function getRowHeightMeanWithDifferentHeight(data, config, container) {
+export function getRowHeightMeanWithDifferentHeight(
+  data,
+  config,
+  container,
+  table
+) {
   let row
   let mean = 0
 
   if (data.length <= config.heightPrecalculationsRowsNumber) {
-    row = createRow(0, data[0], config)
+    row = createRow(0, data[0], config, table)
     mean = getRowHeight(row, container)
     for (let i = 1; i < data.length; i++) {
       row = updateRow(row.row, i, data[i], config)
@@ -40,7 +45,7 @@ export function getRowHeightMeanWithDifferentHeight(data, config, container) {
     const rowsBetweenPage = Math.floor(
       data.length / config.heightPrecalculationsRowsNumber
     )
-    row = createRow(0, data[0], config)
+    row = createRow(0, data[0], config, table)
     mean = getRowHeight(row, container)
     for (let i = 1; i < config.heightPrecalculationsRowsNumber; i++) {
       // Add random to get a somehow "normalized" sample
@@ -63,7 +68,7 @@ export function getRowHeightMeanWithDifferentHeight(data, config, container) {
   return mean
 }
 
-export function calculateAllHeights(data, config, container) {
+export function calculateAllHeights(data, config, container, table) {
   // The createRow and updateRow functions could calculate each row height,
   // the problem is that I don't want to render more rows than strictly needed,
   // and to calculate that I need a row height
@@ -95,7 +100,7 @@ export function calculateAllHeights(data, config, container) {
     calculate rest
   */
 
-  let row = createRow(0, data[0], config)
+  let row = createRow(0, data[0], config, table)
   const heights = data.map((reg, idx) => {
     row = updateRow(row.row, idx, reg, config)
     return getRowHeight(row, container)
@@ -171,9 +176,9 @@ export function viewportDataWithDifferentHeights(
   }
 }
 
-export function getRowHeightWithConstantHeight(data, config, container) {
+export function getRowHeightWithConstantHeight(data, config, container, table) {
   // Calculate rows height by drawing first row keeping it hidden
-  const firstRow = createRow(0, data[0], config)
+  const firstRow = createRow(0, data[0], config, table)
   firstRow.row.style.visibility = 'hidden'
   container.appendChild(firstRow.row)
   const rowHeight = firstRow.row.clientHeight
@@ -292,12 +297,12 @@ export function onScrollHandler(container, table, current, config) {
       i++
     ) {
       if (firstOld && i < firstOld) {
-        const rowObject = createRow(i, current[i], config)
+        const rowObject = createRow(i, current[i], config, table)
         table.rows.splice(insertIndex, 0, rowObject)
         insertIndex++
         table.tableBody.insertBefore(rowObject.row, table.rows[insertIndex].row)
       } else if (firstOld == undefined || i > lastOld) {
-        const rowObject = createRow(i, current[i], config)
+        const rowObject = createRow(i, current[i], config, table)
         table.rows.push(rowObject)
         table.tableBody.appendChild(rowObject.row)
       }
@@ -399,7 +404,8 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       bindedTable.rowHeight = getRowHeightWithConstantHeight(
         data,
         config,
-        container
+        container,
+        bindedTable
       )
       virtualConfig = viewportDataWithConstantHeight(
         container,
@@ -416,7 +422,8 @@ export function createVirtualConfig(container, data, config, bindedTable) {
         data,
         config,
         container,
-        bindedTable.cols
+        bindedTable.cols,
+        bindedTable
       )
       virtualConfig = viewportDataWithConstantHeight(
         container,
@@ -460,7 +467,8 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       bindedTable.rowHeight = getRowHeightWithConstantHeight(
         data,
         config,
-        container
+        container,
+        bindedTable
       )
       virtualConfig = viewportDataWithConstantHeight(
         container,
@@ -476,7 +484,8 @@ export function createVirtualConfig(container, data, config, bindedTable) {
         data,
         config,
         container,
-        bindedTable.cols
+        bindedTable.cols,
+        bindedTable
       )
       virtualConfig = viewportDataWithConstantHeight(
         container,
@@ -488,7 +497,12 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       )
     } else {
       // all
-      bindedTable.rowHeight = calculateAllHeights(data, config, container)
+      bindedTable.rowHeight = calculateAllHeights(
+        data,
+        config,
+        container,
+        bindedTable
+      )
       virtualConfig = viewportDataWithDifferentHeights(
         container,
         bindedTable.rowHeight,
