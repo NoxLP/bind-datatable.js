@@ -3,7 +3,7 @@ const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
   if (config.rowsClass) row.className = config.rowsClass(datarow, dataIndex)
 }
 
-const selectRowInMultipleSelection = (rowObject, table, config) => {
+const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
   rowObject.isSelected = true
   rowObject.row.classList.toggle(config.selectedRowClass)
   table.selectedRows.push(rowObject)
@@ -14,6 +14,14 @@ const unselectRowInMultipleSelection = (rowObject, table, config) => {
   console.log(rowObject)
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
+  for (
+    let i = rowObject.selectedIndex + 1;
+    i < table.selectedRows.length;
+    i++
+  ) {
+    const row = table.selectedRows[i]
+    row.selectedIndex--
+  }
   table.selectedRows.splice(rowObject.selectedIndex, 1)
   delete rowObject.selectedIndex
 }
@@ -31,7 +39,7 @@ const setRowsSelectionInMultipleSelection = (
     console.log('SELECT')
     for (let i = first; i <= last; i++) {
       const rowObject = table.rows[i]
-      selectRowInMultipleSelection(rowObject, table, config)
+      pushSelectedRowInMultipleSelection(rowObject, table, config)
     }
   } else {
     console.log('UNSELECT')
@@ -49,12 +57,12 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
   if (config.multipleSelection) {
     // multiple selection
     if (e.shiftKey) {
-      e.preventDefault()
-      console.log('CLICK + SHIFT')
       // shift key pressed
+      console.log('CLICK + SHIFT')
+      e.preventDefault()
       if (table.selectedRows.length > 0) {
-        console.log('ALREADY SELECTED ROWS')
         // there are already selected rows
+        console.log('ALREADY SELECTED ROWS')
         const currentFirstSelectedRow = table.selectedRows[0].dataIndex
         const currentLastSelectedRow =
           table.selectedRows[table.selectedRows.length - 1].dataIndex
@@ -88,10 +96,27 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
         )
       } else {
         // no selected rows
-        selectRowInMultipleSelection(rowObject, table, config)
+        pushSelectedRowInMultipleSelection(rowObject, table, config)
       } // end selected rows number if
+    } else if (e.ctrlKey) {
+      // ctrl key pressed
+      console.log('CLICK + CTRL')
+      e.preventDefault()
+      if (table.selectedRows.length > 0) {
+        // there are already selected rows
+        console.log('ALREADY SELECTED ROWS')
+        if (rowObject.isSelected) {
+          // click between selected rows
+          unselectRowInMultipleSelection(rowObject, table, config)
+        } else {
+          pushSelectedRowInMultipleSelection(rowObject, table, config)
+        }
+        console.log(table.selectedRows)
+      } else {
+        // no selected rows
+      }
     } else {
-      // no shift key pressed
+      // no shift or ctrl key pressed
       console.log('NO SHIFT')
       if (table.selectedRows.length > 0) {
         console.log('ALREADY SELECTED ROWS')
@@ -103,15 +128,8 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
           false
         )
       }
-      selectRowInMultipleSelection(rowObject, table, config)
+      pushSelectedRowInMultipleSelection(rowObject, table, config)
       console.log(table.selectedRows)
-      // if (rowObject.isSelected) {
-      //   // row pressed is selected
-      //   unselectRowInMultipleSelection(rowObject, table, config)
-      // } else {
-      //   // row pressed is not selected
-      //   selectRowInMultipleSelection(rowObject, table, config)
-      // } // end row is selected if
     } // end shift key pressed if
   } else {
     //single selection

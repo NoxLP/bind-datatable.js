@@ -69,7 +69,11 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
 
     - `indexesById`: Si los datos contienen un campo `id` o se ha especificado otro campo en el objeto de configuración, registra qué índice de los datos corresponde a cada id y viceversa, con la intención de acceder a los datos más rápidamente, sin tener que recorrer el array de datos.
 
-    - `selectedRow` | `selectedRows`: Dependiende de si la selección múltiple de filas está activada o desactivada, devuelve un objeto o un array de objetos, con información sobre la/s fila/s seleccionada/s. Los objetos se corresponden con los que se pueden observar en `testTable.table.rows`.
+    - `selectedRow` | `selectedRows`: Dependiende de si la selección múltiple de filas está activada o desactivada, devuelve un objeto o un array de objetos, con información sobre la/s fila/s seleccionada/s. 
+    
+      Los objetos se corresponden con los que se pueden observar en `testTable.table.rows`. Los objetos
+
+      Los objetos están ordenados según el orden en que fueron seleccionados/deseleccionados, NO por id ni el índice de los datos.
     
 <br>
 
