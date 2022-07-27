@@ -11,7 +11,6 @@ const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
 }
 
 const unselectRowInMultipleSelection = (rowObject, table, config) => {
-  console.log(rowObject)
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
   for (
@@ -33,36 +32,28 @@ const setRowsSelectionInMultipleSelection = (
   config,
   select
 ) => {
-  console.log('setRowsSelectionInMultipleSelection')
-  console.log('FIRST: ' + first, 'LAST: ' + last, table, config, select)
   if (select) {
-    console.log('SELECT')
     for (let i = first; i <= last; i++) {
       const rowObject = table.rows[i]
       pushSelectedRowInMultipleSelection(rowObject, table, config)
     }
   } else {
-    console.log('UNSELECT')
     for (let i = last; i >= first; i--) {
       console.log(i)
       const rowObject = table.selectedRows[i]
       unselectRowInMultipleSelection(rowObject, table, config)
     }
   }
-  console.log(table.selectedRows)
 }
 
 const clickRowCallback = (e, row, rowObject, table, config) => {
-  console.log('---------------------------------- CLICK ROW', e)
   if (config.multipleSelection) {
     // multiple selection
     if (e.shiftKey) {
       // shift key pressed
-      console.log('CLICK + SHIFT')
       e.preventDefault()
       if (table.selectedRows.length > 0) {
         // there are already selected rows
-        console.log('ALREADY SELECTED ROWS')
         const currentFirstSelectedRow = table.selectedRows[0].dataIndex
         const currentLastSelectedRow =
           table.selectedRows[table.selectedRows.length - 1].dataIndex
@@ -70,18 +61,15 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
         let firstShownIndex, lastShownIndex, select
         if (currentFirstSelectedRow > rowObject.dataIndex) {
           // click above current selected rows
-          console.log('above')
           firstShownIndex = rowObject.dataIndex
           lastShownIndex = currentFirstSelectedRow - 1
           select = true
         } else if (currentLastSelectedRow < rowObject.dataIndex) {
           // click below current selected rows
-          console.log('below')
           firstShownIndex = currentLastSelectedRow + 1
           lastShownIndex = rowObject.dataIndex
           select = true
         } else {
-          console.log('between')
           // click between selected rows
           firstShownIndex = rowObject.dataIndex + 1
           lastShownIndex = currentLastSelectedRow
@@ -100,26 +88,21 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       } // end selected rows number if
     } else if (e.ctrlKey) {
       // ctrl key pressed
-      console.log('CLICK + CTRL')
       e.preventDefault()
       if (table.selectedRows.length > 0) {
         // there are already selected rows
-        console.log('ALREADY SELECTED ROWS')
         if (rowObject.isSelected) {
           // click between selected rows
           unselectRowInMultipleSelection(rowObject, table, config)
         } else {
           pushSelectedRowInMultipleSelection(rowObject, table, config)
         }
-        console.log(table.selectedRows)
       } else {
         // no selected rows
       }
     } else {
       // no shift or ctrl key pressed
-      console.log('NO SHIFT')
       if (table.selectedRows.length > 0) {
-        console.log('ALREADY SELECTED ROWS')
         setRowsSelectionInMultipleSelection(
           0,
           table.selectedRows.length - 1,
@@ -129,7 +112,6 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
         )
       }
       pushSelectedRowInMultipleSelection(rowObject, table, config)
-      console.log(table.selectedRows)
     } // end shift key pressed if
   } else {
     //single selection
@@ -143,7 +125,6 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       }
       table.selectedRow = rowObject
     } else {
-      console.log('SELECTED')
       //unselect row
       delete rowObject.isSelected
       row.classList.toggle(config.selectedRowClass)
