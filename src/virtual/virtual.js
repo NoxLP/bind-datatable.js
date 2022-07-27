@@ -378,7 +378,7 @@ export function onWheelHandler(e, container) {
 
 export function onKeyDownHandler(e, container, table) {
   e.preventDefault()
-  console.log(e)
+  // console.log(e)
   if (e.code == 'ArrowDown') {
     container.scrollTop += container.clientHeight / 6
   } else if (e.code == 'PageDown') {
