@@ -105,6 +105,7 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
         }
       } else {
         // no selected rows
+        pushSelectedRowInMultipleSelection(rowObject, table, config)
       }
     } else {
       // no shift or ctrl key pressed
