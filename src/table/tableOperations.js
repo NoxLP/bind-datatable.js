@@ -4,13 +4,18 @@ const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
 }
 
 const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
+  if (rowObject.isSelected) return
+
   rowObject.isSelected = true
   rowObject.row.classList.toggle(config.selectedRowClass)
   table.selectedRows.push(rowObject)
   rowObject.selectedIndex = table.selectedRows.length - 1
+  table.selectedRows.sort((a, b) => a.dataIndex - b.dataIndex)
 }
 
 const unselectRowInMultipleSelection = (rowObject, table, config) => {
+  if (!rowObject.isSelected) return
+
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
   for (
@@ -39,34 +44,35 @@ const setRowsSelectionInMultipleSelection = (
     }
   } else {
     for (let i = last; i >= first; i--) {
-      console.log(i)
-      const rowObject = table.selectedRows[i]
+      const rowObject = table.rows[i + table.virtualConfig.firstShownRowIndex]
       unselectRowInMultipleSelection(rowObject, table, config)
     }
   }
 }
 
 const clickRowCallback = (e, row, rowObject, table, config) => {
+  console.log('CLICK ', rowObject.dataIndex)
   if (config.multipleSelection) {
     // multiple selection
     if (e.shiftKey) {
       // shift key pressed
       e.preventDefault()
       if (table.selectedRows.length > 0) {
+        console.log('MAYOR 0')
         // there are already selected rows
         const currentFirstSelectedRow = table.selectedRows[0].dataIndex
         const currentLastSelectedRow =
           table.selectedRows[table.selectedRows.length - 1].dataIndex
-
+        console.log(currentFirstSelectedRow, currentLastSelectedRow)
         let firstShownIndex, lastShownIndex, select
         if (currentFirstSelectedRow > rowObject.dataIndex) {
           // click above current selected rows
           firstShownIndex = rowObject.dataIndex
-          lastShownIndex = currentFirstSelectedRow - 1
+          lastShownIndex = currentLastSelectedRow
           select = true
         } else if (currentLastSelectedRow < rowObject.dataIndex) {
           // click below current selected rows
-          firstShownIndex = currentLastSelectedRow + 1
+          firstShownIndex = currentFirstSelectedRow
           lastShownIndex = rowObject.dataIndex
           select = true
         } else {

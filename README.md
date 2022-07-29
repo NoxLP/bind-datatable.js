@@ -3,6 +3,8 @@
 Tabla que usa proxies anidados([Observable](https://github.com/gullerya/object-observer)) para registrar los cambios en un array de datos y reflejarlos automáticamente en el `DOM`.
 
 <br>
+TODO: ordenación automática por un campo, incluyendo cuando se inserta un registro
+<br>
 
 # Uso:
 
