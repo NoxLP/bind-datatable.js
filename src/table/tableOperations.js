@@ -110,8 +110,8 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       // no shift or ctrl key pressed
       if (table.selectedRows.length > 0) {
         setRowsSelectionInMultipleSelection(
-          0,
-          table.selectedRows.length - 1,
+          table.selectedRows[0].dataIndex,
+          table.selectedRows[table.selectedRows.length - 1].dataIndex,
           table,
           config,
           false
