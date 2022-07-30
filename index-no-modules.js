@@ -12,6 +12,7 @@ filterInput.addEventListener('keyup', () => {
     const result = []
     let j = 0
     for (let i = 0; i < 100000; i++) {
+      if (i % 100 == 0) continue
       result.push({
         id: i,
         h1: i,
@@ -46,6 +47,7 @@ filterInput.addEventListener('keyup', () => {
     saveScroll: true,
     selectRows: true,
     multipleSelection: true,
+    sort: (a, b) => b.id - a.id,
     headers: [
       { template: 'H1', key: 'h1' },
       { template: 'H2', key: 'h2' },
@@ -117,7 +119,6 @@ filterInput.addEventListener('keyup', () => {
       {},
     ],
   })
-  logFilter = true
 })()
 
 document.getElementById('table_button').addEventListener('click', () => {
@@ -132,9 +133,21 @@ document.getElementById('test_button').addEventListener('click', () => {
   testTable.data[0].h1 = 'bla'
   // console.log(testTable.current[0])
   //testTable.current[0] = { h1: 'foo', h2: 10, h3: 11, h4: 12 }
-  /*testTable.current[1] = {
-    h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
-  }*/
+  testTable.current[1] = {
+    id: 100000,
+    h1: 'foo',
+    h2: 2,
+    h3: 3,
+    h4: 4,
+    h5: 5,
+    h6: 6,
+    h7: 7,
+    h8: 8,
+    h9: 9,
+    h10: 10,
+    h11: 11,
+    h12: 12,
+  }
   /* const destructTest = [{
     h1: 'foo', h2: 2, h3: 3, h4: 4, h5: 5, h6: 6, h7: 7, h8: 8, h9: 9, h10: 10, h11: 11, h12: 12
   }]

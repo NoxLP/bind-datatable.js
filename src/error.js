@@ -1,7 +1,7 @@
-export function Error(msg) {
+export function DatatableError(msg) {
   const err = `
 PB Datatable error: 
 ${msg}`
   console.error(err)
-  throw err
+  throw new Error(err)
 }

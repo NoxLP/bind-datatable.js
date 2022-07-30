@@ -232,8 +232,6 @@ export function viewportDataWithConstantHeight(
     lastShownRowIndex >= rows.length - 1 ? lastRowOffset : normalOffset
   firstShownRowIndex = Math.floor(firstShownRowIndex)
 
-  if (lastShownRowIndex >= rows.length - 1) console.log('RO: ', rowOffset)
-
   return {
     totalHeight,
     firstRowIndex,

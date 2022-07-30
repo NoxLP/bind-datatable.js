@@ -67,6 +67,9 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
     })
     ```
 
+    - `sort`: Es la función de comparación que se usa en la ordenación automática. 
+      Además de afectar de manera automática al orden de los datos, cuando se cambia la función se reordenan los datos.
+
     - `shown`: Contiene los registros de los datos que la tabla carga actualmente en el `DOM`, incluyendo las filas seguras. No se provee los datos originales, sino los proxies, de forma que se pueden cambiar los datos directamente usando esta propiedad igual que con `data`.
 
     - `indexesById`: Si los datos contienen un campo `id` o se ha especificado otro campo en el objeto de configuración, registra qué índice de los datos corresponde a cada id y viceversa, con la intención de acceder a los datos más rápidamente, sin tener que recorrer el array de datos.
@@ -108,6 +111,7 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
 | selectRows | optional | boolean | true | Se pueden seleccionar las filas | - |
 | multipleSelection | optional | boolean | false | Pueden existir varias filas seleccionadas al mismo tiempo | - |
 | selectedRowClass | optional | string | `datatable-selected-row` | Clase que se aplica al `tr` de las filas seleccionadas | - |
+| sort | optional | function | - | Función callback que se aplica en la ordenación automática | Se proveen dos registros como parámetros, igual que el callback del `sort` nativo |
 | columns                         | mandatory            | array                  | -               | Configuración de columnas | Ver valores abajo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---
@@ -192,6 +196,7 @@ Todas las propiedades de los objetos son opcionales.
 | containerSelector               | mandatory            | string                 | -               | Table's container CSS selector                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | headers                         | mandatory            | array                  | -               | See possible values below                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filter | optional | function | - | Filter to apply to every registers | The table is filtered at loading and every time the function `filter` is called |
+| sort | optional | function | - | Automatic sort function callback | Two data rows as parameters, basically the same as the native `sort` |
 | columns                         | mandatory            | array                  | -               | See possible values below                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---

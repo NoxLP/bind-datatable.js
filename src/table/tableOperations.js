@@ -1,3 +1,31 @@
+import { DatatableError } from '../error.js'
+
+export const isSortFunctionValid = (config) =>
+  config.sort && typeof config.sort == 'function'
+
+export const sortedIndex = (dataIndex, current, table, config) => {
+  if (!isSortFunctionValid(config)) return dataIndex
+
+  let low = 0
+  let high = current.length
+  let mid, midCompareResult
+
+  while (low < high) {
+    mid = (low + high) >>> 1
+    try {
+      midCompareResult = config.sort(current[mid], current[dataIndex])
+    } catch (error) {
+      console.log(current[mid], current[dataIndex])
+      DatatableError(error)
+      return undefined
+    }
+
+    if (midCompareResult < 0) low = mid + 1
+    else high = mid
+  }
+  return low
+}
+
 const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
   if (config.rowsStyle) row.style = config.rowsStyle(datarow, dataIndex)
   if (config.rowsClass) row.className = config.rowsClass(datarow, dataIndex)

@@ -1,4 +1,4 @@
-import { Error } from './error.js'
+import { DatatableError } from './error.js'
 import { initTable, reDraw } from './table/init.js'
 import {
   createRow,
@@ -6,6 +6,7 @@ import {
   updateRow,
   updateCell,
   updateShownheadersWidth,
+  isSortFunctionValid,
 } from './table/tableOperations.js'
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js'
 import {
@@ -20,7 +21,7 @@ import {
 
 const replaceIndexId = (indexesById, index, newId) => {
   if (typeof newId != 'string' && typeof newId != 'number')
-    Error("Updated id to a value that wasn't a string nor a number")
+    DatatableError("Updated id to a value that wasn't a string nor a number")
 
   const id = indexesById.byIndexes[index]
   newId = `${newId}`
@@ -31,9 +32,9 @@ const replaceIndexId = (indexesById, index, newId) => {
 }
 const pushIndexId = (indexesById, current, config, value) => {
   if (!(`${config.id}` in value))
-    Error(`New row needs a key with name ${config.id}`)
+    DatatableError(`New row needs a key with name ${config.id}`)
   if (`${value.id}` in indexesById.byIds)
-    Error('Registry with same id already exists')
+    DatatableError('Registry with same id already exists')
   indexesById.byIds[value.id] = current.length
   indexesById.byIndexes[current.length] = value.id
 }
@@ -79,7 +80,7 @@ const observableChangesCallback = (
             (!('checkUpdatedRows' in config) || config.checkUpdatedRows) &&
             !checkRowKeys(change.value, config.headers)
           ) {
-            Error(`New value while trying to update row wasn't correct.
+            DatatableError(`New value while trying to update row wasn't correct.
 Some headers may be incorrect: 
 ${JSON.stringify(change.value, null, 4)}`)
           } else {
@@ -87,10 +88,13 @@ ${JSON.stringify(change.value, null, 4)}`)
             updateRow(updated, updated.dataIndex, change.value, config)
           }
         }
+
+        if (isSortFunctionValid(config)) current.sort(config.sort)
+
         break
       case 'insert': {
         if (isCellChanged) {
-          Error('Can not add a new cell')
+          DatatableError('Can not add a new cell')
           break
         }
 
@@ -107,6 +111,9 @@ ${JSON.stringify(change.value, null, 4)}`)
           table.rows.push(rowTuplet)
           checkScroll(container, table, current, config)
         }
+
+        if (isSortFunctionValid(config)) current.sort(config.sort)
+
         break
       }
       case 'delete':
@@ -114,7 +121,7 @@ ${JSON.stringify(change.value, null, 4)}`)
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          if (change.path[1] == config.id) Error("Can't remove id")
+          if (change.path[1] == config.id) DatatableError("Can't remove id")
           else updated.replaceWith(updateCell(updated, config.columns[col], ''))
         } else if (
           table.virtualConfig.firstRowIndex < change.path &&
@@ -128,6 +135,7 @@ ${JSON.stringify(change.value, null, 4)}`)
           table.rows.splice(change.path[0], 1)
           checkScroll(container, table, current, config)
         }
+
         break
       case 'reverse':
       case 'shuffle':
@@ -159,11 +167,12 @@ ${JSON.stringify(change.value, null, 4)}`)
           indexesById.byIds = {}
           indexesById.byIndexes = {}
           current.forEach((reg, idx) => {
-            indexesById.byIds[reg.id] = idx
-            indexesById.byIndexes[idx] = reg.id
+            indexesById.byIds[reg[config.id]] = idx
+            indexesById.byIndexes[idx] = reg[config.id]
           })
           checkScroll(container, table, current, config, virtualConfig)
         }
+
         break
     }
   })
@@ -178,7 +187,7 @@ const checkConfigAndSetDefaults = (config) => {
     !('headers' in config)
   ) {
     const msg = 'Bad config object. Revise mandatory options'
-    Error(msg)
+    DatatableError(msg)
     return undefined
   }
 
@@ -256,7 +265,7 @@ export function DataTable(data, config) {
 
   const containers = document.querySelectorAll(config.containerSelector)
   if (!containers || containers.length > 1)
-    Error(
+    DatatableError(
       'Found 0 or multiple table containers. Table need at least and only one container.'
     )
   const container = containers[0]
@@ -271,6 +280,9 @@ export function DataTable(data, config) {
   //filter
   if ('filter' in config && typeof config.filter != 'function')
     filteredData = data.filter((reg, idx) => config.filter(reg, idx))
+
+  //sort
+  if (isSortFunctionValid(config)) filteredData.sort(config.sort)
 
   //current
   current = Observable.from(filteredData)
@@ -300,8 +312,8 @@ export function DataTable(data, config) {
 
   table.indexesById = data.reduce(
     (acc, reg, idx) => {
-      acc.byIds[reg.id] = idx
-      acc.byIndexes[idx] = reg.id
+      acc.byIds[reg[config.id]] = idx
+      acc.byIndexes[idx] = reg[config.id]
       return acc
     },
     { byIds: {}, byIndexes: {} }
@@ -323,6 +335,7 @@ export function DataTable(data, config) {
   const result = {
     data: current,
     table,
+    sort: config.sort,
     filter: () => {
       if (!('filter' in config) || typeof config.filter != 'function') return
 
@@ -381,6 +394,16 @@ export function DataTable(data, config) {
           )
           reDraw(current, table, container, config)
         }, 10)
+      } else if (prop == 'sort') {
+        if (!value || typeof value != 'function') {
+          DatatableError(
+            'Sort value must be a compare function like native sort callback'
+          )
+          return false
+        }
+
+        config.sort = value
+        current.sort(value)
       }
       return true
     },
