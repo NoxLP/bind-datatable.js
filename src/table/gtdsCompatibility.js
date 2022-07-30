@@ -1,4 +1,4 @@
-import { Error } from '../error.js'
+import { DatatableError } from '../error.js'
 
 export const gtds_getDataByPrimaryKey = (current, indexesById, id) =>
   current[indexesById[id]]
