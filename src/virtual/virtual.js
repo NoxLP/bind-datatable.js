@@ -27,6 +27,8 @@ export function getRowHeightMeanWithDifferentHeight(
   container,
   table
 ) {
+  if (data.length == 0) return 0
+
   let row
   let mean = 0
 
@@ -178,6 +180,8 @@ export function viewportDataWithDifferentHeights(
 
 export function getRowHeightWithConstantHeight(data, config, container, table) {
   // Calculate rows height by drawing first row keeping it hidden
+  if (data.length == 0) return 0
+
   const firstRow = createRow(0, data[0], config, table)
   firstRow.row.style.visibility = 'hidden'
   container.appendChild(firstRow.row)
@@ -376,7 +380,6 @@ export function onWheelHandler(e, container) {
 
 export function onKeyDownHandler(e, container, table) {
   e.preventDefault()
-  // console.log(e)
   if (e.code == 'ArrowDown') {
     container.scrollTop += container.clientHeight / 6
   } else if (e.code == 'PageDown') {
@@ -390,6 +393,22 @@ export function onKeyDownHandler(e, container, table) {
 }
 
 export function createVirtualConfig(container, data, config, bindedTable) {
+  if (data.length == 0) {
+    return [
+      {
+        firstRowIndex: 0,
+        firstShownRowIndex: 0,
+        lastRowIndex: 0,
+        lastShownRowIndex: 0,
+        rowHeight: 0,
+        rowOffset: 0,
+        totalHeight: 0,
+        totalShownRows: 0,
+      },
+      0,
+    ]
+  }
+
   let virtualConfig, currentScroll
   const scroll = getScrollFromLocalStorage(bindedTable)
 

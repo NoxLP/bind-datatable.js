@@ -1,12 +1,12 @@
 import { createVirtualConfig } from '../virtual/virtual.js'
 import { updateShownheadersWidth } from './tableOperations.js'
-import { filterRow, createRow } from './tableOperations.js'
+import { createRow } from './tableOperations.js'
 
-const applyStyleToHeader = (config, header) => {
+export const applyStyleToHeader = (config, header) => {
   if (config.colHeadersClass) header.classList.add(config.colHeadersClass)
   if (config.colHeadersStyle) header.style = config.colHeadersStyle
 }
-const applyStyleToHeaderRow = (config, row) => {
+export const applyStyleToHeaderRow = (config, row) => {
   if (config.colHeadersRowClass) row.classList.add(config.colHeadersRowClass)
   if (config.colHeadersRowStyle) row.style = config.colHeadersRowStyle
 }
@@ -102,16 +102,22 @@ export function initTable(container, scroller, config, data, bindedTable) {
 
   bindedTable.virtualConfig = virtualConfig
 
-  for (
-    let i = bindedTable.virtualConfig.firstRowIndex;
-    i <= bindedTable.virtualConfig.lastRowIndex;
-    i++
+  if (
+    bindedTable.virtualConfig.lastRowIndex -
+      bindedTable.virtualConfig.firstRowIndex >
+    0
   ) {
-    const datarow = data[i]
-    const rowObject = createRow(i, datarow, config, bindedTable)
+    for (
+      let i = bindedTable.virtualConfig.firstRowIndex;
+      i <= bindedTable.virtualConfig.lastRowIndex;
+      i++
+    ) {
+      const datarow = data[i]
+      const rowObject = createRow(i, datarow, config, bindedTable)
 
-    body.appendChild(rowObject.row)
-    bindedTable.rows.push(rowObject)
+      body.appendChild(rowObject.row)
+      bindedTable.rows.push(rowObject)
+    }
   }
   scroller.style.minHeight = `${bindedTable.virtualConfig.totalHeight}px`
 

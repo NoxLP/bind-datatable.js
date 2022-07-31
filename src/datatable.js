@@ -19,6 +19,16 @@ import {
   onKeyDownHandler,
 } from './virtual/virtual.js'
 
+const buildIndexesById = (data, config) => {
+  return data.reduce(
+    (acc, reg, idx) => {
+      acc.byIds[reg[config.id]] = idx
+      acc.byIndexes[idx] = reg[config.id]
+      return acc
+    },
+    { byIds: {}, byIndexes: {} }
+  )
+}
 const replaceIndexId = (indexesById, index, newId) => {
   if (typeof newId != 'string' && typeof newId != 'number')
     DatatableError("Updated id to a value that wasn't a string nor a number")
@@ -49,6 +59,43 @@ const getColIndexKey = (change, config) =>
     ? config.headers.findIndex((h) => h.key == change.path[1])
     : change.path[1]
 
+const insertChange = (
+  isCellChanged,
+  indexesById,
+  current,
+  config,
+  change,
+  table,
+  container
+) => {
+  pushIndexId(indexesById, current, config, change.value)
+
+  if (
+    current.length == 0 ||
+    table.virtualConfig.rowHeight == 0 ||
+    (table.virtualConfig.firstRowIndex < change.path &&
+      (table.virtualConfig.lastRowIndex > change.path ||
+        table.virtualConfig.lastRowIndex == current.length - 1))
+  ) {
+    const rowTuplet = createRow(
+      parseInt(change.path[0]),
+      change.value,
+      config,
+      table
+    )
+
+    table.tableBody.appendChild(rowTuplet.row)
+    table.rows.push(rowTuplet)
+
+    if (current.length == 0 || table.virtualConfig.rowHeight == 0)
+      updateShownheadersWidth(table, config)
+
+    checkScroll(container, table, current, config)
+  }
+
+  if (isSortFunctionValid(config)) current.sort(config.sort)
+}
+
 const observableChangesCallback = (
   changes,
   table,
@@ -72,50 +119,54 @@ const observableChangesCallback = (
           const col = getColIndexKey(change, config)
 
           if (change.path[1] == config.id)
-            replaceIndexId(indexesById, change.path[0], change.value)
+            replaceIndexId(indexesById, change.path[0], change.value[config.id])
           else updateCell(updated, config.columns[col], change.value)
+        } else if (parseInt(change.path[0]) > current.length - 1) {
+          // inserted new value via data[index] with index not in the array
+          insertChange(
+            isCellChanged,
+            indexesById,
+            current,
+            config,
+            change,
+            table,
+            container
+          )
         } else {
           // complete row updated
           if (
-            (!('checkUpdatedRows' in config) || config.checkUpdatedRows) &&
+            config.checkUpdatedRows &&
             !checkRowKeys(change.value, config.headers)
           ) {
             DatatableError(`New value while trying to update row wasn't correct.
 Some headers may be incorrect: 
 ${JSON.stringify(change.value, null, 4)}`)
           } else {
-            replaceIndexId(indexesById, change.path[0], change.value)
-            updateRow(updated, updated.dataIndex, change.value, config)
+            replaceIndexId(indexesById, change.path[0], change.value[config.id])
+            updateRow(updated.row, updated.dataIndex, change.value, config)
           }
         }
 
         if (isSortFunctionValid(config)) current.sort(config.sort)
 
         break
-      case 'insert': {
+      case 'insert':
         if (isCellChanged) {
           DatatableError('Can not add a new cell')
-          break
+          return
         }
 
-        pushIndexId(indexesById, current, config, change.value)
-
-        if (
-          table.virtualConfig.firstRowIndex < change.path &&
-          (table.virtualConfig.lastRowIndex > change.path ||
-            table.virtualConfig.lastRowIndex == current.length - 1)
-        ) {
-          const rowTuplet = createRow(change.path, change.value, config, table)
-
-          table.tableBody.appendChild(rowTuplet.row)
-          table.rows.push(rowTuplet)
-          checkScroll(container, table, current, config)
-        }
-
-        if (isSortFunctionValid(config)) current.sort(config.sort)
+        insertChange(
+          isCellChanged,
+          indexesById,
+          current,
+          config,
+          change,
+          table,
+          container
+        )
 
         break
-      }
       case 'delete':
         if (isCellChanged) {
           updated = updated.cells[change.path[1]]
@@ -129,7 +180,6 @@ ${JSON.stringify(change.value, null, 4)}`)
             table.virtualConfig.lastRowIndex == current.length - 1) &&
           updated
         ) {
-          console.log(change)
           removeIndexId(indexesById, change.path[1])
           updated.row.remove()
           table.rows.splice(change.path[0], 1)
@@ -161,7 +211,8 @@ ${JSON.stringify(change.value, null, 4)}`)
 
           for (let i = 0; i < table.rows.length; i++) {
             const row = table.rows[i]
-            updateRow(row.row, row.dataIndex, current[row.dataIndex], config)
+            if (row)
+              updateRow(row.row, row.dataIndex, current[row.dataIndex], config)
           }
 
           indexesById.byIds = {}
@@ -322,14 +373,7 @@ export function DataTable(data, config) {
     )
   }
 
-  table.indexesById = data.reduce(
-    (acc, reg, idx) => {
-      acc.byIds[reg[config.id]] = idx
-      acc.byIndexes[idx] = reg[config.id]
-      return acc
-    },
-    { byIds: {}, byIndexes: {} }
-  )
+  table.indexesById = buildIndexesById(data, config)
 
   // observable
   Observable.observe(current, (changes) =>
@@ -383,6 +427,7 @@ export function DataTable(data, config) {
 
   proxiedResult = new Proxy(result, {
     set: (target, prop, value, receiver) => {
+      if (target.scriptChange) return false
       if (prop == 'data') {
         container.scrollTop = 0
         const transform = `translateY(0px)`
@@ -393,8 +438,13 @@ export function DataTable(data, config) {
         table.table.style.setProperty('MsTransform', transform)
 
         setTimeout(() => {
+          target.scriptChange = true
+
           current = Observable.from(value)
-          Observable.observe(current, (changes) =>
+          result.data = current
+          table.indexesById = buildIndexesById(result.data, config)
+
+          Observable.observe(result.data, (changes) =>
             observableChangesCallback(
               changes,
               table,
@@ -405,6 +455,8 @@ export function DataTable(data, config) {
             )
           )
           reDraw(current, table, container, config)
+
+          delete target.scriptChange
         }, 10)
       } else if (prop == 'sort') {
         if (!value || typeof value != 'function') {
