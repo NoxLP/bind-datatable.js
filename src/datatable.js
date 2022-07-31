@@ -184,12 +184,24 @@ const checkConfigAndSetDefaults = (config) => {
     !config ||
     !('containerSelector' in config) ||
     !('columns' in config) ||
-    !('headers' in config)
+    config.columns.some((col) => !('key' in col) && !('title' in col))
+    // !('headers' in config)
   ) {
-    const msg = 'Bad config object. Revise mandatory options'
+    const msg = 'Bad config object. Check mandatory options'
     DatatableError(msg)
     return undefined
   }
+
+  config.headers = config.columns.reduce((acc, col) => {
+    let header = {}
+    if ('title' in col && 'key' in col) {
+      header.template = col.title
+      header.key = col.key
+    } else if ('title' in col) header = col.title
+    else header = col.key
+    acc.push(header)
+    return acc
+  }, [])
 
   if (!config.primary || typeof config.primary != 'string') config.id = 'id'
   else {

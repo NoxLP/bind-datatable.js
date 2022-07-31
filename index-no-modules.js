@@ -48,20 +48,6 @@ filterInput.addEventListener('keyup', () => {
     selectRows: true,
     multipleSelection: true,
     sort: (a, b) => b.id - a.id,
-    headers: [
-      { template: 'H1', key: 'h1' },
-      { template: 'H2', key: 'h2' },
-      { template: 'H3', key: 'h3' },
-      { template: 'H4', key: 'h4' },
-      'H5',
-      'H6',
-      'H7',
-      'H8',
-      'H9',
-      'H10',
-      'H11',
-      'H12',
-    ],
     /*rowsStyle: (reg, index) => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`
       },*/
@@ -77,26 +63,40 @@ filterInput.addEventListener('keyup', () => {
     },
     columns: [
       {
+        title: 'Prueba',
+        key: 'prueba',
         template: (reg) => {
-          return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg} T1</div>`
+          return `${reg.id} - ${reg.h2}`
+        },
+        width: 100,
+      },
+      {
+        title: 'H1',
+        key: 'h1',
+        template: (reg) => {
+          return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg.h1} T1</div>`
         },
       },
       {
+        title: 'H2',
+        key: 'h2',
         template: (reg) => {
-          if (!reg.more) return reg
+          if (!reg.more) return reg.h2
 
           return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
         },
         style: () => `color: red;`,
       },
       {
+        title: 'H3',
+        key: 'h3',
         cellEvents: [
           {
             name: () => 'click',
             callback: (reg, e) => {
               console.log('CLICK')
               console.log(e)
-              alert(`${reg}
+              alert(`${reg.h3}
   ${JSON.stringify(e.target, null, 4)}`)
             },
           },
@@ -104,19 +104,25 @@ filterInput.addEventListener('keyup', () => {
         width: 50,
       },
       {
+        title: 'H4',
+        key: 'h4',
         template: (reg) => {
-          return `<div style="min-height: ${
-            Math.random() * 100
-          }px">${reg}</div>`
+          return `<div style="min-height: ${Math.random() * 100}px">${
+            reg.h4
+          }</div>`
         },
       },
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
+      {
+        title: 'H5',
+      },
+      { title: 'H5' },
+      { title: 'H6' },
+      { title: 'H7' },
+      { title: 'H8' },
+      { key: 'H9' },
+      { key: 'H10' },
+      { key: 'H11' },
+      { key: 'H12' },
     ],
   })
 })()

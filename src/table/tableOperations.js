@@ -236,6 +236,7 @@ export function createRow(dataIndex, datarow, config, table) {
     const cell = updateCell(
       document.createElement('td'),
       config.columns[i],
+      datarow,
       cellData
     )
 
@@ -286,24 +287,29 @@ export function updateRow(domRow, dataIndex, datarow, config) {
       cellData = datarow[key]
     }
 
-    updateCell(domRow.children[i + childrenSum], config.columns[i], cellData)
+    updateCell(
+      domRow.children[i + childrenSum],
+      config.columns[i],
+      datarow,
+      cellData
+    )
   }
   rowObject.cells = cells
 
   return rowObject
 }
 
-export function updateCell(cell, cellColumn, cellData) {
+export function updateCell(cell, cellColumn, rowData, cellData) {
   cell.innerHTML = cellColumn.template
-    ? cellColumn.template(cellData)
+    ? cellColumn.template(rowData)
     : cellData ?? ''
-  cell.style.cssText += cellColumn.style ? cellColumn.style(cellData) : ''
+  cell.style.cssText += cellColumn.style ? cellColumn.style(rowData) : ''
 
   if (cellColumn.cellEvents) {
     cellColumn.cellEvents.forEach((event) => {
       cell.addEventListener(
-        event.name(cellData),
-        (e) => event.callback(cellData, e),
+        event.name(rowData),
+        (e) => event.callback(rowData, e),
         true
       )
     })

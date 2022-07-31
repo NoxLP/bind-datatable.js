@@ -106,7 +106,6 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
 | rowsClass                       | optional             | (reg, index) => string | -               | Clase para las filas | Callback que retorna una `string` con el estilo de la fila. Como parámetros se proveen el dato actual que se está calculando(reg) y su índice en los datos(index). La `string` devuelta será asignada directamente tal cual por medio de `className`(sobreescribe la clase)                                                                                                                                                                                                                                                                                                                                         |
 | saveScroll                      | optional             | boolean                | false           | Guarda el último scroll en localStorage y lo recarga con la página | Cuidado, se usa el atributo `id` de la tabla como key para el `localStorage`. Si por cualquier razón la id cambia(entre versiones, por ejemplo), NO limpiará la key vieja y no recogerá los datos antiguos. Si a la tabla no se le asigna una id, falla sin lanzar error. Además, si se está usando el `rowHeightMode` como `average`, tiene un error que usualmente es de +-2 filas |
 | containerSelector               | mandatory            | string                 | -               | Selector CSS del eemento del DOM que actua como contenedor de la tabla | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| headers                         | mandatory            | array                  | -               | Configuración de headers | Ver valores abajo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filter | optional | function | - | Filtro a aplicar a cada registro | El filtro se aplica cada vez que la tabla se carga, y cada vez que se llama a la función `filter` |
 | selectRows | optional | boolean | true | Se pueden seleccionar las filas | - |
 | multipleSelection | optional | boolean | false | Pueden existir varias filas seleccionadas al mismo tiempo | - |
@@ -139,30 +138,22 @@ El resto es para tablas con filas de alto dinámico:
 
 <br>
 
-## Headers
-
-Cada elemento del array puede ser uno de dos:
-
-- string: La key de la columna será este valor con un `toLowerCase`.
-- object:
-
-  | NOMBRE     | OPCIONAL / OBLIGATORIO | VALOR                     | DESCRIPCIÓN                                                                                                |
-  | -------- | -------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
-  | template | mandatory            | function (`() => string`) | Callback que retorne una `string` con el `content` del header(html, texto, lo que sea, pero una `string`) |
-  | key      | mandatory            | string                    | Key del header                                                                                                    |
-
-<br>
-
 ## Columns
 
 Todas las propiedades de los objetos son opcionales.
 
-| NOMBRE       | VALOR                        | DESCRIPCIÓN                                                                                                                                                                          |
-| ---------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| template   | function (`(reg) => string`) | Callback que retorne una `string` con el `content` del header(html, texto, lo que sea, pero una `string`). Como parámetro se provee el dato actual que se está calculando(reg) |
-| style      | string                       | La `string` será añadida al estilo de cada celda de esta columna                                                                                                                    |
-| cellEvents | array of objects             | Eventos de las celdas de esta columna: { name: nombre del evento, callback}                                                                                                       |
-| width      | `[number\|string]`           | Width de las celdas de esta columna                                                                                                                                 |
+| NOMBRE     | OPCIONAL / OBLIGATORIO | VALOR                     | DESCRIPCIÓN                                                                                                |
+  | -------- | -------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| template   | optional | function (`(reg) => string`) | Callback que retorne una `string` con el `content` del header(html, texto, lo que sea, pero una `string`). Como parámetro se provee el dato actual que se está calculando(reg) |
+| style      | optional | string                       | La `string` será añadida al estilo de cada celda de esta columna                                                                                                                    |
+| cellEvents | optional | array of objects             | Eventos de las celdas de esta columna: { name: nombre del evento, callback}                                                                                                       |
+| width      | optional | `[number\|string]`           | Width de las celdas de esta columna                                                                                                                                 |
+| title | mandatory(title o key o ambas deben existir)            | string | `HTML` del header como `string` |
+| key      | mandatory(title o key o ambas deben existir)            | string                    | Key del header                                                                                                    |
+
+Notas:
+- Una de las propiedades `title` o `key`, o ambas, deben incluirse en todas las columnas.
+- Si no se especifica una template, se pasará al `DOM` el valor de `reg[key || title]`, es decir, se buscará en cada registro, una propiedad con nombre igual a `key` si se incluyó en la configuración, o `title` en caso contrario. Si no se encuentra dicha propiedad, se pasa una string vacía.
 
 <br>
 <br>
@@ -224,20 +215,6 @@ The rest are for tables that will have rows with dynamic height:
 
 <br>
 
-## Headers
-
-Each element of the array can be one of the following two:
-
-- string: Column key will be the string with a `toLowerCase`.
-- object:
-
-  | NAME     | OPTIONAL / MANDATORY | VALUE                     | OTHER                                                                                                |
-  | -------- | -------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
-  | template | mandatory            | function (`() => string`) | Callback that will return a string with the content of the header(html, text, whatever but a string) |
-  | key      | mandatory            | string                    | -                                                                                                    |
-
-<br>
-
 ## Columns
 
 All the objects properties are optional
@@ -248,3 +225,9 @@ All the objects properties are optional
 | style      | string                       | The string will be added to every cell style of this column                                                                                                                    |
 | cellEvents | array of objects             | Events of the cells of this column: { name: name of the event, callback}                                                                                                       |
 | width      | `[number\|string]`           | Will set the width to all cells of this column                                                                                                                                 |
+| title | mandatory(title or key or both must exist)            | string | Header's `HTML` as `string` |
+| key      | mandatory(title or key or both must exist)            | string                    | Header's key                                                                                                    |
+
+Notes:
+- One of `title` or `key`, or both, must be included on every column.
+- If template is not specified, `reg[key || title]` will be passed to the `DOM`, that's to say, for each register it will search for property with name equal to `key`'s value if it was included in the configuration, or `title`'s value in other case. If no property will be found, an empty `string` will be passed.
