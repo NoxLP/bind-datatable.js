@@ -117,6 +117,8 @@ const observableChangesCallback = (
 
     switch (change.type) {
       case 'update':
+        console.log(change)
+        console.log('UED ', updated)
         if (isCellChanged) {
           // cell updated
           if (!updated) break
@@ -410,6 +412,7 @@ export function DataTable(data, config) {
     updateDataByPrimaryKey: (id, value) =>
       gtds_updateDataByPrimaryKey(
         proxiedResult.data,
+        config,
         table.indexesById,
         id,
         value
