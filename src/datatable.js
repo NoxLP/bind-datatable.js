@@ -108,13 +108,15 @@ const observableChangesCallback = (
     // change.path have an ordered full path to the updated property
     // f.i.: [0,'h1'] would be data[0][h1]
 
-    let updated = table.rows[change.path[0]]
+    let updated = table.rows.find((r) => r.dataIndex == change.path[0])
     const isCellChanged = change.path.length > 1
 
     switch (change.type) {
       case 'update':
         if (isCellChanged) {
           // cell updated
+          if (!updated) break
+
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
@@ -134,6 +136,8 @@ const observableChangesCallback = (
           )
         } else {
           // complete row updated
+          if (!updated) break
+
           if (
             config.checkUpdatedRows &&
             !checkRowKeys(change.value, config.headers)
