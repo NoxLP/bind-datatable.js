@@ -3,8 +3,6 @@
 Tabla que usa proxies anidados([Observable](https://github.com/gullerya/object-observer)) para registrar los cambios en un array de datos y reflejarlos automáticamente en el `DOM`.
 
 <br>
-TODO: ordenación automática por un campo, incluyendo cuando se inserta un registro
-<br>
 
 # Uso:
 
@@ -79,6 +77,10 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
       Los objetos se corresponden con los que se pueden observar en `testTable.table.rows`. Los objetos
 
       Los objetos están ordenados según el orden en que fueron seleccionados/deseleccionados, NO por id ni el índice de los datos.
+    
+    - `tableData`: Función para asignar nuevos datos a la tabla.
+    
+      Los nuevos datos sobreescribirán por completo los anteriores, manteniendo el filtrado y el orden ya asignado.
     
 <br>
 

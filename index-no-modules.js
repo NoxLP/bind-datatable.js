@@ -33,7 +33,7 @@ filterInput.addEventListener('keyup', () => {
   }
 
   data = dataObject()
-  testTable = new DataTable(data, {
+  testTable = new DataTable([], {
     tableId: 'dtTest',
     rowHeightMode: 'average',
     containerSelector: '#table_container',
@@ -125,6 +125,8 @@ filterInput.addEventListener('keyup', () => {
       { key: 'H12' },
     ],
   })
+
+  testTable.tableData(data)
 })()
 
 document.getElementById('table_button').addEventListener('click', () => {

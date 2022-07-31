@@ -414,6 +414,9 @@ export function DataTable(data, config) {
     get indexesById() {
       return table.indexesById
     },
+    tableData: (data) => {
+      proxiedResult.data = data
+    },
   }
 
   if (config.selectRows) {
@@ -447,6 +450,10 @@ export function DataTable(data, config) {
 
         setTimeout(() => {
           target.scriptChange = true
+
+          if ('filter' in config && typeof config.filter != 'function')
+            value = value.filter((reg, idx) => config.filter(reg, idx))
+          if (isSortFunctionValid(config)) value.sort(config.sort)
 
           current = Observable.from(value)
           result.data = current
