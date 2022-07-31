@@ -21,6 +21,7 @@ import {
 import {
   gtds_getDataByPrimaryKey,
   gtds_updateDataByPrimaryKey,
+  gtds_deleteRows,
 } from './table/gtdsCompatibility.js'
 
 const buildIndexesById = (data, config) => {
@@ -405,9 +406,15 @@ export function DataTable(data, config) {
       proxiedResult.data = tableData
     },
     getDataByPrimaryKey: (id) =>
-      gtds_getDataByPrimaryKey(current, table.indexesById, id),
+      gtds_getDataByPrimaryKey(proxiedResult.data, table.indexesById, id),
     updateDataByPrimaryKey: (id, value) =>
-      gtds_updateDataByPrimaryKey(current, table.indexesById, id, value),
+      gtds_updateDataByPrimaryKey(
+        proxiedResult.data,
+        table.indexesById,
+        id,
+        value
+      ),
+    deleteRows: () => gtds_deleteRows(proxiedResult),
   }
 
   if (config.selectRows) {
