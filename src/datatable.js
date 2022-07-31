@@ -418,6 +418,7 @@ export function DataTable(data, config) {
         value
       ),
     deleteRows: () => gtds_deleteRows(proxiedResult),
+    reDraw: () => reDraw(proxiedResult.data, table, container, config),
   }
 
   if (config.selectRows) {
