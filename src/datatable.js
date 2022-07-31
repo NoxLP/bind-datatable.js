@@ -60,7 +60,6 @@ const getColIndexKey = (change, config) =>
     : change.path[1]
 
 const insertChange = (
-  isCellChanged,
   indexesById,
   current,
   config,
@@ -127,15 +126,7 @@ const observableChangesCallback = (
           updateShownheadersWidth(table, config)
         } else if (parseInt(change.path[0]) > current.length - 1) {
           // inserted new value via data[index] with index not in the array
-          insertChange(
-            isCellChanged,
-            indexesById,
-            current,
-            config,
-            change,
-            table,
-            container
-          )
+          insertChange(indexesById, current, config, change, table, container)
         } else {
           // complete row updated
           if (!updated) break
@@ -164,15 +155,7 @@ ${JSON.stringify(change.value, null, 4)}`)
           return
         }
 
-        insertChange(
-          isCellChanged,
-          indexesById,
-          current,
-          config,
-          change,
-          table,
-          container
-        )
+        insertChange(indexesById, current, config, change, table, container)
 
         break
       case 'delete':
