@@ -76,6 +76,7 @@ filterInput.addEventListener('keyup', () => {
         template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg.h1} T1</div>`
         },
+        sort: 1,
       },
       {
         title: 'H2',
@@ -86,6 +87,7 @@ filterInput.addEventListener('keyup', () => {
           return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
         },
         style: () => `color: red;`,
+        sort: 1,
       },
       {
         title: 'H3',
@@ -102,6 +104,7 @@ filterInput.addEventListener('keyup', () => {
           },
         ],
         width: 50,
+        sort: 1,
       },
       {
         title: 'H4',

@@ -112,7 +112,7 @@ En los archivos `index-modules.js` e `index-no-modules.js` hay sendos ejemplos d
 | filter | optional | function | - | Filtro a aplicar a cada registro | El filtro se aplica cada vez que la tabla se carga, y cada vez que se llama a la función `filter` |
 | selectRows | optional | boolean | true | Se pueden seleccionar las filas | - |
 | multipleSelection | optional | boolean | false | Pueden existir varias filas seleccionadas al mismo tiempo | - |
-| selectedRowClass | optional | string | `datatable-selected-row` | Clase que se aplica al `tr` de las filas seleccionadas | - |
+| selectedRowClass | optional | string | `jdt-datatable-selected-row` | Clase que se aplica al `tr` de las filas seleccionadas | - |
 | sort | optional | function | - | Función callback que se aplica en la ordenación automática | Se proveen dos registros como parámetros, igual que el callback del `sort` nativo |
 | columns                         | mandatory            | array                  | -               | Configuración de columnas | Ver valores abajo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 

@@ -240,16 +240,24 @@ const checkConfigAndSetDefaults = (config) => {
     return undefined
   }
 
-  config.headers = config.columns.reduce((acc, col) => {
+  config.headers = []
+
+  config.columns.forEach((col) => {
     let header = {}
     if ('title' in col && 'name' in col) {
       header.template = col.title
       header.key = col.name
     } else if ('title' in col) header = col.title
     else header = col.name
-    acc.push(header)
-    return acc
-  }, [])
+    config.headers.push(header)
+
+    if (col.sort) {
+      if (!config.sortColumns) config.sortColumns = {}
+
+      if ('key' in header) config.sortColumns[header.key] = 2
+      else config.sortColumns[header] = 2
+    }
+  })
 
   if (!config.primary || typeof config.primary != 'string') config.id = 'id'
   else {
@@ -286,7 +294,7 @@ const checkConfigAndSetDefaults = (config) => {
   if (!('selectRows' in config)) config.selectRows = true
 
   if (!('selectedRowClass' in config))
-    config.selectedRowClass = 'datatable-selected-row'
+    config.selectedRowClass = 'jdt-datatable-selected-row'
 
   if (config.colHeadersClass && config.colHeadersClass.length == 0)
     delete config.colHeadersClass

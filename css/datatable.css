@@ -11,17 +11,17 @@
   width: 100%;
 }
 
-.pb-datatable-table {
+.jdt-datatable-table {
   padding: 0;
   width: 100%;
   border-collapse: collapse;
 }
 
-.pb-datatable-table td {
+.jdt-datatable-table td {
   text-align: center;
 }
 
-.pb-datatable-headers-table {
+.jdt-datatable-headers-table {
   table-layout: fixed;
   position: sticky;
   top: 0;
@@ -31,14 +31,75 @@
   border-collapse: collapse;
 }
 
-.datatable-selected-row {
+.jdt-datatable-selected-row {
   background-color: gray !important;
+}
+
+.jdt-header-sort {
+  position: relative;
+  cursor: pointer;
+  transition: background-color ease .25s;
+}
+
+.jdt-header-sort:hover {
+  background-color: rgba(255, 255, 255, 0.253);
+}
+
+.jdt-header-sort-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: 5px;
+  cursor: pointer;
+  border: none;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  font-style: inherit;
+}
+
+.jdt-header-sort-template {
+  width: 85% !important;
+  margin: 0;
+  padding: 0;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.jdt-header-sort-icons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100% !important;
+  margin: 0;
+  padding: 0;
+  background-color: transparent !important;
+  border: none !important;
+  font-size: 0.75em !important;
+}
+
+.jdt-header-sort-top-icon {
+  margin-bottom: -2px;
+}
+
+.jdt-header-sort-bottom-icon {
+  margin-top: -2px;
 }
 
 .my-headers {
   background-color:darkslategray;
   border-bottom: 1px solid black;
-  }
+}
 .my-headers-row {
   background-color: green;
 }

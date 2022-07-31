@@ -2,6 +2,21 @@ import { createVirtualConfig } from '../virtual/virtual.js'
 import { updateShownheadersWidth } from './tableOperations.js'
 import { createRow } from './tableOperations.js'
 
+const SORT_ICONS = {
+  '-1': {
+    top: '&#9651',
+    bottom: '&#9660',
+  },
+  1: {
+    top: '&#9650',
+    bottom: '&#9661',
+  },
+  2: {
+    top: '&#9651',
+    bottom: '&#9661',
+  },
+}
+
 export const applyStyleToHeader = (config, header) => {
   if (config.colHeadersClass) header.classList.add(config.colHeadersClass)
   if (config.colHeadersStyle) header.style = config.colHeadersStyle
@@ -16,7 +31,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
     ? document.createElement('table')
     : bindedTable.table
   if (config.tableId && config.tableId.length != 0) table.id = config.tableId
-  table.classList.add('pb-datatable-table')
+  table.classList.add('jdt-datatable-table')
   scroller.appendChild(table)
 
   // This will hold references to DOM elements to perform binding later on,
@@ -26,7 +41,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
   // Create headers
   if (config.fixedHeaders) {
     const tableHeaders = document.createElement('table')
-    tableHeaders.classList.add('pb-datatable-headers-table')
+    tableHeaders.classList.add('jdt-datatable-headers-table')
     if (config.tableId && config.tableId.length != 0)
       tableHeaders.id = `${config.tableId}Headers`
     const colGroup = document.createElement('colgroup')
@@ -57,8 +72,55 @@ export function initTable(container, scroller, config, data, bindedTable) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
       header.scope = 'col'
-      applyStyleToHeader(config, header)
-      header.innerHTML = headertemplate
+
+      if (config.sortColumns && config.sortColumns[headerKey]) {
+        applyStyleToHeader(config, header)
+        header.classList.add('jdt-header-sort')
+        const sortButton = document.createElement('button')
+        sortButton.className = 'jdt-header-sort-button'
+        sortButton.addEventListener('click', (e) => {
+          const topIcon = e.currentTarget.querySelector(
+            '.jdt-header-sort-top-icon'
+          )
+          const bottomIcon = e.currentTarget.querySelector(
+            '.jdt-header-sort-bottom-icon'
+          )
+
+          if (config.sortColumns[headerKey] == 2) {
+            config.sortColumns[headerKey] = -1
+            topIcon.innerHTML = SORT_ICONS[-1].top
+            bottomIcon.innerHTML = SORT_ICONS[-1].bottom
+          } else if (config.sortColumns[headerKey] == -1) {
+            config.sortColumns[headerKey] = 1
+            topIcon.innerHTML = SORT_ICONS[1].top
+            bottomIcon.innerHTML = SORT_ICONS[1].bottom
+          } else {
+            config.sortColumns[headerKey] = 2
+            topIcon.innerHTML = SORT_ICONS[2].top
+            bottomIcon.innerHTML = SORT_ICONS[2].bottom
+          }
+        })
+
+        const templateDiv = document.createElement('div')
+        sortButton.appendChild(templateDiv)
+        applyStyleToHeader(config, templateDiv)
+        templateDiv.innerHTML = headertemplate
+        templateDiv.classList.add('jdt-header-sort-template')
+
+        const sortIconsDiv = document.createElement('div')
+        sortButton.appendChild(sortIconsDiv)
+        applyStyleToHeader(config, sortIconsDiv)
+        sortIconsDiv.classList.add('jdt-header-sort-icons')
+        sortIconsDiv.innerHTML = `
+        <div class="jdt-header-sort-top-icon">&#9651</div>
+        <div class="jdt-header-sort-bottom-icon">&#9661</div>
+        `
+
+        header.appendChild(sortButton)
+      } else {
+        applyStyleToHeader(config, header)
+        header.innerHTML = headertemplate
+      }
 
       headersRow.appendChild(header)
       bindedTable.headers.push(header)
