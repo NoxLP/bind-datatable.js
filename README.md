@@ -151,12 +151,12 @@ Todas las propiedades de los objetos son opcionales.
 | style      | optional | string                       | La `string` será añadida al estilo de cada celda de esta columna                                                                                                                    |
 | cellEvents | optional | array of objects             | Eventos de las celdas de esta columna: { name: nombre del evento, callback}                                                                                                       |
 | width      | optional | `[number\|string]`           | Width de las celdas de esta columna                                                                                                                                 |
-| title | mandatory(title o key o ambas deben existir)            | string | `HTML` del header como `string` |
-| key      | mandatory(title o key o ambas deben existir)            | string                    | Key del header                                                                                                    |
+| title | mandatory(title o name o ambas deben existir)            | string | `HTML` del header como `string` |
+| name      | mandatory(title o name o ambas deben existir)            | string                    | name del header                                                                                                    |
 
 Notas:
-- Una de las propiedades `title` o `key`, o ambas, deben incluirse en todas las columnas.
-- Si no se especifica una template, se pasará al `DOM` el valor de `reg[key || title]`, es decir, se buscará en cada registro, una propiedad con nombre igual a `key` si se incluyó en la configuración, o `title` en caso contrario. Si no se encuentra dicha propiedad, se pasa una string vacía.
+- Una de las propiedades `title` o `name`, o ambas, deben incluirse en todas las columnas.
+- Si no se especifica una template, se pasará al `DOM` el valor de `reg[name || title]`, es decir, se buscará en cada registro, una propiedad con nombre igual a `name` si se incluyó en la configuración, o `title` en caso contrario. Si no se encuentra dicha propiedad, se pasa una string vacía.
 
 <br>
 <br>
@@ -228,9 +228,9 @@ All the objects properties are optional
 | style      | string                       | The string will be added to every cell style of this column                                                                                                                    |
 | cellEvents | array of objects             | Events of the cells of this column: { name: name of the event, callback}                                                                                                       |
 | width      | `[number\|string]`           | Will set the width to all cells of this column                                                                                                                                 |
-| title | mandatory(title or key or both must exist)            | string | Header's `HTML` as `string` |
-| key      | mandatory(title or key or both must exist)            | string                    | Header's key                                                                                                    |
+| title | mandatory(title or name or both must exist)            | string | Header's `HTML` as `string` |
+| name      | mandatory(title or name or both must exist)            | string                    | Header's name                                                                                                    |
 
 Notes:
-- One of `title` or `key`, or both, must be included on every column.
-- If template is not specified, `reg[key || title]` will be passed to the `DOM`, that's to say, for each register it will search for property with name equal to `key`'s value if it was included in the configuration, or `title`'s value in other case. If no property will be found, an empty `string` will be passed.
+- One of `title` or `name`, or both, must be included on every column.
+- If template is not specified, `reg[name || title]` will be passed to the `DOM`, that's to say, for each register it will search for property with name equal to `name`'s value if it was included in the configuration, or `title`'s value in other case. If no property will be found, an empty `string` will be passed.

@@ -64,7 +64,7 @@ filterInput.addEventListener('keyup', () => {
     columns: [
       {
         title: 'Prueba',
-        key: 'prueba',
+        name: 'prueba',
         template: (reg) => {
           return `${reg.id} - ${reg.h2}`
         },
@@ -72,14 +72,14 @@ filterInput.addEventListener('keyup', () => {
       },
       {
         title: 'H1',
-        key: 'h1',
+        name: 'h1',
         template: (reg) => {
           return `<div style="background-color: lightgrey;border-radius: 5px;padding: 5px;">${reg.h1} T1</div>`
         },
       },
       {
         title: 'H2',
-        key: 'h2',
+        name: 'h2',
         template: (reg) => {
           if (!reg.more) return reg.h2
 
@@ -89,7 +89,7 @@ filterInput.addEventListener('keyup', () => {
       },
       {
         title: 'H3',
-        key: 'h3',
+        name: 'h3',
         cellEvents: [
           {
             name: () => 'click',
@@ -105,7 +105,7 @@ filterInput.addEventListener('keyup', () => {
       },
       {
         title: 'H4',
-        key: 'h4',
+        name: 'h4',
         template: (reg) => {
           return `<div style="min-height: ${reg.h4 % 2 == 0 ? 20 : 80}px">${
             reg.h4
@@ -119,10 +119,10 @@ filterInput.addEventListener('keyup', () => {
       { title: 'H6' },
       { title: 'H7' },
       { title: 'H8' },
-      { key: 'H9' },
-      { key: 'H10' },
-      { key: 'H11' },
-      { key: 'H12' },
+      { name: 'H9' },
+      { name: 'H10' },
+      { name: 'H11' },
+      { name: 'H12' },
     ],
   })
 

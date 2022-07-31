@@ -230,8 +230,7 @@ const checkConfigAndSetDefaults = (config) => {
     !config ||
     !('containerSelector' in config) ||
     !('columns' in config) ||
-    config.columns.some((col) => !('key' in col) && !('title' in col))
-    // !('headers' in config)
+    config.columns.some((col) => !('name' in col) && !('title' in col))
   ) {
     const msg = 'Bad config object. Check mandatory options'
     DatatableError(msg)
@@ -240,11 +239,11 @@ const checkConfigAndSetDefaults = (config) => {
 
   config.headers = config.columns.reduce((acc, col) => {
     let header = {}
-    if ('title' in col && 'key' in col) {
+    if ('title' in col && 'name' in col) {
       header.template = col.title
-      header.key = col.key
+      header.key = col.name
     } else if ('title' in col) header = col.title
-    else header = col.key
+    else header = col.name
     acc.push(header)
     return acc
   }, [])
