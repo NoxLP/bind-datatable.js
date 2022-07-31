@@ -123,6 +123,8 @@ const observableChangesCallback = (
           if (change.path[1] == config.id)
             replaceIndexId(indexesById, change.path[0], change.value[config.id])
           else updateCell(updated, config.columns[col], change.value)
+
+          updateShownheadersWidth(table, config)
         } else if (parseInt(change.path[0]) > current.length - 1) {
           // inserted new value via data[index] with index not in the array
           insertChange(
@@ -152,6 +154,8 @@ ${JSON.stringify(change.value, null, 4)}`)
         }
 
         if (isSortFunctionValid(config)) current.sort(config.sort)
+
+        updateShownheadersWidth(table, config)
 
         break
       case 'insert':
