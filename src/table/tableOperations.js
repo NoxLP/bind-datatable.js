@@ -1,29 +1,89 @@
 import { DatatableError } from '../error.js'
 
+const SORT_ICONS = {
+  '-1': {
+    top: '&#9651',
+    bottom: '&#9660',
+  },
+  1: {
+    top: '&#9650',
+    bottom: '&#9661',
+  },
+  2: {
+    top: '&#9651',
+    bottom: '&#9661',
+  },
+}
+
 export const isSortFunctionValid = (config) =>
   config.sort && typeof config.sort == 'function'
 
-export const sortedIndex = (dataIndex, current, table, config) => {
-  if (!isSortFunctionValid(config)) return dataIndex
+export const sortCallback = (a, b, config) => {
+  const sortParams = Object.keys(config.sortColumns)
+  let result = 0
 
-  let low = 0
-  let high = current.length
-  let mid, midCompareResult
+  for (let i = 0; i < sortParams.length; i++) {
+    const param = sortParams[i]
+    const ascDesc = config.sortColumns[param]
+    if (ascDesc == 2) continue
+    if (!(param in a)) return ascDesc
+    if (!(param in b)) return -ascDesc
 
-  while (low < high) {
-    mid = (low + high) >>> 1
-    try {
-      midCompareResult = config.sort(current[mid], current[dataIndex])
-    } catch (error) {
-      console.log(current[mid], current[dataIndex])
-      DatatableError(error)
-      return undefined
+    if (
+      typeof a[param] == 'number' &&
+      typeof b[param] == 'number' &&
+      ascDesc != 2
+    ) {
+      result = ascDesc > 0 ? a[param] - b[param] : b[param] - a[param]
+    } else {
+      if (ascDesc == 1) {
+        if (typeof a[param] == 'number') {
+          result = -1 * b[param].localeCompare(a[param])
+        } else result = a[param].localeCompare(b[param])
+      } else if (ascDesc == -1) {
+        if (typeof b[param] == 'number') {
+          result = -1 * a[param].localeCompare(b[param])
+        } else result = b[param].localeCompare(a[param])
+      }
     }
 
-    if (midCompareResult < 0) low = mid + 1
-    else high = mid
+    if (result != 0) break
   }
-  return low
+
+  if (result == 0 && isSortFunctionValid(config)) result = config.sort(a, b)
+
+  return result
+}
+
+export const clickSortableHeaderCallback = (
+  e,
+  config,
+  headerKey,
+  currentData
+) => {
+  const topIcon = e.currentTarget.querySelector('.jdt-header-sort-top-icon')
+  const bottomIcon = e.currentTarget.querySelector(
+    '.jdt-header-sort-bottom-icon'
+  )
+
+  if (config.sortColumns[headerKey] == 2) {
+    config.sortColumns[headerKey] = -1
+    topIcon.style.visibility = 'hidden'
+    bottomIcon.style.visibility = 'visible'
+    bottomIcon.innerHTML = SORT_ICONS[-1].bottom
+  } else if (config.sortColumns[headerKey] == -1) {
+    config.sortColumns[headerKey] = 1
+    topIcon.innerHTML = SORT_ICONS[1].top
+    topIcon.style.visibility = 'visible'
+    bottomIcon.style.visibility = 'hidden'
+  } else {
+    config.sortColumns[headerKey] = 2
+    topIcon.innerHTML = SORT_ICONS[2].top
+    bottomIcon.innerHTML = SORT_ICONS[2].bottom
+    topIcon.style.visibility = 'visible'
+    bottomIcon.style.visibility = 'visible'
+  }
+  currentData.sort((a, b) => sortCallback(a, b, config))
 }
 
 const setRowStyleAndClass = (row, dataIndex, datarow, config) => {

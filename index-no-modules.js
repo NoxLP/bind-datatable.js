@@ -11,7 +11,8 @@ filterInput.addEventListener('keyup', () => {
   const dataObject = () => {
     const result = []
     let j = 0
-    for (let i = 0; i < 100000; i++) {
+    // for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 20; i++) {
       if (i % 100 == 0) continue
       result.push({
         id: i,
@@ -53,8 +54,8 @@ filterInput.addEventListener('keyup', () => {
       },*/
     rowsClass: (reg, index) =>
       (index % 2 != 0 ? 'my-rows-grey' : 'my-rows-white') + ' border-black',
-    filter: (reg, index) => {
-      // if (logFilter) console.log(reg)
+    filter: (reg, index, logFilter) => {
+      // if (logFilter) console.log('---- CONFIG FILTER: ', reg)
       return (
         reg.h7 % 2 == 0 &&
         (filterInput.value.length == 0 ||

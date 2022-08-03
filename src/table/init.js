@@ -2,21 +2,8 @@ import { createVirtualConfig } from '../virtual/virtual.js'
 import { updateShownheadersWidth } from './tableOperations.js'
 import { createRow } from './tableOperations.js'
 
-const SORT_ICONS = {
-  '-1': {
-    top: '&#9651',
-    bottom: '&#9660',
-  },
-  1: {
-    top: '&#9650',
-    bottom: '&#9661',
-  },
-  2: {
-    top: '&#9651',
-    bottom: '&#9661',
-  },
-}
-
+export const buildHeaderId = (config, headerKey) =>
+  `jdtHeader_${config.tableId}_${headerKey}`
 export const applyStyleToHeader = (config, header) => {
   if (config.colHeadersClass) header.classList.add(config.colHeadersClass)
   if (config.colHeadersStyle) header.style = config.colHeadersStyle
@@ -72,34 +59,14 @@ export function initTable(container, scroller, config, data, bindedTable) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
       const header = document.createElement('th')
       header.scope = 'col'
+      header.id = buildHeaderId(config, headerKey)
 
       if (config.sortColumns && config.sortColumns[headerKey]) {
         applyStyleToHeader(config, header)
         header.classList.add('jdt-header-sort')
         const sortButton = document.createElement('button')
         sortButton.className = 'jdt-header-sort-button'
-        sortButton.addEventListener('click', (e) => {
-          const topIcon = e.currentTarget.querySelector(
-            '.jdt-header-sort-top-icon'
-          )
-          const bottomIcon = e.currentTarget.querySelector(
-            '.jdt-header-sort-bottom-icon'
-          )
-
-          if (config.sortColumns[headerKey] == 2) {
-            config.sortColumns[headerKey] = -1
-            topIcon.innerHTML = SORT_ICONS[-1].top
-            bottomIcon.innerHTML = SORT_ICONS[-1].bottom
-          } else if (config.sortColumns[headerKey] == -1) {
-            config.sortColumns[headerKey] = 1
-            topIcon.innerHTML = SORT_ICONS[1].top
-            bottomIcon.innerHTML = SORT_ICONS[1].bottom
-          } else {
-            config.sortColumns[headerKey] = 2
-            topIcon.innerHTML = SORT_ICONS[2].top
-            bottomIcon.innerHTML = SORT_ICONS[2].bottom
-          }
-        })
+        sortButton.id = header.id + '_sortButton'
 
         const templateDiv = document.createElement('div')
         sortButton.appendChild(templateDiv)
@@ -136,8 +103,10 @@ export function initTable(container, scroller, config, data, bindedTable) {
     bindedTable.headers = []
     for (let j = 0; j < config.headers.length; j++) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
+      const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
       const header = document.createElement('th')
       header.scope = 'col'
+      header.id = buildHeaderId(config, headerKey)
       applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
 

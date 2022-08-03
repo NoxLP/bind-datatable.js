@@ -1,12 +1,14 @@
 import { DatatableError } from './error.js'
-import { initTable, reDraw } from './table/init.js'
+import { buildHeaderId, initTable, reDraw } from './table/init.js'
 import {
+  isSortFunctionValid,
+  sortCallback,
+  clickSortableHeaderCallback,
   createRow,
   checkRowKeys,
   updateRow,
   updateCell,
   updateShownheadersWidth,
-  isSortFunctionValid,
 } from './table/tableOperations.js'
 import { Observable } from '../node_modules/object-observer/dist/object-observer.min.js'
 import {
@@ -23,6 +25,8 @@ import {
   gtds_updateDataByPrimaryKey,
   gtds_deleteRows,
 } from './table/gtdsCompatibility.js'
+
+let lastDatatableId = 0
 
 const buildIndexesById = (data, config) => {
   return data.reduce(
@@ -64,6 +68,12 @@ const getColIndexKey = (change, config) =>
     ? config.headers.findIndex((h) => h.key == change.path[1])
     : change.path[1]
 
+const isTableSorted = (config) =>
+  (config.sortColumns &&
+    Array.isArray(config.sortColumns) &&
+    config.sortColumns.length > 0) ||
+  isSortFunctionValid(config)
+
 const insertChange = (
   indexesById,
   current,
@@ -97,7 +107,7 @@ const insertChange = (
     checkScroll(container, table, current, config)
   }
 
-  if (isSortFunctionValid(config)) current.sort(config.sort)
+  if (isTableSorted(config)) current.sort((a, b) => sortCallback(a, b, config))
 }
 
 const observableChangesCallback = (
@@ -151,7 +161,8 @@ ${JSON.stringify(change.value, null, 4)}`)
           }
         }
 
-        if (isSortFunctionValid(config)) current.sort(config.sort)
+        if (isTableSorted(config))
+          current.sort((a, b) => sortCallback(a, b, config))
 
         updateShownheadersWidth(table, config)
 
@@ -227,6 +238,17 @@ ${JSON.stringify(change.value, null, 4)}`)
   })
 }
 
+const getConfigHeader = (col) => {
+  let header = {}
+  if ('title' in col && 'name' in col) {
+    header.template = col.title
+    header.key = col.name
+  } else if ('title' in col) header = col.title
+  else header = col.name
+
+  return header
+}
+
 const checkConfigAndSetDefaults = (config) => {
   // Check config is correct and set defaults
   if (
@@ -242,20 +264,16 @@ const checkConfigAndSetDefaults = (config) => {
 
   config.headers = []
 
+  let saveSort = false
   config.columns.forEach((col) => {
-    let header = {}
-    if ('title' in col && 'name' in col) {
-      header.template = col.title
-      header.key = col.name
-    } else if ('title' in col) header = col.title
-    else header = col.name
+    let header = getConfigHeader(col)
     config.headers.push(header)
 
     if (col.sort) {
+      if (!saveSort) saveSort = true
       if (!config.sortColumns) config.sortColumns = {}
 
-      if ('key' in header) config.sortColumns[header.key] = 2
-      else config.sortColumns[header] = 2
+      config.sortColumns[header.key] = 2
     }
   })
 
@@ -284,6 +302,7 @@ const checkConfigAndSetDefaults = (config) => {
 
   if ('tableId' in config && typeof config.tableId != 'string')
     config.tableId = `${config.tableId}`
+  else if (!('tableId' in config)) config.tableId = `jdt_${++lastDatatableId}`
 
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
 
@@ -342,7 +361,7 @@ export function DataTable(data, config) {
   if ('tableId' in config) scroller.id = `datatable_scroller_${config.tableId}`
   scroller.classList.add('datatable_scroller')
 
-  let current, table
+  let current, table, proxiedResult, result
   let filteredData = data
 
   //filter
@@ -350,7 +369,8 @@ export function DataTable(data, config) {
     filteredData = data.filter((reg, idx) => config.filter(reg, idx))
 
   //sort
-  if (isSortFunctionValid(config)) filteredData.sort(config.sort)
+  if (isTableSorted(config))
+    filteredData.sort((a, b) => sortCallback(a, b, config))
 
   //current
   current = Observable.from(filteredData)
@@ -371,6 +391,21 @@ export function DataTable(data, config) {
   container.addEventListener('keydown', (e) => {
     onKeyDownHandler(e, container, table)
   })
+  // sortable columns header click
+  setTimeout(() => {
+    config.columns.forEach((col) => {
+      if (!col.sort) return
+
+      const header = getConfigHeader(col)
+      const headerKey = header.key ?? header.toLowerCase()
+      const headerId = buildHeaderId(config, headerKey)
+      document
+        .getElementById(headerId + '_sortButton')
+        .addEventListener('click', (e) => {
+          clickSortableHeaderCallback(e, config, headerKey, result.data)
+        })
+    })
+  }, 20)
 
   if (config.fixedHeaders) {
     new ResizeObserver(() => updateShownheadersWidth(table, config)).observe(
@@ -392,15 +427,14 @@ export function DataTable(data, config) {
     )
   )
 
-  let proxiedResult
-  const result = {
+  result = {
     data: current,
     table,
     sort: config.sort,
-    filter: () => {
+    filter: (log) => {
       if (!('filter' in config) || typeof config.filter != 'function') return
-
-      proxiedResult.data = data.filter((reg, idx) => config.filter(reg, idx))
+      config.filtered = true
+      proxiedResult.data = data.filter(config.filter)
     },
     get shown() {
       return current.slice(
@@ -461,9 +495,14 @@ export function DataTable(data, config) {
         setTimeout(() => {
           target.scriptChange = true
 
-          if ('filter' in config && typeof config.filter != 'function')
+          if (config.filtered) delete config.filtered
+          else if ('filter' in config && typeof config.filter == 'function') {
             value = value.filter((reg, idx) => config.filter(reg, idx))
-          if (isSortFunctionValid(config)) value.sort(config.sort)
+          }
+
+          if (isTableSorted(config)) {
+            value.sort((a, b) => sortCallback(a, b, config))
+          }
 
           current = Observable.from(value)
           result.data = current
@@ -492,7 +531,7 @@ export function DataTable(data, config) {
         }
 
         config.sort = value
-        current.sort(value)
+        current.sort((a, b) => sortCallback(a, b, config))
       }
       return true
     },
