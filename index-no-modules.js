@@ -107,7 +107,7 @@ filterInput.addEventListener('keyup', () => {
         title: 'H4',
         key: 'h4',
         template: (reg) => {
-          return `<div style="min-height: ${Math.random() * 100}px">${
+          return `<div style="min-height: ${reg.h4 % 2 == 0 ? 20 : 80}px">${
             reg.h4
           }</div>`
         },
