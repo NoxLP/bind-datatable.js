@@ -197,8 +197,7 @@ export function viewportDataWithConstantHeight(
   rows,
   safeRows,
   rowGutter = 0,
-  scrollTop = undefined,
-  lastVirtual
+  scrollTop = undefined
 ) {
   let firstShownRowIndex, lastShownRowIndex, firstRowIndex, lastRowIndex
   const totalHeight = rows.length * (rowHeight + rowGutter)
@@ -207,15 +206,17 @@ export function viewportDataWithConstantHeight(
     if (scrollTop === undefined) scrollTop = container.scrollTop
 
     firstShownRowIndex = scrollTop / (rowHeight - rowGutter)
-    lastShownRowIndex = Math.floor(
-      firstShownRowIndex + container.clientHeight / (rowHeight + 2 * rowGutter)
+    lastShownRowIndex = Math.min(
+      Math.floor(
+        firstShownRowIndex +
+          container.clientHeight / (rowHeight + 2 * rowGutter)
+      ),
+      rows.length - 1
     )
 
     firstRowIndex = Math.floor(firstShownRowIndex) - safeRows
     firstRowIndex = firstRowIndex < 0 ? 0 : firstRowIndex
-    lastRowIndex = lastShownRowIndex + safeRows
-    lastRowIndex =
-      lastRowIndex > rows.length - 1 ? rows.length - 1 : lastRowIndex
+    lastRowIndex = Math.min(lastShownRowIndex + safeRows, rows.length - 1)
   } else {
     lastShownRowIndex = rows.length - 1
 

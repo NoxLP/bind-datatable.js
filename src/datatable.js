@@ -397,8 +397,9 @@ export function DataTable(data, config) {
     get indexesById() {
       return table.indexesById
     },
-    tableData: (data) => {
-      proxiedResult.data = data
+    tableData: (tableData) => {
+      data = tableData
+      proxiedResult.data = tableData
     },
   }
 
