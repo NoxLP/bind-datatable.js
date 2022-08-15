@@ -234,7 +234,7 @@ export function viewportDataWithConstantHeight(
     firstRowIndex * (rowHeight + rowGutter) + lastRowBottomOffset
   const normalOffset = firstWithoutFloor * (rowHeight + rowGutter)
   const rowOffset =
-    lastShownRowIndex >= rows.length - 1 ? lastRowOffset : normalOffset
+    scrollTop == container.clientHeight ? lastRowOffset : normalOffset
   firstShownRowIndex = Math.floor(firstShownRowIndex)
 
   return {
