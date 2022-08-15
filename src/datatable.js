@@ -23,6 +23,7 @@ import {
   gtds_getDataByPrimaryKey,
   gtds_updateDataByPrimaryKey,
   gtds_deleteRows,
+  gtds_deleteRowByPrimaryKey,
 } from './table/gtdsCompatibility.js'
 import {
   clickSortableHeaderCallback,
@@ -458,6 +459,8 @@ export function DataTable(data, config) {
         value
       ),
     deleteRows: () => gtds_deleteRows(proxiedResult),
+    deleteRowByPrimaryKey: (id) =>
+      gtds_deleteRowByPrimaryKey(proxiedResult.data, table.indexesById, id),
     reDraw: () => reDraw(proxiedResult.data, table, container, config),
   }
 

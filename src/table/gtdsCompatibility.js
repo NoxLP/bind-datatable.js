@@ -1,7 +1,20 @@
 import { DatatableError } from '../error.js'
 
-export const gtds_getDataByPrimaryKey = (data, indexesById, id) =>
+export const gtds_getDataByPrimaryKey = (data, indexesById, id) => {
+  if (!(id in indexesById.byIds)) {
+    DatatableError(`Primary key ${id} not found in data`)
+    return false
+  }
   data[indexesById.byIds[id]]
+}
+
+export const gtds_deleteRowByPrimaryKey = (data, indexesById, id) => {
+  if (!(id in indexesById.byIds)) {
+    DatatableError(`Primary key ${id} not found in data`)
+    return false
+  }
+  data.splice(indexesById.byIds[id], 1)
+}
 
 export const gtds_updateDataByPrimaryKey = (
   data,
@@ -10,6 +23,10 @@ export const gtds_updateDataByPrimaryKey = (
   id,
   value
 ) => {
+  if (!(id in indexesById.byIds)) {
+    DatatableError(`Primary key ${id} not found in data`)
+    return false
+  }
   if (typeof value != 'object' || config.id in value) {
     DatatableError('Bad value to update register')
     return false
