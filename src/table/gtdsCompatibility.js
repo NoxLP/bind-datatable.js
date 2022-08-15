@@ -5,7 +5,24 @@ export const gtds_getDataByPrimaryKey = (data, indexesById, id) => {
     DatatableError(`Primary key ${id} not found in data`)
     return false
   }
-  data[indexesById.byIds[id]]
+  return data[indexesById.byIds[id]]
+}
+
+export const gtds_getDataBySecondaryKey = (
+  data,
+  indexesById,
+  id,
+  first = true
+) => {
+  if (!('secondaryByIds' in indexesById)) return false
+
+  if (id in indexesById.secondaryByIds) {
+    const indexes = indexesById.secondaryByIds[id]
+
+    return first ? data[indexes[0]] : indexes.map((m) => data[m])
+  }
+
+  return false
 }
 
 export const gtds_deleteRowByPrimaryKey = (data, indexesById, id) => {
@@ -13,6 +30,7 @@ export const gtds_deleteRowByPrimaryKey = (data, indexesById, id) => {
     DatatableError(`Primary key ${id} not found in data`)
     return false
   }
+
   data.splice(indexesById.byIds[id], 1)
 }
 

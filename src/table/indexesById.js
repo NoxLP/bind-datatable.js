@@ -1,14 +1,14 @@
 import { DatatableError } from '../error.js'
 
-const getSecondaryIndexById = (data, config, acc, reg, idx) => {
+const getSecondaryIndexById = (config, acc, reg, idx) => {
   config.secondary.forEach((key) => {
     if (key in reg) {
-      if (key in acc.secondaryByIds) {
-        if (reg[key] in acc.secondaryByIds[key])
-          acc.secondaryByIds[key][reg[key]].push(idx)
-        else acc.secondaryByIds[key][reg[key]] = [idx]
+      const id = reg[key]
+      if (id in acc.secondaryByIds) {
+        if (!acc.secondaryByIds[id].includes(idx))
+          acc.secondaryByIds[id].push(idx)
       } else {
-        acc.secondaryByIds[key] = { [reg[key]]: [idx] }
+        acc.secondaryByIds[id] = [idx]
       }
     }
   })
@@ -26,7 +26,7 @@ export const buildIndexesById = (data, config) => {
     acc.byIds[reg[config.id]] = idx
     acc.byIndexes[idx] = reg[config.id]
 
-    getSecondaryIndexByIdIfNeeded(data, config, acc, reg, idx)
+    getSecondaryIndexByIdIfNeeded(config, acc, reg, idx)
     return acc
   }, initialObject)
 }
