@@ -8,21 +8,39 @@ export const gtds_getDataByPrimaryKey = (data, indexesById, id) => {
   return data[indexesById.byIds[id]]
 }
 
+const gtds_getDataIndexesBySecondaryKey = (indexesById, id) => {
+  if (!('secondaryByIds' in indexesById)) return false
+
+  if (id in indexesById.secondaryByIds) return indexesById.secondaryByIds[id]
+
+  return false
+}
+
 export const gtds_getDataBySecondaryKey = (
   data,
   indexesById,
   id,
   first = true
 ) => {
-  if (!('secondaryByIds' in indexesById)) return false
+  const indexes = gtds_getDataIndexesBySecondaryKey(indexesById, id)
+  if (!indexes) return false
 
-  if (id in indexesById.secondaryByIds) {
-    const indexes = indexesById.secondaryByIds[id]
+  return first ? data[indexes[0]] : indexes.map((m) => data[m])
+}
 
-    return first ? data[indexes[0]] : indexes.map((m) => data[m])
-  }
+export const gtds_getPrimaryKeyBySecondaryKey = (
+  config,
+  data,
+  indexesById,
+  id,
+  first = true
+) => {
+  const indexes = gtds_getDataIndexesBySecondaryKey(indexesById, id)
+  if (!indexes) return false
 
-  return false
+  return first
+    ? data[indexes[0]][config.id]
+    : indexes.map((m) => data[m][config.id])
 }
 
 export const gtds_deleteRowByPrimaryKey = (data, indexesById, id) => {
