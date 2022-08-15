@@ -1,19 +1,4 @@
-import { DatatableError } from '../error.js'
-
-const SORT_ICONS = {
-  '-1': {
-    top: '&#9651',
-    bottom: '&#9660',
-  },
-  1: {
-    top: '&#9650',
-    bottom: '&#9661',
-  },
-  2: {
-    top: '&#9651',
-    bottom: '&#9661',
-  },
-}
+import { getHeaderKey, getHeaderKeyByIndex } from './headers.js'
 
 export const isSortFunctionValid = (config) =>
   config.sort && typeof config.sort == 'function'
@@ -53,37 +38,6 @@ export const sortCallback = (a, b, config) => {
   if (result == 0 && isSortFunctionValid(config)) result = config.sort(a, b)
 
   return result
-}
-
-export const clickSortableHeaderCallback = (
-  e,
-  config,
-  headerKey,
-  currentData
-) => {
-  const topIcon = e.currentTarget.querySelector('.jdt-header-sort-top-icon')
-  const bottomIcon = e.currentTarget.querySelector(
-    '.jdt-header-sort-bottom-icon'
-  )
-
-  if (config.sortColumns[headerKey] == 2) {
-    config.sortColumns[headerKey] = -1
-    topIcon.style.visibility = 'hidden'
-    bottomIcon.style.visibility = 'visible'
-    bottomIcon.innerHTML = SORT_ICONS[-1].bottom
-  } else if (config.sortColumns[headerKey] == -1) {
-    config.sortColumns[headerKey] = 1
-    topIcon.innerHTML = SORT_ICONS[1].top
-    topIcon.style.visibility = 'visible'
-    bottomIcon.style.visibility = 'hidden'
-  } else {
-    config.sortColumns[headerKey] = 2
-    topIcon.innerHTML = SORT_ICONS[2].top
-    bottomIcon.innerHTML = SORT_ICONS[2].bottom
-    topIcon.style.visibility = 'visible'
-    bottomIcon.style.visibility = 'visible'
-  }
-  currentData.sort((a, b) => sortCallback(a, b, config))
 }
 
 const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
@@ -289,7 +243,7 @@ export function createRow(dataIndex, datarow, config, table) {
       key = i
       cellData = datarow[i]
     } else {
-      key = config.headers[i].key ?? config.headers[i].toLowerCase()
+      key = getHeaderKeyByIndex(i, config)
       cellData = datarow[key]
     }
 
@@ -315,7 +269,7 @@ export function checkRowKeys(data, headers) {
   if (dataKeys.length !== headers.length) return false
 
   dataKeys.sort((a, b) => a + b)
-  headers = headers.map((h) => h.key ?? h.toLowerCase()).sort((a, b) => a + b)
+  headers = headers.map((h) => getHeaderKey(h)).sort((a, b) => a + b)
 
   for (let i = 0; i < dataKeys.length; i++) {
     if (dataKeys[i] != headers[i]) return false
@@ -343,7 +297,7 @@ export function updateRow(domRow, dataIndex, datarow, config) {
       key = i
       cellData = datarow[i]
     } else {
-      key = config.headers[i].key ?? config.headers[i].toLowerCase()
+      key = getHeaderKeyByIndex(i, config)
       cellData = datarow[key]
     }
 

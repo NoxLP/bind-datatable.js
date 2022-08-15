@@ -1,6 +1,7 @@
 import { createVirtualConfig } from '../virtual/virtual.js'
 import { updateShownheadersWidth } from './tableOperations.js'
 import { createRow } from './tableOperations.js'
+import { getHeaderKeyByIndex } from './headers.js'
 
 export const buildHeaderId = (config, headerKey) =>
   `jdtHeader_${config.tableId}_${headerKey}`
@@ -53,7 +54,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
     for (let j = 0; j < config.headers.length; j++) {
       const col = document.createElement('col')
       colGroup.appendChild(col)
-      const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
+      const headerKey = getHeaderKeyByIndex(j, config)
       bindedTable.cols[headerKey] = col
 
       const headertemplate = config.headers[j].template ?? config.headers[j]
@@ -103,7 +104,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
     bindedTable.headers = []
     for (let j = 0; j < config.headers.length; j++) {
       const headertemplate = config.headers[j].template ?? config.headers[j]
-      const headerKey = config.headers[j].key ?? config.headers[j].toLowerCase()
+      const headerKey = getHeaderKeyByIndex(j, config)
       const header = document.createElement('th')
       header.scope = 'col'
       header.id = buildHeaderId(config, headerKey)

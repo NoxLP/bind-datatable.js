@@ -11,8 +11,8 @@ filterInput.addEventListener('keyup', () => {
   const dataObject = () => {
     const result = []
     let j = 0
-    // for (let i = 0; i < 100000; i++) {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 100000; i++) {
+      // for (let i = 0; i < 50; i++) {
       if (i % 100 == 0) continue
       result.push({
         id: i,
@@ -57,9 +57,11 @@ filterInput.addEventListener('keyup', () => {
     filter: (reg, index, logFilter) => {
       // if (logFilter) console.log('---- CONFIG FILTER: ', reg)
       return (
-        reg.h7 % 2 == 0 &&
-        (filterInput.value.length == 0 ||
-          `${reg.h3}`.includes(filterInput.value))
+        // reg.h7 % 2 == 0 &&
+        // (filterInput.value.length == 0 ||
+        //   `${reg.h3}`.includes(filterInput.value))
+        filterInput.value.length == 0 ||
+        Object.values(reg).some((v) => `${v}`.includes(filterInput.value))
       )
     },
     columns: [
@@ -88,7 +90,6 @@ filterInput.addEventListener('keyup', () => {
           return `<div>${reg.more[0]} | ${reg.more[1]}</div>`
         },
         style: () => `color: red;`,
-        sort: 1,
       },
       {
         title: 'H3',
@@ -104,29 +105,32 @@ filterInput.addEventListener('keyup', () => {
             },
           },
         ],
-        width: 50,
+        //TODO: este width parece que afecta solo al header,
+        // no al resto de la columna
+        // width: 50,
         sort: 1,
       },
       {
         title: 'H4',
         name: 'h4',
         template: (reg) => {
-          return `<div style="min-height: ${reg.h4 % 2 == 0 ? 20 : 80}px">${
+          return `<div style="min-height: ${reg.h4 % 4 == 0 ? 20 : 80}px">${
             reg.h4
           }</div>`
         },
       },
       {
         title: 'H5',
+        sort: 1,
       },
-      { title: 'H5' },
       { title: 'H6' },
       { title: 'H7' },
       { title: 'H8' },
-      { name: 'H9' },
+      { title: 'H9' },
       { name: 'H10' },
       { name: 'H11' },
       { name: 'H12' },
+      { name: 'H13' },
     ],
   })
 

@@ -3,7 +3,6 @@ import { buildHeaderId, initTable, reDraw } from './table/init.js'
 import {
   isSortFunctionValid,
   sortCallback,
-  clickSortableHeaderCallback,
   createRow,
   checkRowKeys,
   updateRow,
@@ -25,6 +24,11 @@ import {
   gtds_updateDataByPrimaryKey,
   gtds_deleteRows,
 } from './table/gtdsCompatibility.js'
+import {
+  clickSortableHeaderCallback,
+  getConfigHeader,
+  getHeaderKey,
+} from './table/headers.js'
 
 let lastDatatableId = 0
 
@@ -238,17 +242,6 @@ ${JSON.stringify(change.value, null, 4)}`)
   })
 }
 
-const getConfigHeader = (col) => {
-  let header = {}
-  if ('title' in col && 'name' in col) {
-    header.template = col.title
-    header.key = col.name
-  } else if ('title' in col) header = col.title
-  else header = col.name
-
-  return header
-}
-
 const checkConfigAndSetDefaults = (config) => {
   // Check config is correct and set defaults
   if (
@@ -267,13 +260,18 @@ const checkConfigAndSetDefaults = (config) => {
   let saveSort = false
   config.columns.forEach((col) => {
     let header = getConfigHeader(col)
+    if (!header) {
+      DatatableError('Bad header key')
+      return undefined
+    }
     config.headers.push(header)
 
     if (col.sort) {
+      //TODO: ¿saveSort???
       if (!saveSort) saveSort = true
       if (!config.sortColumns) config.sortColumns = {}
 
-      config.sortColumns[header.key] = 2
+      config.sortColumns[getHeaderKey(header)] = 2
     }
   })
 
@@ -397,7 +395,7 @@ export function DataTable(data, config) {
       if (!col.sort) return
 
       const header = getConfigHeader(col)
-      const headerKey = header.key ?? header.toLowerCase()
+      const headerKey = getHeaderKey(header)
       const headerId = buildHeaderId(config, headerKey)
       document
         .getElementById(headerId + '_sortButton')
