@@ -8,27 +8,39 @@ filterInput.addEventListener('keyup', () => {
 })
 ;(async () => {
   var { DataTable } = await import('./src/datatable.js')
+  const letters = 'abcdefghijklmnñopqrstuvwxyz'
+  const getLetters = (j) => {
+    const sj = `${j}`
+    let value = ''
+    for (let i = 0; i < sj.length; i++) {
+      value += letters[sj[i]]
+    }
+    return value
+  }
   const dataObject = () => {
     const result = []
     let j = 0
     for (let i = 0; i < 100000; i++) {
       // for (let i = 0; i < 50; i++) {
       if (i % 100 == 0) continue
-      result.push({
+
+      const reg = {
         id: i,
         h1: i,
         h2: ++j,
-        h3: ++j,
+        h3: getLetters(j),
         h4: ++j,
-        h5: Math.floor(i + Math.random() * 50),
+        h5: Math.floor(i + Math.random() * (i / 2)),
         h6: ++j,
         h7: ++j,
         h8: ++j,
-        h9: i,
         h10: ++j,
         h11: ++j,
         h12: ++j,
-      })
+      }
+      reg.h9 = getLetters(reg.h5)
+
+      result.push(reg)
     }
     return result
   }
@@ -48,6 +60,7 @@ filterInput.addEventListener('keyup', () => {
     saveScroll: true,
     selectRows: true,
     multipleSelection: true,
+    secondary: ['h2', 'h5'],
     sort: (a, b) => b.id - a.id,
     /*rowsStyle: (reg, index) => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`

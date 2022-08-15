@@ -30,43 +30,14 @@ import {
   getConfigHeader,
   getHeaderKey,
 } from './table/headers.js'
+import {
+  buildIndexesById,
+  replaceIndexId,
+  pushIndexId,
+  removeIndexId,
+} from './table/indexesById.js'
 
 let lastDatatableId = 0
-
-const buildIndexesById = (data, config) => {
-  return data.reduce(
-    (acc, reg, idx) => {
-      acc.byIds[reg[config.id]] = idx
-      acc.byIndexes[idx] = reg[config.id]
-      return acc
-    },
-    { byIds: {}, byIndexes: {} }
-  )
-}
-const replaceIndexId = (indexesById, index, newId) => {
-  if (typeof newId != 'string' && typeof newId != 'number')
-    DatatableError("Updated id to a value that wasn't a string nor a number")
-
-  const id = indexesById.byIndexes[index]
-  newId = `${newId}`
-  delete indexesById.byIds[id]
-  delete indexesById.byIndexes[index]
-  indexesById.byIds[newId] = index
-  indexesById.byIndexes[index] = newId
-}
-const pushIndexId = (indexesById, current, config, value) => {
-  if (!(`${config.id}` in value))
-    DatatableError(`New row needs a key with name ${config.id}`)
-  if (`${value.id}` in indexesById.byIds)
-    DatatableError('Registry with same id already exists')
-  indexesById.byIds[value.id] = current.length
-  indexesById.byIndexes[current.length] = value.id
-}
-const removeIndexId = (indexesById, index) => {
-  const id = indexesById.byIndexes[index]
-  delete indexesById.byIds[id]
-  delete indexesById.byIndexes[index]
-}
 
 const getColIndexKey = (change, config) =>
   !/^\d+$/.test(change.path[1])
@@ -280,6 +251,15 @@ const checkConfigAndSetDefaults = (config) => {
   else {
     config.id = config.primary
     delete config.primary
+  }
+
+  if (
+    'secondary' in config &&
+    (!Array.isArray(config.secondary) ||
+      config.secondary.some((key) => typeof key != 'string'))
+  ) {
+    DatatableError('Bad secondary keys array')
+    return undefined
   }
 
   if (config.columns.length != config.headers.length) {
