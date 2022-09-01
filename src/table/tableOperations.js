@@ -46,6 +46,7 @@ const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
 }
 
 const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
+  console.log('PUSH ', rowObject)
   if (rowObject.isSelected) return
 
   rowObject.isSelected = true
@@ -55,11 +56,17 @@ const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
   table.selectedRows.sort((a, b) => a.dataIndex - b.dataIndex)
 }
 
-const unselectRowInMultipleSelection = (rowObject, table, config) => {
+const unselectRowInMultipleSelection = (dataIndex, table, config) => {
+  console.log('UNS2 ', dataIndex)
+  const rowIndex = table.selectedRows.findIndex((r) => r.dataIndex == dataIndex)
+  const rowObject = table.selectedRows[rowIndex]
+  console.log(rowObject)
   if (!rowObject.isSelected) return
 
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
+  table.selectedRows.splice(rowObject.selectedIndex, 1)
+  console.log('row sIdx ', rowObject.selectedIndex)
   for (
     let i = rowObject.selectedIndex + 1;
     i < table.selectedRows.length;
@@ -68,7 +75,6 @@ const unselectRowInMultipleSelection = (rowObject, table, config) => {
     const row = table.selectedRows[i]
     row.selectedIndex--
   }
-  table.selectedRows.splice(rowObject.selectedIndex, 1)
   delete rowObject.selectedIndex
 }
 
@@ -79,15 +85,23 @@ const setRowsSelectionInMultipleSelection = (
   config,
   select
 ) => {
+  console.log('SET: ', first, ' ', last)
   if (select) {
     for (let i = first; i <= last; i++) {
-      const rowObject = table.rows[i]
+      const rowObject = table.rows.find((r) => r.dataIndex == i)
       pushSelectedRowInMultipleSelection(rowObject, table, config)
     }
   } else {
     for (let i = last; i >= first; i--) {
-      const rowObject = table.rows[i + table.virtualConfig.firstShownRowIndex]
-      unselectRowInMultipleSelection(rowObject, table, config)
+      console.log('UNS ', i)
+      unselectRowInMultipleSelection(i, table, config)
+      console.log(
+        JSON.stringify(
+          table.selectedRows.map((r) => r.dataIndex),
+          null,
+          4
+        )
+      )
     }
   }
 }
@@ -180,6 +194,14 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       table.selectedRow = undefined
     }
   } // end single or multiple selection if
+  console.log(table.selectedRows)
+  console.log(
+    JSON.stringify(
+      table.selectedRows.map((r) => r.dataIndex),
+      null,
+      4
+    )
+  )
 }
 
 export const filterRow = (dataIndex, datarow, config) =>

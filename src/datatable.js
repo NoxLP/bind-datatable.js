@@ -88,6 +88,31 @@ const insertChange = (
   if (isTableSorted(config)) current.sort((a, b) => sortCallback(a, b, config))
 }
 
+const setSelectedRows = (config, datatableObject) => {
+  if (config.selectRows) {
+    if (!config.multipleSelection) {
+      datatableObject.table.selectedRow = undefined
+      if (!('selectedRow' in datatableObject.table)) {
+        Object.defineProperty(datatableObject, 'selectedRow', {
+          get() {
+            return datatableObject.table.selectedRow
+          },
+        })
+      }
+    } else {
+      console.log('HERE')
+      datatableObject.table.selectedRows = []
+      if (!('selectedRows' in datatableObject.table)) {
+        Object.defineProperty(datatableObject, 'selectedRows', {
+          get() {
+            return datatableObject.table.selectedRows
+          },
+        })
+      }
+    }
+  }
+}
+
 const observableChangesCallback = (
   changes,
   table,
@@ -342,7 +367,7 @@ export function DataTable(data, config) {
   if ('tableId' in config) scroller.id = `datatable_scroller_${config.tableId}`
   scroller.classList.add('datatable_scroller')
 
-  let current, table, proxiedResult, result
+  let current, table, proxiedDatatableObject, datatableObject
   let filteredData = data
 
   //filter
@@ -383,7 +408,12 @@ export function DataTable(data, config) {
       document
         .getElementById(headerId + '_sortButton')
         .addEventListener('click', (e) => {
-          clickSortableHeaderCallback(e, config, headerKey, result.data)
+          clickSortableHeaderCallback(
+            e,
+            config,
+            headerKey,
+            datatableObject.data
+          )
         })
     })
   }, 20)
@@ -408,14 +438,14 @@ export function DataTable(data, config) {
     )
   )
 
-  result = {
+  datatableObject = {
     data: current,
     table,
     sort: config.sort,
     filter: (log) => {
       if (!('filter' in config) || typeof config.filter != 'function') return
       config.filtered = true
-      proxiedResult.data = data.filter(config.filter)
+      proxiedDatatableObject.data = data.filter(config.filter)
     },
     get shown() {
       return current.slice(
@@ -428,13 +458,17 @@ export function DataTable(data, config) {
     },
     tableData: (tableData) => {
       data = tableData
-      proxiedResult.data = tableData
+      proxiedDatatableObject.data = tableData
     },
     getDataByPrimaryKey: (id) =>
-      gtds_getDataByPrimaryKey(proxiedResult.data, table.indexesById, id),
+      gtds_getDataByPrimaryKey(
+        proxiedDatatableObject.data,
+        table.indexesById,
+        id
+      ),
     getDataBySecondaryKey: (id, first = true) =>
       gtds_getDataBySecondaryKey(
-        proxiedResult.data,
+        proxiedDatatableObject.data,
         table.indexesById,
         id,
         first
@@ -442,43 +476,32 @@ export function DataTable(data, config) {
     getPrimaryKeyBySecondaryKey: (id, first = true) =>
       gtds_getPrimaryKeyBySecondaryKey(
         config,
-        proxiedResult.data,
+        proxiedDatatableObject.data,
         table.indexesById,
         id,
         first
       ),
     updateDataByPrimaryKey: (id, value) =>
       gtds_updateDataByPrimaryKey(
-        proxiedResult.data,
+        proxiedDatatableObject.data,
         config,
         table.indexesById,
         id,
         value
       ),
-    deleteRows: () => gtds_deleteRows(proxiedResult),
+    deleteRows: () => gtds_deleteRows(proxiedDatatableObject),
     deleteRowByPrimaryKey: (id) =>
-      gtds_deleteRowByPrimaryKey(proxiedResult.data, table.indexesById, id),
-    reDraw: () => reDraw(proxiedResult.data, table, container, config),
+      gtds_deleteRowByPrimaryKey(
+        proxiedDatatableObject.data,
+        table.indexesById,
+        id
+      ),
+    reDraw: () => reDraw(proxiedDatatableObject.data, table, container, config),
   }
 
-  if (config.selectRows) {
-    if (!config.multipleSelection) {
-      Object.defineProperty(result, 'selectedRow', {
-        get() {
-          return result.table.selectedRow
-        },
-      })
-    } else {
-      result.table.selectedRows = []
-      Object.defineProperty(result, 'selectedRows', {
-        get() {
-          return result.table.selectedRows
-        },
-      })
-    }
-  }
+  setSelectedRows(config, datatableObject)
 
-  proxiedResult = new Proxy(result, {
+  proxiedDatatableObject = new Proxy(datatableObject, {
     set: (target, prop, value, receiver) => {
       if (target.scriptChange) return false
       if (prop == 'data') {
@@ -503,10 +526,11 @@ export function DataTable(data, config) {
           }
 
           current = Observable.from(value)
-          result.data = current
-          table.indexesById = buildIndexesById(result.data, config)
+          datatableObject.data = current
+          table.indexesById = buildIndexesById(datatableObject.data, config)
+          setSelectedRows(config, datatableObject)
 
-          Observable.observe(result.data, (changes) =>
+          Observable.observe(datatableObject.data, (changes) =>
             observableChangesCallback(
               changes,
               table,
@@ -535,5 +559,5 @@ export function DataTable(data, config) {
     },
   })
 
-  return proxiedResult
+  return proxiedDatatableObject
 }

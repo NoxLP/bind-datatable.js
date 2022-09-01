@@ -25,6 +25,7 @@ export function initTable(container, scroller, config, data, bindedTable) {
   // This will hold references to DOM elements to perform binding later on,
   // and other configurations
   bindedTable = !bindedTable ? { table } : bindedTable
+  console.log(bindedTable)
 
   // Create headers
   if (config.fixedHeaders) {
