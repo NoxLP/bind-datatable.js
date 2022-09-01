@@ -46,7 +46,6 @@ const setRowStyleAndClass = (row, dataIndex, datarow, config) => {
 }
 
 const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
-  console.log('PUSH ', rowObject)
   if (rowObject.isSelected) return
 
   rowObject.isSelected = true
@@ -57,21 +56,16 @@ const pushSelectedRowInMultipleSelection = (rowObject, table, config) => {
 }
 
 const unselectRowInMultipleSelection = (dataIndex, table, config) => {
-  console.log('UNS2 ', dataIndex)
   const rowIndex = table.selectedRows.findIndex((r) => r.dataIndex == dataIndex)
   const rowObject = table.selectedRows[rowIndex]
-  console.log(rowObject)
   if (!rowObject || !rowObject.isSelected) return
 
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
   table.selectedRows.splice(rowObject.selectedIndex, 1)
-  console.log('row sIdx ', rowObject.selectedIndex)
   for (let i = rowObject.selectedIndex; i < table.selectedRows.length; i++) {
     const row = table.selectedRows[i]
-    console.log('--- disminuyendo index en: ', row)
     row.selectedIndex--
-    console.log('--- nuevo index: ', row.selectedIndex)
   }
   delete rowObject.selectedIndex
 }
@@ -83,7 +77,6 @@ const setRowsSelectionInMultipleSelection = (
   config,
   select
 ) => {
-  console.log('SET: ', first, ' ', last)
   if (select) {
     for (let i = first; i <= last; i++) {
       const rowObject = table.rows.find((r) => r.dataIndex == i)
@@ -91,33 +84,22 @@ const setRowsSelectionInMultipleSelection = (
     }
   } else {
     for (let i = last; i >= first; i--) {
-      console.log('UNS ', i)
       unselectRowInMultipleSelection(i, table, config)
-      console.log(
-        JSON.stringify(
-          table.selectedRows.map((r) => r.dataIndex),
-          null,
-          4
-        )
-      )
     }
   }
 }
 
 const clickRowCallback = (e, row, rowObject, table, config) => {
-  console.log('CLICK ', rowObject.dataIndex)
   if (config.multipleSelection) {
     // multiple selection
     if (e.shiftKey) {
       // shift key pressed
       e.preventDefault()
       if (table.selectedRows.length > 0) {
-        console.log('MAYOR 0')
         // there are already selected rows
         const currentFirstSelectedRow = table.selectedRows[0].dataIndex
         const currentLastSelectedRow =
           table.selectedRows[table.selectedRows.length - 1].dataIndex
-        console.log(currentFirstSelectedRow, currentLastSelectedRow)
         let firstShownIndex, lastShownIndex, select
         if (currentFirstSelectedRow > rowObject.dataIndex) {
           // click above current selected rows
@@ -149,7 +131,6 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
     } else if (e.ctrlKey) {
       // ctrl key pressed
       e.preventDefault()
-      console.log('---- CTRL ROW: ', rowObject)
       if (rowObject.isSelected) {
         // click between selected rows
         unselectRowInMultipleSelection(rowObject.dataIndex, table, config)
@@ -189,14 +170,6 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
       table.selectedRow = undefined
     }
   } // end single or multiple selection if
-  console.log(table.selectedRows)
-  console.log(
-    JSON.stringify(
-      table.selectedRows.map((r) => r.dataIndex),
-      null,
-      4
-    )
-  )
 }
 
 export const filterRow = (dataIndex, datarow, config) =>
