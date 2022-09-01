@@ -15,6 +15,8 @@ export const applyStyleToHeaderRow = (config, row) => {
 }
 
 export function initTable(container, scroller, config, data, bindedTable) {
+  if (!container.classList.contains('jdt-table_container'))
+    container.classList.add('jdt-table_container')
   const table = !bindedTable
     ? document.createElement('table')
     : bindedTable.table
@@ -28,97 +30,77 @@ export function initTable(container, scroller, config, data, bindedTable) {
   console.log(bindedTable)
 
   // Create headers
-  if (config.fixedHeaders) {
-    const tableHeaders = document.createElement('table')
-    tableHeaders.classList.add('jdt-datatable-headers-table')
-    if (config.tableId && config.tableId.length != 0)
-      tableHeaders.id = `${config.tableId}Headers`
-    const colGroup = document.createElement('colgroup')
-    tableHeaders.appendChild(colGroup)
-    const head = document.createElement('thead')
-    tableHeaders.appendChild(head)
-    const headersRow = document.createElement('tr')
-    applyStyleToHeaderRow(config, headersRow)
+  const tableHeaders = document.createElement('table')
+  tableHeaders.classList.add('jdt-datatable-headers-table')
+  if (config.tableId && config.tableId.length != 0)
+    tableHeaders.id = `${config.tableId}Headers`
+  const colGroup = document.createElement('colgroup')
+  tableHeaders.appendChild(colGroup)
+  const head = document.createElement('thead')
+  tableHeaders.appendChild(head)
+  const headersRow = document.createElement('tr')
+  applyStyleToHeaderRow(config, headersRow)
 
-    bindedTable.headersRow = headersRow
-    container.appendChild(tableHeaders)
-    bindedTable.headersTable = tableHeaders
-    bindedTable.headers = []
-    bindedTable.cols = {}
+  bindedTable.headersRow = headersRow
+  container.appendChild(tableHeaders)
+  bindedTable.headersTable = tableHeaders
+  bindedTable.headers = []
+  bindedTable.cols = {}
 
-    if (config.showRowHeaders) {
-      const rowHeaderCol = document.createElement('col')
-      colGroup.appendChild(rowHeaderCol)
-      bindedTable.cols.rowHeaderHeader = rowHeaderCol
-      headersRow.appendChild(document.createElement('th'))
-    }
-    for (let j = 0; j < config.headers.length; j++) {
-      const col = document.createElement('col')
-      colGroup.appendChild(col)
-      const headerKey = getHeaderKeyByIndex(j, config)
-      bindedTable.cols[headerKey] = col
+  if (config.showRowHeaders) {
+    const rowHeaderCol = document.createElement('col')
+    colGroup.appendChild(rowHeaderCol)
+    bindedTable.cols.rowHeaderHeader = rowHeaderCol
+    headersRow.appendChild(document.createElement('th'))
+  }
+  for (let j = 0; j < config.headers.length; j++) {
+    const col = document.createElement('col')
+    colGroup.appendChild(col)
+    const headerKey = getHeaderKeyByIndex(j, config)
+    bindedTable.cols[headerKey] = col
 
-      const headertemplate = config.headers[j].template ?? config.headers[j]
-      const header = document.createElement('th')
-      header.scope = 'col'
-      header.id = buildHeaderId(config, headerKey)
+    const headertemplate = config.headers[j].template ?? config.headers[j]
+    const header = document.createElement('th')
+    header.scope = 'col'
+    header.id = buildHeaderId(config, headerKey)
 
-      if (config.sortColumns && config.sortColumns[headerKey]) {
-        applyStyleToHeader(config, header)
-        header.classList.add('jdt-header-sort')
-        const sortButton = document.createElement('button')
-        sortButton.className = 'jdt-header-sort-button'
-        sortButton.id = header.id + '_sortButton'
+    if (config.sortColumns && config.sortColumns[headerKey]) {
+      applyStyleToHeader(config, header)
+      header.classList.add('jdt-header-sort')
+      const sortButton = document.createElement('button')
+      sortButton.className = 'jdt-header-sort-button'
+      sortButton.id = header.id + '_sortButton'
 
-        const templateDiv = document.createElement('div')
-        sortButton.appendChild(templateDiv)
-        applyStyleToHeader(config, templateDiv)
-        templateDiv.innerHTML = headertemplate
-        templateDiv.classList.add('jdt-header-sort-template')
+      const templateDiv = document.createElement('div')
+      sortButton.appendChild(templateDiv)
+      applyStyleToHeader(config, templateDiv)
+      templateDiv.innerHTML = headertemplate
+      templateDiv.classList.add('jdt-header-sort-template')
 
-        const sortIconsDiv = document.createElement('div')
-        sortButton.appendChild(sortIconsDiv)
-        applyStyleToHeader(config, sortIconsDiv)
-        sortIconsDiv.classList.add('jdt-header-sort-icons')
-        sortIconsDiv.innerHTML = `
+      const sortIconsDiv = document.createElement('div')
+      sortButton.appendChild(sortIconsDiv)
+      applyStyleToHeader(config, sortIconsDiv)
+      sortIconsDiv.classList.add('jdt-header-sort-icons')
+      sortIconsDiv.innerHTML = `
         <div class="jdt-header-sort-top-icon">&#9651</div>
         <div class="jdt-header-sort-bottom-icon">&#9661</div>
         `
 
-        header.appendChild(sortButton)
-      } else {
-        applyStyleToHeader(config, header)
-        header.innerHTML = headertemplate
-      }
-
-      headersRow.appendChild(header)
-      bindedTable.headers.push(header)
-    }
-    head.appendChild(headersRow)
-  } else {
-    const head = document.createElement('thead')
-    bindedTable.table.appendChild(head)
-    const headersRow = document.createElement('tr')
-    applyStyleToHeaderRow(config, headersRow)
-    bindedTable.headersRow = headersRow
-
-    bindedTable.headers = []
-    for (let j = 0; j < config.headers.length; j++) {
-      const headertemplate = config.headers[j].template ?? config.headers[j]
-      const headerKey = getHeaderKeyByIndex(j, config)
-      const header = document.createElement('th')
-      header.scope = 'col'
-      header.id = buildHeaderId(config, headerKey)
+      header.appendChild(sortButton)
+    } else {
       applyStyleToHeader(config, header)
       header.innerHTML = headertemplate
-
-      headersRow.appendChild(header)
-      bindedTable.headers.push(header)
     }
-    head.appendChild(headersRow)
-  }
 
-  const body = document.createElement('tbody')
+    headersRow.appendChild(header)
+    bindedTable.headers.push(header)
+  }
+  head.appendChild(headersRow)
+
+  let body = table.querySelectorAll('tbody')
+  if (!body || body.length == 0) body = document.createElement('tbody')
+  else body = body[0]
+
   table.appendChild(body)
   container.appendChild(scroller)
 

@@ -6,7 +6,7 @@
   transition: transform 0.1s ease;
 } */
 
-#table_container {
+.jdt-table_container {
   overflow-y: scroll;
   width: 100%;
 }
@@ -94,24 +94,4 @@
 
 .jdt-header-sort-bottom-icon {
   margin-top: -2px;
-}
-
-.my-headers {
-  background-color:darkslategray;
-  border-bottom: 1px solid black;
-}
-.my-headers-row {
-  background-color: green;
-}
-
-.my-rows-white {
-  background-color: white;
-}
-
-.my-rows-grey {
-  background-color: lightgray;
-}
-
-.border-black {
-  border-bottom: 1px solid black;
 }

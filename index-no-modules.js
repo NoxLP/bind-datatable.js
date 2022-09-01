@@ -37,6 +37,7 @@ filterInput.addEventListener('keyup', () => {
         h10: ++j,
         h11: ++j,
         h12: ++j,
+        h13: ++j,
       }
       reg.h9 = getLetters(reg.h5)
 

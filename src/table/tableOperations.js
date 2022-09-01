@@ -61,19 +61,17 @@ const unselectRowInMultipleSelection = (dataIndex, table, config) => {
   const rowIndex = table.selectedRows.findIndex((r) => r.dataIndex == dataIndex)
   const rowObject = table.selectedRows[rowIndex]
   console.log(rowObject)
-  if (!rowObject.isSelected) return
+  if (!rowObject || !rowObject.isSelected) return
 
   delete rowObject.isSelected
   rowObject.row.classList.remove(config.selectedRowClass)
   table.selectedRows.splice(rowObject.selectedIndex, 1)
   console.log('row sIdx ', rowObject.selectedIndex)
-  for (
-    let i = rowObject.selectedIndex + 1;
-    i < table.selectedRows.length;
-    i++
-  ) {
+  for (let i = rowObject.selectedIndex; i < table.selectedRows.length; i++) {
     const row = table.selectedRows[i]
+    console.log('--- disminuyendo index en: ', row)
     row.selectedIndex--
+    console.log('--- nuevo index: ', row.selectedIndex)
   }
   delete rowObject.selectedIndex
 }
@@ -151,16 +149,11 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
     } else if (e.ctrlKey) {
       // ctrl key pressed
       e.preventDefault()
-      if (table.selectedRows.length > 0) {
-        // there are already selected rows
-        if (rowObject.isSelected) {
-          // click between selected rows
-          unselectRowInMultipleSelection(rowObject, table, config)
-        } else {
-          pushSelectedRowInMultipleSelection(rowObject, table, config)
-        }
+      console.log('---- CTRL ROW: ', rowObject)
+      if (rowObject.isSelected) {
+        // click between selected rows
+        unselectRowInMultipleSelection(rowObject.dataIndex, table, config)
       } else {
-        // no selected rows
         pushSelectedRowInMultipleSelection(rowObject, table, config)
       }
     } else {
@@ -174,7 +167,9 @@ const clickRowCallback = (e, row, rowObject, table, config) => {
           false
         )
       }
-      pushSelectedRowInMultipleSelection(rowObject, table, config)
+      if (!rowObject.isSelected)
+        pushSelectedRowInMultipleSelection(rowObject, table, config)
+      else unselectRowInMultipleSelection(rowObject.dataIndex, table, config)
     } // end shift key pressed if
   } else {
     //single selection
