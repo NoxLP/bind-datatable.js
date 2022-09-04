@@ -114,7 +114,7 @@ export function calculateAllHeights(data, config, container, table) {
 export function viewportDataWithDifferentHeights(
   container,
   rowHeights,
-  lastRowBottomOffset,
+  scrollBottomOffset,
   rows,
   safeRows,
   rowGutter = 0
@@ -159,7 +159,7 @@ export function viewportDataWithDifferentHeights(
         ? 0
         : rowOffset +
           (lastRowIndex == rows.length - 1
-            ? lastRowBottomOffset ?? rowHeight * 5
+            ? scrollBottomOffset ?? rowHeight
             : 0)
   }
   lastRowIndex += safeRows
@@ -193,7 +193,7 @@ export function getRowHeightWithConstantHeight(data, config, container, table) {
 export function viewportDataWithConstantHeight(
   container,
   rowHeight,
-  lastRowBottomOffset,
+  scrollBottomOffset,
   rows,
   safeRows,
   rowGutter = 0,
@@ -229,12 +229,14 @@ export function viewportDataWithConstantHeight(
   const totalShownRows = lastShownRowIndex - firstShownRowIndex
   let firstWithoutFloor = firstShownRowIndex - safeRows
   firstWithoutFloor = firstWithoutFloor < 0 ? 0 : firstWithoutFloor
-  lastRowBottomOffset = lastRowBottomOffset ?? rowHeight * 5
+  scrollBottomOffset = scrollBottomOffset ?? rowHeight
   const lastRowOffset =
-    firstRowIndex * (rowHeight + rowGutter) + lastRowBottomOffset
+    firstRowIndex * (rowHeight + rowGutter) + scrollBottomOffset
   const normalOffset = firstWithoutFloor * (rowHeight + rowGutter)
   const rowOffset =
-    scrollTop == container.clientHeight ? lastRowOffset : normalOffset
+    scrollTop > container.clientHeight - scrollBottomOffset
+      ? lastRowOffset
+      : normalOffset
   firstShownRowIndex = Math.floor(firstShownRowIndex)
 
   return {
@@ -268,7 +270,7 @@ export function onScrollHandler(container, table, current, config) {
     table.virtualConfig = viewportDataWithConstantHeight(
       container,
       table.rowHeight,
-      config.lastRowBottomOffset,
+      config.scrollBottomOffset,
       current,
       config.virtualSafeRows,
       config.rowsGutter,
@@ -345,7 +347,7 @@ export function checkScroll(container, table, current, config, currentVirtual) {
         ? viewportDataWithConstantHeight(
             container,
             table.rowHeight,
-            config.lastRowBottomOffset,
+            config.scrollBottomOffset,
             current,
             config.virtualSafeRows,
             config.rowsGutter
@@ -353,7 +355,7 @@ export function checkScroll(container, table, current, config, currentVirtual) {
         : viewportDataWithDifferentHeights(
             container,
             table.rowHeight,
-            config.lastRowBottomOffset,
+            config.scrollBottomOffset,
             current,
             config.virtualSafeRows,
             config.rowsGutter
@@ -428,7 +430,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       virtualConfig = viewportDataWithConstantHeight(
         container,
         bindedTable.rowHeight,
-        config.lastRowBottomOffset,
+        config.scrollBottomOffset,
         data,
         config.virtualSafeRows,
         config.rowsGutter,
@@ -446,7 +448,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       virtualConfig = viewportDataWithConstantHeight(
         container,
         bindedTable.rowHeight,
-        config.lastRowBottomOffset,
+        config.scrollBottomOffset,
         data,
         config.virtualSafeRows,
         config.rowsGutter,
@@ -469,7 +471,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
         virtualConfig = viewportDataWithConstantHeight(
           container,
           bindedTable.rowHeight,
-          config.lastRowBottomOffset,
+          config.scrollBottomOffset,
           data,
           config.virtualSafeRows,
           config.rowsGutter,
@@ -491,7 +493,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       virtualConfig = viewportDataWithConstantHeight(
         container,
         bindedTable.rowHeight,
-        config.lastRowBottomOffset,
+        config.scrollBottomOffset,
         data,
         config.virtualSafeRows,
         config.rowsGutter
@@ -508,7 +510,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       virtualConfig = viewportDataWithConstantHeight(
         container,
         bindedTable.rowHeight,
-        config.lastRowBottomOffset,
+        config.scrollBottomOffset,
         data,
         config.virtualSafeRows,
         config.rowsGutter
@@ -524,7 +526,7 @@ export function createVirtualConfig(container, data, config, bindedTable) {
       virtualConfig = viewportDataWithDifferentHeights(
         container,
         bindedTable.rowHeight,
-        config.lastRowBottomOffset,
+        config.scrollBottomOffset,
         data,
         config.virtualSafeRows,
         config.rowsGutter

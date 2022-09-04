@@ -207,7 +207,7 @@ ${JSON.stringify(change.value, null, 4)}`)
               ? viewportDataWithConstantHeight(
                   container,
                   table.rowHeight,
-                  config.lastRowBottomOffset,
+                  config.scrollBottomOffset,
                   current,
                   config.virtualSafeRows,
                   config.rowsGutter
@@ -215,7 +215,7 @@ ${JSON.stringify(change.value, null, 4)}`)
               : viewportDataWithDifferentHeights(
                   container,
                   table.rowHeight,
-                  config.lastRowBottomOffset,
+                  config.scrollBottomOffset,
                   current,
                   config.virtualSafeRows,
                   config.rowsGutter
@@ -342,6 +342,9 @@ const checkConfigAndSetDefaults = (config) => {
   if (config.rowsStyle && config.rowsStyle.length == 0) delete config.rowsStyle
 
   if (config.rowsClass && config.rowsClass.length == 0) delete config.rowsClass
+
+  if (typeof config.scrollBottomOffset != 'number')
+    delete config.scrollBottomOffset
 
   return config
 }
