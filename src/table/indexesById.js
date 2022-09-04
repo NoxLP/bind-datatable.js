@@ -23,8 +23,8 @@ export const buildIndexesById = (data, config) => {
   }
 
   return data.reduce((acc, reg, idx) => {
-    acc.byIds[reg[config.id]] = idx
-    acc.byIndexes[idx] = reg[config.id]
+    acc.byIds[reg[config.rowId]] = idx
+    acc.byIndexes[idx] = reg[config.rowId]
 
     getSecondaryIndexByIdIfNeeded(config, acc, reg, idx)
     return acc
@@ -42,8 +42,8 @@ export const replaceIndexId = (indexesById, index, newId) => {
   indexesById.byIndexes[index] = newId
 }
 export const pushIndexId = (indexesById, current, config, value) => {
-  if (!(`${config.id}` in value))
-    DatatableError(`New row needs a key with name ${config.id}`)
+  if (!(`${config.rowId}` in value))
+    DatatableError(`New row needs a key with name ${config.rowId}`)
   if (`${value.id}` in indexesById.byIds)
     DatatableError('Registry with same id already exists')
   indexesById.byIds[value.id] = current.length

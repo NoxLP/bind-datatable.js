@@ -139,8 +139,12 @@ const observableChangesCallback = (
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          if (change.path[1] == config.id)
-            replaceIndexId(indexesById, change.path[0], change.value[config.id])
+          if (change.path[1] == config.rowId)
+            replaceIndexId(
+              indexesById,
+              change.path[0],
+              change.value[config.rowId]
+            )
           else updateCell(updated, config.columns[col], change.value)
 
           updateShownheadersWidth(table, config)
@@ -159,7 +163,11 @@ const observableChangesCallback = (
 Some headers may be incorrect: 
 ${JSON.stringify(change.value, null, 4)}`)
           } else {
-            replaceIndexId(indexesById, change.path[0], change.value[config.id])
+            replaceIndexId(
+              indexesById,
+              change.path[0],
+              change.value[config.rowId]
+            )
             updateRow(updated.row, updated.dataIndex, change.value, config)
           }
         }
@@ -184,7 +192,7 @@ ${JSON.stringify(change.value, null, 4)}`)
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          if (change.path[1] == config.id) DatatableError("Can't remove id")
+          if (change.path[1] == config.rowId) DatatableError("Can't remove id")
           else updated.replaceWith(updateCell(updated, config.columns[col], ''))
         } else if (
           table.virtualConfig.firstRowIndex < change.path &&
@@ -230,8 +238,8 @@ ${JSON.stringify(change.value, null, 4)}`)
           indexesById.byIds = {}
           indexesById.byIndexes = {}
           current.forEach((reg, idx) => {
-            indexesById.byIds[reg[config.id]] = idx
-            indexesById.byIndexes[idx] = reg[config.id]
+            indexesById.byIds[reg[config.rowId]] = idx
+            indexesById.byIndexes[idx] = reg[config.rowId]
           })
           checkScroll(container, table, current, config, virtualConfig)
         }
@@ -245,7 +253,7 @@ const checkConfigAndSetDefaults = (config) => {
   // Check config is correct and set defaults
   if (
     !config ||
-    !('containerSelector' in config) ||
+    !('id' in config) ||
     !('columns' in config) ||
     config.columns.some((col) => !('name' in col) && !('title' in col))
   ) {
@@ -254,8 +262,13 @@ const checkConfigAndSetDefaults = (config) => {
     return undefined
   }
 
-  config.headers = []
+  config.containerSelector = `#${config.id}`
 
+  if ('tableId' in config && typeof config.tableId != 'string')
+    config.tableId = `${config.tableId}`
+  else if (!('tableId' in config)) config.tableId = `jdt_${++lastDatatableId}`
+
+  config.headers = []
   let saveSort = false
   config.columns.forEach((col) => {
     let header = getConfigHeader(col)
@@ -274,9 +287,9 @@ const checkConfigAndSetDefaults = (config) => {
     }
   })
 
-  if (!config.primary || typeof config.primary != 'string') config.id = 'id'
+  if (!config.primary || typeof config.primary != 'string') config.rowId = 'id'
   else {
-    config.id = config.primary
+    config.rowId = config.primary
     delete config.primary
   }
 
@@ -305,10 +318,6 @@ const checkConfigAndSetDefaults = (config) => {
     !('heightPrecalculationsRowsNumber' in config)
   )
     config.heightPrecalculationsRowsNumber = 200
-
-  if ('tableId' in config && typeof config.tableId != 'string')
-    config.tableId = `${config.tableId}`
-  else if (!('tableId' in config)) config.tableId = `jdt_${++lastDatatableId}`
 
   if (!('virtualSafeRows' in config)) config.virtualSafeRows = 10
 

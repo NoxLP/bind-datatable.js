@@ -185,7 +185,7 @@ export function createRow(dataIndex, datarow, config, table) {
 
   const cells = Array.isArray(datarow) ? [] : {}
   const rowObject = { row, dataIndex }
-  if (config.id in datarow) rowObject[config.id] = datarow[config.id]
+  if (config.rowId in datarow) rowObject[config.rowId] = datarow[config.rowId]
 
   if (config.showRowHeaders) {
     const rowHeader = document.createElement('th')

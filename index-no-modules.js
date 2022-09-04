@@ -48,10 +48,11 @@ filterInput.addEventListener('keyup', () => {
 
   data = dataObject()
   testTable = new DataTable({
+    id: 'table_container',
     tableId: 'dtTest',
     // scrollBottomOffset: 10000,
     rowHeightMode: 'average',
-    containerSelector: '#table_container',
+    // containerSelector: '#table_container',
     showRowHeaders: true,
     colHeadersClass: 'my-headers',
     colHeadersStyle: 'color: white',

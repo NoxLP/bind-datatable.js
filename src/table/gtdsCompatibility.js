@@ -39,8 +39,8 @@ export const gtds_getPrimaryKeyBySecondaryKey = (
   if (!indexes) return false
 
   return first
-    ? data[indexes[0]][config.id]
-    : indexes.map((m) => data[m][config.id])
+    ? data[indexes[0]][config.rowId]
+    : indexes.map((m) => data[m][config.rowId])
 }
 
 export const gtds_deleteRowByPrimaryKey = (data, indexesById, id) => {
@@ -63,7 +63,7 @@ export const gtds_updateDataByPrimaryKey = (
     DatatableError(`Primary key ${id} not found in data`)
     return false
   }
-  if (typeof value != 'object' || config.id in value) {
+  if (typeof value != 'object' || config.rowId in value) {
     DatatableError('Bad value to update register')
     return false
   }
