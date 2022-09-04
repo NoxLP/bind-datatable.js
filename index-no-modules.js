@@ -47,7 +47,7 @@ filterInput.addEventListener('keyup', () => {
   }
 
   data = dataObject()
-  testTable = new DataTable([], {
+  testTable = new DataTable({
     tableId: 'dtTest',
     // scrollBottomOffset: 10000,
     rowHeightMode: 'average',

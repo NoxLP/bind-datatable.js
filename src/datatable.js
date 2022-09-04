@@ -351,11 +351,12 @@ const checkConfigAndSetDefaults = (config) => {
 
 /**
  *
- * @param {object} data Data registers array
  * @param {object} config Config object: see readme
+ * @param {object} data Data registers array
  * @returns
  */
-export function DataTable(data, config) {
+export function DataTable(config, data) {
+  if (!data) data = []
   config = checkConfigAndSetDefaults(config)
   if (!config) return undefined
 
