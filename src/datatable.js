@@ -139,13 +139,13 @@ const observableChangesCallback = (
           updated = updated.cells[change.path[1]]
           const col = getColIndexKey(change, config)
 
-          if (change.path[1] == config.rowId)
+          if (change.path[1] == config.rowId) {
             replaceIndexId(
               indexesById,
               change.path[0],
               change.value[config.rowId]
             )
-          else updateCell(updated, config.columns[col], change.value)
+          } else updateCell(updated, config.columns[col], change.value)
 
           updateShownheadersWidth(table, config)
         } else if (parseInt(change.path[0]) > current.length - 1) {
@@ -264,9 +264,22 @@ const checkConfigAndSetDefaults = (config) => {
 
   config.containerSelector = `#${config.id}`
 
-  if ('tableId' in config && typeof config.tableId != 'string')
-    config.tableId = `${config.tableId}`
-  else if (!('tableId' in config)) config.tableId = `jdt_${++lastDatatableId}`
+  if ('table_attributes' in config) {
+    if (
+      typeof config.table_attributes === 'object' &&
+      !Array.isArray(config.table_attributes) &&
+      config.table_attributes !== null
+    ) {
+      // table_attributes is an object
+      config.tableId = `${config.table_attributes.id}`
+    } else {
+      config.tableId = `jdt_${++lastDatatableId}`
+      delete config.table_attributes
+    }
+  }
+  // if ('tableId' in config && typeof config.tableId != 'string')
+  //   config.tableId = `${config.tableId}`
+  // else if (!('tableId' in config)) config.tableId = `jdt_${++lastDatatableId}`
 
   config.headers = []
   let saveSort = false

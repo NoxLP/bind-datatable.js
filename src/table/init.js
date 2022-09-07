@@ -22,6 +22,15 @@ export function initTable(container, scroller, config, data, bindedTable) {
     : bindedTable.table
   if (config.tableId && config.tableId.length != 0) table.id = config.tableId
   table.classList.add('jdt-datatable-table')
+
+  //TODO: ¿Hay que añadir los atributos también a la tabla de headers?????
+
+  if ('table_attributes' in config) {
+    Object.keys(config.table_attributes).forEach((attr) => {
+      if (attr == 'class') table.classList.add(config.table_attributes.class)
+      else table.setAttribute(attr, config.table_attributes[attr])
+    })
+  }
   scroller.appendChild(table)
 
   // This will hold references to DOM elements to perform binding later on,
