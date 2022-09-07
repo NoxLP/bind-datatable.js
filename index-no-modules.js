@@ -66,6 +66,7 @@ filterInput.addEventListener('keyup', () => {
     selectRows: true,
     multipleSelection: true,
     secondary: ['h2', 'h5'],
+    first_column_count: 1,
     // sort: (a, b) => b.id - a.id,
     /*rowsStyle: (reg, index) => {
         return `background-color: ${(index % 2 == 0 ? 'grey' : 'white')};`

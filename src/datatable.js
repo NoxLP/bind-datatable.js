@@ -368,6 +368,8 @@ const checkConfigAndSetDefaults = (config) => {
   if (typeof config.scrollBottomOffset != 'number')
     delete config.scrollBottomOffset
 
+  if (!('first_column_count' in config)) config.first_column_count = 0
+
   return config
 }
 

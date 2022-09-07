@@ -190,7 +190,7 @@ export function createRow(dataIndex, datarow, config, table) {
   if (config.showRowHeaders) {
     const rowHeader = document.createElement('th')
     rowHeader.scope = 'row'
-    rowHeader.innerHTML = dataIndex
+    rowHeader.innerHTML = dataIndex + config.first_column_count
     row.appendChild(rowHeader)
     rowObject.rowHeader = rowHeader
     if (config.rowHeaderClass) rowHeader.classList.add(config.rowHeaderClass)
@@ -276,7 +276,7 @@ export function updateRow(domRow, dataIndex, datarow, config) {
 
   if (config.showRowHeaders) {
     childrenSum = 1
-    domRow.children[0].innerHTML = dataIndex
+    domRow.children[0].innerHTML = dataIndex + config.first_column_count
     rowObject.rowHeader = domRow.children[0]
   }
 
