@@ -145,7 +145,10 @@ const observableChangesCallback = (
               change.path[0],
               change.value[config.rowId]
             )
-          } else updateCell(updated, config.columns[col], change.value)
+          } else {
+            const rowData = current[change.path[0]]
+            updateCell(updated, config.columns[col], rowData, change.value)
+          }
 
           updateShownheadersWidth(table, config)
         } else if (parseInt(change.path[0]) > current.length - 1) {
